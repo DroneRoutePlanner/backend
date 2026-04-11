@@ -21,51 +21,79 @@ public class Terrain {
     }
 
     private void generateTerrain() {
-        final int maxDelta = 50; // maksymalna zmiana między sąsiadami
+        double baseHeight = 4 + random.nextDouble() * 18;
+
+        double mapRadius = Math.hypot(width - 1, height - 1) / 2.0;
+        if (mapRadius < 1e-6) {
+            mapRadius = 1.0;
+        }
+
+        int minPeakDist = Math.max(3, (int) Math.round(Math.min(width, height) / 5.0));
+        int peak1X = random.nextInt(width);
+        int peak1Y = random.nextInt(height);
+        int peak2X;
+        int peak2Y;
+        int guard = 0;
+        do {
+            peak2X = random.nextInt(width);
+            peak2Y = random.nextInt(height);
+            guard++;
+        } while (squaredDist(peak1X, peak1Y, peak2X, peak2Y) < minPeakDist * minPeakDist
+                && guard < 80);
+        if (guard >= 80) {
+            peak2X = (peak1X + minPeakDist) % width;
+            peak2Y = (peak1Y + minPeakDist / 2) % height;
+        }
+
+        double peakHeight1 = 82 + random.nextDouble() * 18;
+        double peakHeight2 = 68 + random.nextDouble() * 30;
+
+        double sigma1 = mapRadius * (0.18 + random.nextDouble() * 0.42);
+        double sigma2 = mapRadius * (0.18 + random.nextDouble() * 0.42);
+        double sigma1Sq = sigma1 * sigma1;
+        double sigma2Sq = sigma2 * sigma2;
+
+        int noiseAmp = 5 + random.nextInt(10);
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
+                double f1 = gaussianFalloff(x, y, peak1X, peak1Y, sigma1Sq);
+                double f2 = gaussianFalloff(x, y, peak2X, peak2Y, sigma2Sq);
 
-                int left = x > 0 ? heightMap[x - 1][y] : -1;
-                int top = y > 0 ? heightMap[x][y - 1] : -1;
+                double h = baseHeight
+                        + (peakHeight1 - baseHeight) * f1
+                        + (peakHeight2 - baseHeight) * f2;
+                h += (random.nextDouble() * 2.0 - 1.0) * noiseAmp;
 
-                int sum = 0;
-                int count = 0;
-
-                if (left >= 0) {
-                    sum += left;
-                    count++;
+                int z = (int) Math.round(h);
+                if (z < 0) {
+                    z = 0;
                 }
-                if (top >= 0) {
-                    sum += top;
-                    count++;
+                if (z > 100) {
+                    z = 100;
                 }
-
-                int avg;
-                if (count > 0) {
-                    avg = sum / count;
-                } else {
-                    avg = 50; // pierwsza komórka (0,0) ustawiona na środek 0..100
-                }
-
-                int delta = random.nextInt(maxDelta * 2 + 1) - maxDelta; // -maxDelta..+maxDelta
-                heightMap[x][y] = avg + delta;
-
-                // ograniczenia 0..100
-                if (heightMap[x][y] < 0) heightMap[x][y] = 0;
-                if (heightMap[x][y] > 100) heightMap[x][y] = 100;
+                heightMap[x][y] = z;
             }
         }
 
-        // ---- PRINT HEIGHT MAP ----
-        System.out.println("Generated Terrain HeightMap:");
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                System.out.print(heightMap[x][y] + "\t");
-            }
-            System.out.println();
-        }
-        System.out.println("---------------------------");
+        System.out.printf(
+                "Terrain: góra1 (%d,%d) h≈%.0f σ=%.2f | góra2 (%d,%d) h≈%.0f σ=%.2f | dno≈%.0f szum±%d%n",
+                peak1X, peak1Y, peakHeight1, sigma1,
+                peak2X, peak2Y, peakHeight2, sigma2,
+                baseHeight, noiseAmp
+        );
+    }
+
+    private static int squaredDist(int ax, int ay, int bx, int by) {
+        int dx = ax - bx;
+        int dy = ay - by;
+        return dx * dx + dy * dy;
+    }
+
+    private static double gaussianFalloff(int x, int y, int peakX, int peakY, double sigmaSq) {
+        double dx = x - peakX;
+        double dy = y - peakY;
+        return Math.exp(-(dx * dx + dy * dy) / (2.0 * sigmaSq));
     }
 
     public int getHeight(int x, int y) {

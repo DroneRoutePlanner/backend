@@ -25,6 +25,14 @@ application {
     mainClass = 'org.example.World'
 }
 
+tasks.register('runGwo', JavaExec) {
+    group = 'application'
+    description = 'Uruchamia World (JavaFX) z algorytmem GWO'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'org.example.World'
+    systemProperty 'drone.planner', 'gwo'
+}
+
 dependencies {
     testImplementation platform('org.junit:junit-bom:5.9.1')
     testImplementation 'org.junit.jupiter:junit-jupiter'
