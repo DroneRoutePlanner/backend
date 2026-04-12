@@ -6,7 +6,6 @@ public record DroneMission(
         int id,
         Vector3d start,
         Vector3d goal,
-        double energyBudget,
-        double maxSpeedCellsPerTick
+        double energyBudget
 ) {
 }

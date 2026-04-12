@@ -1,4 +1,4 @@
-package org.example.planning.gwo;
+package org.example.planning.nsga.nsga3;
 
 import org.example.Terrain;
 import org.example.planning.PlanningProblem;
@@ -6,17 +6,18 @@ import org.example.planning.PlanningScenarioFactory;
 import org.example.planning.nsga.Individual;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import java.util.List;
 
-class GwoSolverTest {
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
+class Nsga3SolverTest {
 
     @Test
-    void gwoReturnsAlphaIndividual() {
+    void nsga3ProducesNonEmptyFirstFront() {
         Terrain terrain = new Terrain(12, 12);
         PlanningProblem problem = PlanningScenarioFactory.defaultMultiDrone(terrain);
-        GwoSolver solver = new GwoSolver(12345L);
-        Individual alpha = solver.run(problem, 24, 20);
-        assertNotNull(alpha);
-        assertNotNull(alpha.getGenes());
+        Nsga3Solver solver = new Nsga3Solver(12345L);
+        List<Individual> pareto = solver.run(problem, 24, 20);
+        assertFalse(pareto.isEmpty());
     }
 }

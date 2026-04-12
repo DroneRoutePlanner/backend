@@ -16,8 +16,9 @@ import org.example.planning.PlanningSolutionPicker;
 import org.example.planning.SimulationTrace;
 import org.example.planning.model.DroneMission;
 import org.example.planning.gwo.GwoSolver;
-import org.example.planning.nsga2.Individual;
-import org.example.planning.nsga2.Nsga2Solver;
+import org.example.planning.nsga.Individual;
+import org.example.planning.nsga.nsga2.Nsga2Solver;
+import org.example.planning.nsga.nsga3.Nsga3Solver;
 import org.example.ui.MapVisualizer;
 
 import java.util.ArrayList;
@@ -31,8 +32,6 @@ public class World extends Application {
 
     private static final int HEIGHT = 20;
 
-    private static final double RADAR_UI_TIME = 0.0;
-
     private List<Drone> drones;
 
     private MapVisualizer mapVisualizer;
@@ -43,7 +42,7 @@ public class World extends Application {
     public void start(Stage stage) {
 
         Terrain terrain = new Terrain(WIDTH, HEIGHT);
-        PlanningProblem problem = PlanningScenarioFactory.defaultMultiDrone(terrain, RADAR_UI_TIME);
+        PlanningProblem problem = PlanningScenarioFactory.defaultMultiDrone(terrain);
         drones = dronesFromMissions(problem);
 
         mapVisualizer = new MapVisualizer(
@@ -52,13 +51,10 @@ public class World extends Application {
                 TILE_SIZE,
                 drones,
                 terrain,
-                problem,
-                RADAR_UI_TIME
-        );
+                problem);
 
-        String planner = System.getProperty("drone.planner", "nsga2").toLowerCase();
-        boolean useGwo = "gwo".equals(planner);
-        statusLabel = new Label(useGwo ? "GWO: przygotowanie optymalizacji…" : "NSGA-II: przygotowanie optymalizacji…");
+        PlannerKind plannerKind = parsePlanner(System.getProperty("drone.planner", "nsga2"));
+        statusLabel = new Label(initialStatusLabel(plannerKind));
         statusLabel.setPadding(new Insets(10));
         statusLabel.setWrapText(true);
         statusLabel.setMaxWidth(WIDTH * TILE_SIZE);
@@ -69,22 +65,58 @@ public class World extends Application {
         rootPane.setBottom(statusLabel);
 
         Scene scene = new Scene(rootPane, WIDTH * TILE_SIZE, HEIGHT * TILE_SIZE + 72);
-        stage.setTitle(useGwo ? "GWO — planowanie trasy zespołu dronów" : "NSGA-II — planowanie trasy zespołu dronów");
+        stage.setTitle(windowTitle(plannerKind));
         stage.setScene(scene);
         stage.show();
 
-        runPlanningAndAnimate(problem, useGwo);
+        runPlanningAndAnimate(problem, plannerKind);
+    }
+
+    private enum PlannerKind {
+        GWO,
+        NSGA_II,
+        NSGA_III
+    }
+
+    private static PlannerKind parsePlanner(String raw) {
+        String p = raw == null ? "" : raw.trim().toLowerCase();
+        if (p.contains("gwo")) {
+            return PlannerKind.GWO;
+        }
+        if (p.contains("nsga3") || p.contains("nsga-iii")) {
+            return PlannerKind.NSGA_III;
+        }
+        if (p.contains("nsga2") || p.contains("nsga-ii")) {
+            return PlannerKind.NSGA_II;
+        }
+        return PlannerKind.GWO;
+    }
+
+    private static String initialStatusLabel(PlannerKind k) {
+        return switch (k) {
+            case GWO -> "GWO: przygotowanie optymalizacji…";
+            case NSGA_II -> "NSGA-II: przygotowanie optymalizacji…";
+            case NSGA_III -> "NSGA-III: przygotowanie optymalizacji…";
+        };
+    }
+
+    private static String windowTitle(PlannerKind k) {
+        return switch (k) {
+            case GWO -> "GWO — planowanie trasy zespołu dronów";
+            case NSGA_II -> "NSGA-II — planowanie trasy zespołu dronów";
+            case NSGA_III -> "NSGA-III — planowanie trasy zespołu dronów";
+        };
     }
 
     private static List<Drone> dronesFromMissions(PlanningProblem problem) {
         List<Drone> list = new ArrayList<>();
         for (DroneMission m : problem.missions()) {
-            list.add(new Drone(m.id(), m.start(), m.energyBudget(), m.maxSpeedCellsPerTick()));
+            list.add(new Drone(m.id(), m.start(), m.energyBudget()));
         }
         return List.copyOf(list);
     }
 
-    private void runPlanningAndAnimate(PlanningProblem problem, boolean useGwo) {
+    private void runPlanningAndAnimate(PlanningProblem problem, PlannerKind plannerKind) {
         final int populationSize = 56;
         final int generations = 100;
 
@@ -93,7 +125,7 @@ public class World extends Application {
                 MultiDroneRouteEvaluator evaluator = new MultiDroneRouteEvaluator();
                 Individual chosen;
 
-                if (useGwo) {
+                if (plannerKind == PlannerKind.GWO) {
                     GwoSolver solver = new GwoSolver(System.nanoTime());
                     chosen = solver.run(
                             problem,
@@ -113,11 +145,9 @@ public class World extends Application {
                                         generations,
                                         feas,
                                         populationSize,
-                                        ms
-                                ));
-                            })
-                    );
-                } else {
+                                        ms));
+                            }));
+                } else if (plannerKind == PlannerKind.NSGA_II) {
                     Nsga2Solver solver = new Nsga2Solver(System.nanoTime());
                     List<Individual> pareto = solver.run(
                             problem,
@@ -137,38 +167,72 @@ public class World extends Application {
                                         generations,
                                         feas,
                                         populationSize,
-                                        ms
-                                ));
-                            })
-                    );
+                                        ms));
+                            }));
+                    chosen = PlanningSolutionPicker.pickForReplay(pareto);
+                } else {
+                    Nsga3Solver solver = new Nsga3Solver(System.nanoTime());
+                    List<Individual> pareto = solver.run(
+                            problem,
+                            populationSize,
+                            generations,
+                            (gen, population) -> Platform.runLater(() -> {
+                                long feas = population.stream().filter(Individual::isFeasible).count();
+                                double bestMakespan = population.stream()
+                                        .filter(Individual::isFeasible)
+                                        .mapToDouble(i -> i.getObjectives()[0])
+                                        .min()
+                                        .orElse(-1);
+                                String ms = bestMakespan >= 0 ? String.format("%.1f", bestMakespan) : "—";
+                                statusLabel.setText(String.format(
+                                        "NSGA-III: pokolenie %d / %d  |  dopuszczalne: %d / %d  |  najl. makespan: %s",
+                                        gen + 1,
+                                        generations,
+                                        feas,
+                                        populationSize,
+                                        ms));
+                            }));
                     chosen = PlanningSolutionPicker.pickForReplay(pareto);
                 }
 
                 SimulationTrace trace = evaluator.simulate(problem, chosen.getGenes(), true);
 
                 Platform.runLater(() -> {
-                    updateStatusAfterSolve(trace, useGwo);
+                    updateStatusAfterSolve(trace, plannerKind);
                     startPathAnimation(trace.positionsPerStep());
                 });
             } catch (Exception e) {
-                String tag = useGwo ? "GWO" : "NSGA-II";
+                String tag = switch (plannerKind) {
+                    case GWO -> "GWO";
+                    case NSGA_II -> "NSGA-II";
+                    case NSGA_III -> "NSGA-III";
+                };
                 Platform.runLater(() -> statusLabel.setText("Błąd " + tag + ": " + e.getMessage()));
             }
-        }, useGwo ? "gwo-ui" : "nsga2-ui").start();
+        }, plannerThreadName(plannerKind)).start();
     }
 
-    private void updateStatusAfterSolve(SimulationTrace trace, boolean fromGwo) {
+    private static String plannerThreadName(PlannerKind k) {
+        return switch (k) {
+            case GWO -> "gwo-ui";
+            case NSGA_II -> "nsga2-ui";
+            case NSGA_III -> "nsga3-ui";
+        };
+    }
+
+    private void updateStatusAfterSolve(SimulationTrace trace, PlannerKind plannerKind) {
         var r = trace.result();
         String feasNote = r.isFeasible()
                 ? "tak"
-                : (fromGwo ? "nie (najlepszy wilk α wg skalaryzacji)" : "nie (najlepsza z Pareto wg kar)");
+                : (plannerKind == PlannerKind.GWO
+                        ? "nie (najlepszy wilk α wg skalaryzacji)"
+                        : "nie (najlepsza z Pareto wg kar)");
         statusLabel.setText(String.format(
                 "Wybrano trasę do animacji | dopuszczalna: %s | czas zespołu=%.1f | energia=%.1f | ryzyko radarów=%.2f",
                 feasNote,
                 r.getMakespan(),
                 r.getTotalEnergy(),
-                r.getTotalRadarRisk()
-        ));
+                r.getTotalRadarRisk()));
     }
 
     private void startPathAnimation(List<List<Vector3d>> frames) {

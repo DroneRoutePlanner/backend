@@ -10,17 +10,14 @@ public class Drone {
 
     private final double energyBudget;
 
-    private final double maxSpeedCellsPerTick;
-
     public Drone(Vector3d startPosition) {
-        this(0, startPosition, 200.0, 1.0);
+        this(0, startPosition, 200.0);
     }
 
-    public Drone(int id, Vector3d startPosition, double energyBudget, double maxSpeedCellsPerTick) {
+    public Drone(int id, Vector3d startPosition, double energyBudget) {
         this.id = id;
         this.position = startPosition;
         this.energyBudget = energyBudget;
-        this.maxSpeedCellsPerTick = maxSpeedCellsPerTick;
     }
 
     public void move(Direction direction) {
@@ -48,9 +45,5 @@ public class Drone {
 
     public double getEnergyBudget() {
         return energyBudget;
-    }
-
-    public double getMaxSpeedCellsPerTick() {
-        return maxSpeedCellsPerTick;
     }
 }

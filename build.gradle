@@ -33,6 +33,22 @@ tasks.register('runGwo', JavaExec) {
     systemProperty 'drone.planner', 'gwo'
 }
 
+tasks.register('runNsga2', JavaExec) {
+    group = 'application'
+    description = 'Uruchamia World (JavaFX) z NSGA-II'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'org.example.World'
+    systemProperty 'drone.planner', 'nsga2'
+}
+
+tasks.register('runNsga3', JavaExec) {
+    group = 'application'
+    description = 'Uruchamia World (JavaFX) z NSGA-III'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'org.example.World'
+    systemProperty 'drone.planner', 'nsga3'
+}
+
 dependencies {
     testImplementation platform('org.junit:junit-bom:5.9.1')
     testImplementation 'org.junit.jupiter:junit-jupiter'

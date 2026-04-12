@@ -19,16 +19,13 @@ public final class PlanningContext {
 
     private final List<RadarStation> radars;
 
-    private final double evaluationTime;
-
     public PlanningContext(
             int width,
             int height,
             int maxAltitude,
             Terrain terrain,
             boolean[][] noFly,
-            List<RadarStation> radars,
-            double evaluationTime
+            List<RadarStation> radars
     ) {
         this.width = width;
         this.height = height;
@@ -36,7 +33,6 @@ public final class PlanningContext {
         this.terrain = terrain;
         this.noFly = noFly;
         this.radars = List.copyOf(radars);
-        this.evaluationTime = evaluationTime;
     }
 
     public int getWidth() {
@@ -67,9 +63,5 @@ public final class PlanningContext {
 
     public List<RadarStation> getRadars() {
         return Collections.unmodifiableList(radars);
-    }
-
-    public double getEvaluationTime() {
-        return evaluationTime;
     }
 }

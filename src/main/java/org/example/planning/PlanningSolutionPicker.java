@@ -1,6 +1,6 @@
 package org.example.planning;
 
-import org.example.planning.nsga2.Individual;
+import org.example.planning.nsga.Individual;
 
 import java.util.Comparator;
 import java.util.List;

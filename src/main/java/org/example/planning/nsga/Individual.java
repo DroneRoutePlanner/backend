@@ -1,12 +1,15 @@
-package org.example.planning.nsga2;
+package org.example.planning.nsga;
 
 import org.example.planning.MoveEncoding;
 import org.example.planning.MultiDroneRouteEvaluator;
 import org.example.planning.PlanningProblem;
 
 import java.util.Arrays;
+import java.util.Random;
 
 public final class Individual {
+
+    public static final int OBJECTIVE_COUNT = 3;
 
     private final int[][] genes;
 
@@ -22,12 +25,12 @@ public final class Individual {
 
     public Individual(int[][] genes) {
         this.genes = genes;
-        this.objectives = new double[3];
+        this.objectives = new double[OBJECTIVE_COUNT];
         this.rank = Integer.MAX_VALUE;
         this.crowdingDistance = 0.0;
     }
 
-    public static Individual randomIndividual(PlanningProblem problem, java.util.Random rnd) {
+    public static Individual randomIndividual(PlanningProblem problem, Random rnd) {
         int d = problem.droneCount();
         int t = problem.maxStepsPerDrone();
         int[][] g = new int[d][t];

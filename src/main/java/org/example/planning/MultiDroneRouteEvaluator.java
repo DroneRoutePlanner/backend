@@ -22,9 +22,9 @@ public final class MultiDroneRouteEvaluator {
 
     private static final double PENALTY_ENERGY = 50.0;
 
-    private static final double HORIZ_ENERGY = 1.0;
+    private static final double HORIZONTAL_ENERGY = 1.0;
 
-    private static final double VERT_ENERGY = 1.6;
+    private static final double VERTICAL_ENERGY = 1.6;
 
     private static final double CLIMB_EXTRA = 0.35;
 
@@ -32,9 +32,6 @@ public final class MultiDroneRouteEvaluator {
         return simulate(problem, genes, false).result();
     }
 
-    /**
-     * Pełna symulacja; przy {@code recordTimeline} zwraca listę klatek (początek = pozycje startowe).
-     */
     public SimulationTrace simulate(PlanningProblem problem, int[][] genes, boolean recordTimeline) {
         PlanningContext ctx = problem.context();
         List<DroneMission> missions = problem.missions();
@@ -62,7 +59,6 @@ public final class MultiDroneRouteEvaluator {
         double violation = 0.0;
 
         for (int t = 0; t < maxT; t++) {
-            double time = t + ctx.getEvaluationTime();
             List<Vector3d> next = new ArrayList<>(dCount);
             for (int d = 0; d < dCount; d++) {
                 next.add(pos.get(d));
@@ -107,7 +103,7 @@ public final class MultiDroneRouteEvaluator {
 
                 next.set(d, to);
 
-                double risk = radarRiskAt(ctx.getRadars(), x + 0.5, y + 0.5, z + 0.5, time);
+                double risk = radarRiskAt(ctx.getRadars(), x + 0.5, y + 0.5, z + 0.5);
                 radarSum += risk;
 
                 if (reachedGoal(ctx, to, mission)) {
@@ -158,16 +154,16 @@ public final class MultiDroneRouteEvaluator {
         int dx = Math.abs(to.getX() - from.getX());
         int dy = Math.abs(to.getY() - from.getY());
         int dz = to.getZ() - from.getZ();
-        double horiz = (dx + dy) * HORIZ_ENERGY;
-        double vert = Math.abs(dz) * VERT_ENERGY;
+        double horiz = (dx + dy) * HORIZONTAL_ENERGY;
+        double vert = Math.abs(dz) * VERTICAL_ENERGY;
         double climb = dz > 0 ? dz * CLIMB_EXTRA : 0.0;
         return horiz + vert + climb;
     }
 
-    private static double radarRiskAt(List<RadarStation> radars, double x, double y, double z, double time) {
+    private static double radarRiskAt(List<RadarStation> radars, double x, double y, double z) {
         double s = 0.0;
         for (RadarStation r : radars) {
-            s += r.detectionRisk(x, y, z, time);
+            s += r.detectionRisk(x, y, z);
         }
         return s;
     }

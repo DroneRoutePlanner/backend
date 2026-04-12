@@ -3,7 +3,7 @@ package org.example.planning.gwo;
 import org.example.planning.MoveEncoding;
 import org.example.planning.MultiDroneRouteEvaluator;
 import org.example.planning.PlanningProblem;
-import org.example.planning.nsga2.Individual;
+import org.example.planning.nsga.Individual;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,8 +34,7 @@ public final class GwoSolver {
             PlanningProblem problem,
             int packSize,
             int iterations,
-            BiConsumer<Integer, List<Individual>> onIteration
-    ) {
+            BiConsumer<Integer, List<Individual>> onIteration) {
         if (packSize < 3) {
             throw new IllegalArgumentException("GWO wymaga co najmniej 3 wilków (α, β, δ)");
         }
@@ -60,7 +59,6 @@ public final class GwoSolver {
         sortByFitness(population, positions);
 
         for (int iter = 0; iter < iterations; iter++) {
-            // Eksploracja → eksploatacja: a maleje liniowo od 2 (początek) w trakcie iteracji (Mirjalili et al.).
             double a = 2.0 - iter * (2.0 / iterations);
 
             double[][] xAlpha = positions.get(0);

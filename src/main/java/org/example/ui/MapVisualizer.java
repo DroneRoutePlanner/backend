@@ -37,7 +37,7 @@ public class MapVisualizer {
     private final Terrain terrain;
 
     public MapVisualizer(int widthTiles, int heightTiles, int tileSize, List<Drone> drones, Terrain terrain) {
-        this(widthTiles, heightTiles, tileSize, drones, terrain, null, 0.0);
+        this(widthTiles, heightTiles, tileSize, drones, terrain, null);
     }
 
     public MapVisualizer(
@@ -46,8 +46,7 @@ public class MapVisualizer {
             int tileSize,
             List<Drone> drones,
             Terrain terrain,
-            PlanningProblem planningOverlay,
-            double radarEvalTime
+            PlanningProblem planningOverlay
     ) {
         this.widthTiles = widthTiles;
         this.heightTiles = heightTiles;
@@ -60,7 +59,7 @@ public class MapVisualizer {
 
         drawTerrain(root);
         if (planningOverlay != null) {
-            drawPlanningOverlay(root, planningOverlay, radarEvalTime);
+            drawPlanningOverlay(root, planningOverlay);
         }
         drawGrid(root);
         createDroneViews(root);
@@ -85,12 +84,11 @@ public class MapVisualizer {
         }
     }
 
-    private void drawPlanningOverlay(Pane root, PlanningProblem problem, double radarEvalTime) {
+    private void drawPlanningOverlay(Pane root, PlanningProblem problem) {
         PlanningContext ctx = problem.context();
         for (RadarStation radar : ctx.getRadars()) {
-            double[] p = radar.positionAt(radarEvalTime + ctx.getEvaluationTime());
-            double cx = p[0] * tileSize + tileSize / 2.0;
-            double cy = (heightTiles - 1 - p[1]) * tileSize + tileSize / 2.0;
+            double cx = radar.getX() * tileSize + tileSize / 2.0;
+            double cy = (heightTiles - 1 - radar.getY()) * tileSize + tileSize / 2.0;
             double rPx = radar.getInfluenceRadius() * tileSize;
             Circle zone = new Circle(rPx);
             zone.setCenterX(cx);

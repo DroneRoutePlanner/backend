@@ -16,7 +16,7 @@ public final class PlanningScenarioFactory {
     private PlanningScenarioFactory() {
     }
 
-    public static PlanningProblem defaultMultiDrone(Terrain terrain, double evaluationTime) {
+    public static PlanningProblem defaultMultiDrone(Terrain terrain) {
         int w = terrain.getWidth();
         int h = terrain.getHeightMapHeight();
 
@@ -47,9 +47,9 @@ public final class PlanningScenarioFactory {
         }
 
         List<RadarStation> radars = List.of(
-                new RadarStation(w * 0.28, h * 0.52, 5.0, 0.06, -0.04, Math.max(3.0, w * 0.25), 14.0),
-                new RadarStation(w * 0.72, h * 0.32, 4.0, -0.05, 0.05, Math.max(3.0, w * 0.22), 12.0),
-                new RadarStation(w * 0.52, h * 0.72, 6.0, 0.03, 0.02, Math.max(2.5, w * 0.2), 10.0)
+                new RadarStation(w * 0.28, h * 0.52, 5.0, Math.max(3.0, w * 0.25), 14.0),
+                new RadarStation(w * 0.72, h * 0.32, 4.0, Math.max(3.0, w * 0.22), 12.0),
+                new RadarStation(w * 0.52, h * 0.72, 6.0, Math.max(2.5, w * 0.2), 10.0)
         );
 
         PlanningContext context = new PlanningContext(
@@ -58,8 +58,7 @@ public final class PlanningScenarioFactory {
                 MAX_ALTITUDE,
                 terrain,
                 noFly,
-                radars,
-                evaluationTime
+                radars
         );
 
         List<DroneMission> missions = new ArrayList<>();
@@ -86,8 +85,7 @@ public final class PlanningScenarioFactory {
                 id,
                 new Vector3d(sx, sy, sz),
                 new Vector3d(gx, gy, gz),
-                energyBudget,
-                1.0
+                energyBudget
         );
     }
 
