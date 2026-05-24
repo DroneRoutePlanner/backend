@@ -28,6 +28,9 @@ public final class MultiDroneRouteEvaluator {
 
     private static final double CLIMB_EXTRA = 0.35;
 
+    /** Dodatkowa energia na jednostkę „przeciwwiatru”: −(mx·wx + my·wy) gdy ujemne. */
+    private static final double WIND_OPPOSITION_COST = 0.65;
+
     public RouteEvaluationResult evaluate(PlanningProblem problem, int[][] genes) {
         return simulate(problem, genes, false).result();
     }
@@ -58,7 +61,11 @@ public final class MultiDroneRouteEvaluator {
         double radarSum = 0.0;
         double violation = 0.0;
 
+        ctx.getWindField().reset();
+
         for (int t = 0; t < maxT; t++) {
+            ctx.getWindField().advanceTick(t);
+
             List<Vector3d> next = new ArrayList<>(dCount);
             for (int d = 0; d < dCount; d++) {
                 next.add(pos.get(d));
@@ -92,7 +99,12 @@ public final class MultiDroneRouteEvaluator {
                     violation += PENALTY_GROUND;
                 }
 
-                double stepEnergy = stepEnergy(from, to);
+                double stepEnergy = stepEnergy(
+                        from,
+                        to,
+                        ctx.getWindField().getWindX(),
+                        ctx.getWindField().getWindY()
+                );
                 double newE = energyAcc.get(d) + stepEnergy;
                 energyAcc.set(d, newE);
 
@@ -150,14 +162,23 @@ public final class MultiDroneRouteEvaluator {
         return new ArrayList<>(positions);
     }
 
-    private static double stepEnergy(Vector3d from, Vector3d to) {
-        int dx = Math.abs(to.getX() - from.getX());
-        int dy = Math.abs(to.getY() - from.getY());
+    private static double stepEnergy(Vector3d from, Vector3d to, double windX, double windY) {
+        int mx = to.getX() - from.getX();
+        int my = to.getY() - from.getY();
         int dz = to.getZ() - from.getZ();
+        int dx = Math.abs(mx);
+        int dy = Math.abs(my);
         double horiz = (dx + dy) * HORIZONTAL_ENERGY;
         double vert = Math.abs(dz) * VERTICAL_ENERGY;
         double climb = dz > 0 ? dz * CLIMB_EXTRA : 0.0;
-        return horiz + vert + climb;
+        double base = horiz + vert + climb;
+        if (mx != 0 || my != 0) {
+            double dot = mx * windX + my * windY;
+            if (dot < 0) {
+                base += WIND_OPPOSITION_COST * (-dot);
+            }
+        }
+        return base;
     }
 
     private static double radarRiskAt(List<RadarStation> radars, double x, double y, double z) {

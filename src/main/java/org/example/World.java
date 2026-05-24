@@ -14,6 +14,7 @@ import org.example.planning.PlanningProblem;
 import org.example.planning.PlanningScenarioFactory;
 import org.example.planning.PlanningSolutionPicker;
 import org.example.planning.SimulationTrace;
+import org.example.planning.io.TrajectoryCsvWriter;
 import org.example.planning.model.DroneMission;
 import org.example.planning.gwo.GwoSolver;
 import org.example.planning.nsga.Individual;
@@ -21,16 +22,20 @@ import org.example.planning.nsga.nsga2.Nsga2Solver;
 import org.example.planning.nsga.nsga3.Nsga3Solver;
 import org.example.ui.MapVisualizer;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
 public class World extends Application {
 
-    private static final int TILE_SIZE = 40;
+    /**
+     * Plansza 30×30; kafelek × pola (np. 30×10 = 300 px szerokości mapy).
+     */
+    private static final int TILE_SIZE = 10;
 
-    private static final int WIDTH = 20;
+    private static final int WIDTH = 30;
 
-    private static final int HEIGHT = 20;
+    private static final int HEIGHT = 30;
 
     private List<Drone> drones;
 
@@ -53,7 +58,7 @@ public class World extends Application {
                 terrain,
                 problem);
 
-        PlannerKind plannerKind = parsePlanner(System.getProperty("drone.planner", "nsga2"));
+        PlannerKind plannerKind = parsePlanner(System.getProperty("drone.planner", "gwo"));
         statusLabel = new Label(initialStatusLabel(plannerKind));
         statusLabel.setPadding(new Insets(10));
         statusLabel.setWrapText(true);
@@ -117,8 +122,8 @@ public class World extends Application {
     }
 
     private void runPlanningAndAnimate(PlanningProblem problem, PlannerKind plannerKind) {
-        final int populationSize = 56;
-        final int generations = 100;
+        final int populationSize = 1000;
+        final int generations = 1500;
 
         new Thread(() -> {
             try {
@@ -197,8 +202,23 @@ public class World extends Application {
 
                 SimulationTrace trace = evaluator.simulate(problem, chosen.getGenes(), true);
 
+                String csvProp = System.getProperty("drone.trajectory.csv");
+                String csvNote = null;
+                if (csvProp != null && !csvProp.isBlank()) {
+                    try {
+                        TrajectoryCsvWriter.write(trace, Path.of(csvProp.trim()));
+                        csvNote = " | CSV: zapisano " + csvProp.trim();
+                    } catch (Exception ex) {
+                        csvNote = " | CSV: błąd zapisu — " + ex.getMessage();
+                    }
+                }
+
+                final String csvSuffix = csvNote;
                 Platform.runLater(() -> {
                     updateStatusAfterSolve(trace, plannerKind);
+                    if (csvSuffix != null) {
+                        statusLabel.setText(statusLabel.getText() + csvSuffix);
+                    }
                     startPathAnimation(trace.positionsPerStep());
                 });
             } catch (Exception e) {
@@ -227,12 +247,17 @@ public class World extends Application {
                 : (plannerKind == PlannerKind.GWO
                         ? "nie (najlepszy wilk α wg skalaryzacji)"
                         : "nie (najlepsza z Pareto wg kar)");
+        String violationSuffix = r.isFeasible()
+                ? ""
+                : String.format(" | suma kar (naruszenie)=%.0f — musi być ~0, by było „tak”",
+                        r.getConstraintViolation());
         statusLabel.setText(String.format(
-                "Wybrano trasę do animacji | dopuszczalna: %s | czas zespołu=%.1f | energia=%.1f | ryzyko radarów=%.2f",
+                "Wybrano trasę do animacji | dopuszczalna: %s | czas zespołu=%.1f | energia=%.1f | ryzyko radarów=%.2f%s",
                 feasNote,
                 r.getMakespan(),
                 r.getTotalEnergy(),
-                r.getTotalRadarRisk()));
+                r.getTotalRadarRisk(),
+                violationSuffix));
     }
 
     private void startPathAnimation(List<List<Vector3d>> frames) {

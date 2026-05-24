@@ -4,7 +4,7 @@ import org.example.planning.MultiDroneRouteEvaluator;
 import org.example.planning.PlanningProblem;
 import org.example.planning.nsga.CrowdingDistance;
 import org.example.planning.nsga.Individual;
-import org.example.planning.nsga.NonDominatedSort;
+import org.example.planning.nsga.NonDominatedSorting;
 import org.example.planning.nsga.NsgaVariation;
 import org.example.planning.nsga.ReferenceDirections;
 
@@ -56,7 +56,7 @@ public final class Nsga3Solver {
             }
         }
 
-        List<List<Individual>> fronts = NonDominatedSort.sort(population);
+        List<List<Individual>> fronts = NonDominatedSorting.sort(population);
         return new ArrayList<>(fronts.get(0));
     }
 
@@ -100,7 +100,7 @@ public final class Nsga3Solver {
     }
 
     private List<Individual> environmentalSelection(List<Individual> combined, int n, double[][] refDirs) {
-        List<List<Individual>> fronts = NonDominatedSort.sort(combined);
+        List<List<Individual>> fronts = NonDominatedSorting.sort(combined);
         List<Individual> next = new ArrayList<>(n);
         int frontIndex = 0;
         while (frontIndex < fronts.size() && next.size() + fronts.get(frontIndex).size() <= n) {
@@ -270,7 +270,7 @@ public final class Nsga3Solver {
     }
 
     private void assignRankAndCrowding(List<Individual> population) {
-        List<List<Individual>> fronts = NonDominatedSort.sort(population);
+        List<List<Individual>> fronts = NonDominatedSorting.sort(population);
         for (int i = 0; i < fronts.size(); i++) {
             CrowdingDistance.assign(fronts.get(i));
             for (Individual ind : fronts.get(i)) {

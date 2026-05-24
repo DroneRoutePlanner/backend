@@ -1,6 +1,7 @@
 package org.example.planning.model;
 
 import org.example.Terrain;
+import org.example.environment.WindField;
 
 import java.util.Collections;
 import java.util.List;
@@ -19,13 +20,16 @@ public final class PlanningContext {
 
     private final List<RadarStation> radars;
 
+    private final WindField windField;
+
     public PlanningContext(
             int width,
             int height,
             int maxAltitude,
             Terrain terrain,
             boolean[][] noFly,
-            List<RadarStation> radars
+            List<RadarStation> radars,
+            WindField windField
     ) {
         this.width = width;
         this.height = height;
@@ -33,6 +37,7 @@ public final class PlanningContext {
         this.terrain = terrain;
         this.noFly = noFly;
         this.radars = List.copyOf(radars);
+        this.windField = windField;
     }
 
     public int getWidth() {
@@ -63,5 +68,9 @@ public final class PlanningContext {
 
     public List<RadarStation> getRadars() {
         return Collections.unmodifiableList(radars);
+    }
+
+    public WindField getWindField() {
+        return windField;
     }
 }

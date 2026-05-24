@@ -3,9 +3,9 @@ package org.example.planning.nsga;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class NonDominatedSort {
+public final class NonDominatedSorting {
 
-    private NonDominatedSort() {
+    private NonDominatedSorting() {
     }
 
     public static List<List<Individual>> sort(List<Individual> population) {

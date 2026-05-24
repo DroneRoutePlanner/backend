@@ -25,12 +25,24 @@ application {
     mainClass = 'org.example.World'
 }
 
+/** -D z linii Gradle trafia do JVM daemona, nie do aplikacji — przekaż tutaj. */
+def trajectoryCsvProp = System.getProperty('drone.trajectory.csv')
+
+tasks.named('run', JavaExec) {
+    if (trajectoryCsvProp != null) {
+        systemProperty 'drone.trajectory.csv', trajectoryCsvProp
+    }
+}
+
 tasks.register('runGwo', JavaExec) {
     group = 'application'
     description = 'Uruchamia World (JavaFX) z algorytmem GWO'
     classpath = sourceSets.main.runtimeClasspath
     mainClass = 'org.example.World'
     systemProperty 'drone.planner', 'gwo'
+    if (trajectoryCsvProp != null) {
+        systemProperty 'drone.trajectory.csv', trajectoryCsvProp
+    }
 }
 
 tasks.register('runNsga2', JavaExec) {
@@ -39,6 +51,9 @@ tasks.register('runNsga2', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     mainClass = 'org.example.World'
     systemProperty 'drone.planner', 'nsga2'
+    if (trajectoryCsvProp != null) {
+        systemProperty 'drone.trajectory.csv', trajectoryCsvProp
+    }
 }
 
 tasks.register('runNsga3', JavaExec) {
@@ -47,6 +62,9 @@ tasks.register('runNsga3', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     mainClass = 'org.example.World'
     systemProperty 'drone.planner', 'nsga3'
+    if (trajectoryCsvProp != null) {
+        systemProperty 'drone.trajectory.csv', trajectoryCsvProp
+    }
 }
 
 dependencies {

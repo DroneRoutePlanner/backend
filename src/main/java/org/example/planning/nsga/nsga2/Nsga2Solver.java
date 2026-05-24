@@ -4,7 +4,7 @@ import org.example.planning.MultiDroneRouteEvaluator;
 import org.example.planning.PlanningProblem;
 import org.example.planning.nsga.CrowdingDistance;
 import org.example.planning.nsga.Individual;
-import org.example.planning.nsga.NonDominatedSort;
+import org.example.planning.nsga.NonDominatedSorting;
 import org.example.planning.nsga.NsgaVariation;
 
 import java.util.ArrayList;
@@ -31,8 +31,7 @@ public final class Nsga2Solver {
             PlanningProblem problem,
             int populationSize,
             int generations,
-            BiConsumer<Integer, List<Individual>> onGeneration
-    ) {
+            BiConsumer<Integer, List<Individual>> onGeneration) {
         List<Individual> population = new ArrayList<>(populationSize);
         for (int i = 0; i < populationSize; i++) {
             Individual ind = Individual.randomIndividual(problem, random);
@@ -52,7 +51,7 @@ public final class Nsga2Solver {
             }
         }
 
-        List<List<Individual>> fronts = NonDominatedSort.sort(population);
+        List<List<Individual>> fronts = NonDominatedSorting.sort(population);
         return new ArrayList<>(fronts.get(0));
     }
 
@@ -96,7 +95,7 @@ public final class Nsga2Solver {
     }
 
     private List<Individual> environmentalSelection(List<Individual> combined, int n) {
-        List<List<Individual>> fronts = NonDominatedSort.sort(combined);
+        List<List<Individual>> fronts = NonDominatedSorting.sort(combined);
         List<Individual> next = new ArrayList<>(n);
         int frontIndex = 0;
         while (frontIndex < fronts.size() && next.size() + fronts.get(frontIndex).size() <= n) {
@@ -118,7 +117,7 @@ public final class Nsga2Solver {
     }
 
     private void assignRankAndCrowding(List<Individual> population) {
-        List<List<Individual>> fronts = NonDominatedSort.sort(population);
+        List<List<Individual>> fronts = NonDominatedSorting.sort(population);
         for (int i = 0; i < fronts.size(); i++) {
             CrowdingDistance.assign(fronts.get(i));
             for (Individual ind : fronts.get(i)) {

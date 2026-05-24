@@ -2,6 +2,7 @@ package org.example.planning;
 
 import org.example.Terrain;
 import org.example.environment.Vector3d;
+import org.example.environment.WindField;
 import org.example.planning.model.DroneMission;
 import org.example.planning.model.PlanningContext;
 import org.example.planning.model.RadarStation;
@@ -52,13 +53,16 @@ public final class PlanningScenarioFactory {
                 new RadarStation(w * 0.52, h * 0.72, 6.0, Math.max(2.5, w * 0.2), 10.0)
         );
 
+        WindField wind = new WindField(0.55, -0.4);
+
         PlanningContext context = new PlanningContext(
                 w,
                 h,
                 MAX_ALTITUDE,
                 terrain,
                 noFly,
-                radars
+                radars,
+                wind
         );
 
         List<DroneMission> missions = new ArrayList<>();

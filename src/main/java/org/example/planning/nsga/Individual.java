@@ -56,7 +56,11 @@ public final class Individual {
         for (int i = 0; i < genes.length; i++) {
             g[i] = Arrays.copyOf(genes[i], genes[i].length);
         }
-        return new Individual(g);
+        Individual c = new Individual(g);
+        System.arraycopy(objectives, 0, c.objectives, 0, OBJECTIVE_COUNT);
+        c.constraintViolation = constraintViolation;
+        c.feasible = feasible;
+        return c;
     }
 
     public int[][] getGenes() {

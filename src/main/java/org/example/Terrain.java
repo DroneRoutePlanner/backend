@@ -21,14 +21,15 @@ public class Terrain {
     }
 
     private void generateTerrain() {
-        double baseHeight = 4 + random.nextDouble() * 18;
+        // Niższe „dno” mapy — większość terytorium zostaje płaska / niska.
+        double baseHeight = 10 + random.nextDouble() * 14;
 
         double mapRadius = Math.hypot(width - 1, height - 1) / 2.0;
         if (mapRadius < 1e-6) {
             mapRadius = 1.0;
         }
 
-        int minPeakDist = Math.max(3, (int) Math.round(Math.min(width, height) / 5.0));
+        int minPeakDist = Math.max(8, (int) Math.round(Math.min(width, height) / 4.0));
         int peak1X = random.nextInt(width);
         int peak1Y = random.nextInt(height);
         int peak2X;
@@ -45,15 +46,17 @@ public class Terrain {
             peak2Y = (peak1Y + minPeakDist / 2) % height;
         }
 
-        double peakHeight1 = 82 + random.nextDouble() * 18;
-        double peakHeight2 = 68 + random.nextDouble() * 30;
+        // Szczyty lokalne — stosunkowo niewielki ułamek mapy wysoki (reszta przy bazie).
+        double peakHeight1 = 72 + random.nextDouble() * 20;
+        double peakHeight2 = 62 + random.nextDouble() * 22;
 
-        double sigma1 = mapRadius * (0.18 + random.nextDouble() * 0.42);
-        double sigma2 = mapRadius * (0.18 + random.nextDouble() * 0.42);
+        // Wąskie Gaussy: góry zajmują znacznie mniejszą powierzchnię niż przy σ ~ 0.2–0.6 × mapRadius.
+        double sigma1 = mapRadius * (0.055 + random.nextDouble() * 0.09);
+        double sigma2 = mapRadius * (0.055 + random.nextDouble() * 0.09);
         double sigma1Sq = sigma1 * sigma1;
         double sigma2Sq = sigma2 * sigma2;
 
-        int noiseAmp = 5 + random.nextInt(10);
+        int noiseAmp = 2 + random.nextInt(6);
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
