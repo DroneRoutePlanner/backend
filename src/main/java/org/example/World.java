@@ -59,7 +59,7 @@ public class World extends Application {
                 terrain,
                 problem);
 
-        PlannerKind plannerKind = parsePlanner(System.getProperty("drone.planner", "gwo"));
+        PlannerKind plannerKind = parsePlanner(System.getProperty("drone.planner", "nsga2"));
         statusLabel = new Label(initialStatusLabel(plannerKind));
         statusLabel.setPadding(new Insets(10));
         statusLabel.setWrapText(true);
@@ -123,8 +123,8 @@ public class World extends Application {
     }
 
     private void runPlanningAndAnimate(PlanningProblem problem, PlannerKind plannerKind) {
-        final int populationSize = 1000;
-        final int generations = 1000;
+        final int populationSize = 500;
+        final int generations = 500;
 
         new Thread(() -> {
             try {
@@ -133,7 +133,7 @@ public class World extends Application {
 
                 if (plannerKind == PlannerKind.GWO) {
                     GwoSolver solver = new GwoSolver(System.nanoTime());
-                    chosenSolution = solver.run(
+                    List<Individual> pareto = solver.run(
                             problem,
                             populationSize,
                             generations,
@@ -146,13 +146,14 @@ public class World extends Application {
                                         .orElse(-1);
                                 String ms = bestMakespan >= 0 ? String.format("%.1f", bestMakespan) : "—";
                                 statusLabel.setText(String.format(
-                                        "GWO: iteracja %d / %d  |  dopuszczalne: %d / %d  |  najl. makespan: %s",
+                                        "MOGWO: iteracja %d / %d  |  dopuszczalne: %d / %d  |  najl. makespan: %s",
                                         iter + 1,
                                         generations,
                                         feas,
                                         populationSize,
                                         ms));
                             }));
+                    chosenSolution = SolutionPicker.pickSolution(pareto);
                 } else if (plannerKind == PlannerKind.NSGA_II) {
                     Nsga2Solver solver = new Nsga2Solver(System.nanoTime());
 
@@ -251,7 +252,7 @@ public class World extends Application {
         String feasNote = r.isFeasible()
                 ? "tak"
                 : (plannerKind == PlannerKind.GWO
-                        ? "nie (najlepszy wilk α wg skalaryzacji)"
+                        ? "nie (najlepsza z Pareto MOGWO wg kar)"
                         : "nie (najlepsza z Pareto wg kar)");
         String violationSuffix = r.isFeasible()
                 ? ""
