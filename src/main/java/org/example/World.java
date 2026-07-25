@@ -138,19 +138,15 @@ public class World extends Application {
                             populationSize,
                             generations,
                             (iter, population) -> Platform.runLater(() -> {
-                                long feas = population.stream().filter(Individual::isFeasible).count();
                                 double bestMakespan = population.stream()
-                                        .filter(Individual::isFeasible)
                                         .mapToDouble(i -> i.getObjectives()[0])
                                         .min()
                                         .orElse(-1);
                                 String ms = bestMakespan >= 0 ? String.format("%.1f", bestMakespan) : "—";
                                 statusLabel.setText(String.format(
-                                        "MOGWO: iteracja %d / %d  |  dopuszczalne: %d / %d  |  najl. makespan: %s",
+                                        "MOGWO: iteracja %d / %d  |  najl. makespan: %s",
                                         iter + 1,
                                         generations,
-                                        feas,
-                                        populationSize,
                                         ms));
                             }));
                     chosenSolution = SolutionPicker.pickSolution(pareto);
@@ -162,19 +158,15 @@ public class World extends Application {
                             populationSize,
                             generations,
                             (gen, population) -> Platform.runLater(() -> {
-                                long feas = population.stream().filter(Individual::isFeasible).count();
                                 double bestMakespan = population.stream()
-                                        .filter(Individual::isFeasible)
                                         .mapToDouble(i -> i.getObjectives()[0])
                                         .min()
                                         .orElse(-1);
                                 String ms = bestMakespan >= 0 ? String.format("%.1f", bestMakespan) : "—";
                                 statusLabel.setText(String.format(
-                                        "NSGA-II: pokolenie %d / %d  |  dopuszczalne: %d / %d  |  najl. makespan: %s",
+                                        "NSGA-II: pokolenie %d / %d  |  najl. makespan: %s",
                                         gen + 1,
                                         generations,
-                                        feas,
-                                        populationSize,
                                         ms));
                             }));
 
@@ -186,19 +178,15 @@ public class World extends Application {
                             populationSize,
                             generations,
                             (gen, population) -> Platform.runLater(() -> {
-                                long feas = population.stream().filter(Individual::isFeasible).count();
                                 double bestMakespan = population.stream()
-                                        .filter(Individual::isFeasible)
                                         .mapToDouble(i -> i.getObjectives()[0])
                                         .min()
                                         .orElse(-1);
                                 String ms = bestMakespan >= 0 ? String.format("%.1f", bestMakespan) : "—";
                                 statusLabel.setText(String.format(
-                                        "NSGA-III: pokolenie %d / %d  |  dopuszczalne: %d / %d  |  najl. makespan: %s",
+                                        "NSGA-III: pokolenie %d / %d  |  najl. makespan: %s",
                                         gen + 1,
                                         generations,
-                                        feas,
-                                        populationSize,
                                         ms));
                             }));
                     chosenSolution = SolutionPicker.pickSolution(paretoFirstFront);
@@ -222,7 +210,7 @@ public class World extends Application {
 
                 final String csvSuffix = csvNote;
                 Platform.runLater(() -> {
-                    updateStatusAfterSolve(trace, plannerKind);
+                    updateStatusAfterSolve(trace);
                     if (csvSuffix != null) {
                         statusLabel.setText(statusLabel.getText() + csvSuffix);
                     }
@@ -247,24 +235,13 @@ public class World extends Application {
         };
     }
 
-    private void updateStatusAfterSolve(SimulationTrace trace, PlannerKind plannerKind) {
+    private void updateStatusAfterSolve(SimulationTrace trace) {
         var r = trace.result();
-        String feasNote = r.isFeasible()
-                ? "tak"
-                : (plannerKind == PlannerKind.GWO
-                        ? "nie (najlepsza z Pareto MOGWO wg kar)"
-                        : "nie (najlepsza z Pareto wg kar)");
-        String violationSuffix = r.isFeasible()
-                ? ""
-                : String.format(" | suma kar (naruszenie)=%.0f — musi być ~0, by było „tak”",
-                        r.getConstraintViolation());
         statusLabel.setText(String.format(
-                "Wybrano trasę do animacji | dopuszczalna: %s | czas zespołu=%.1f | energia=%.1f | ryzyko radarów=%.2f%s",
-                feasNote,
+                "Wybrano trasę do animacji | czas zespołu=%.1f | energia=%.1f | ryzyko radarów=%.2f",
                 r.getMakespan(),
                 r.getTotalEnergy(),
-                r.getTotalRadarRisk(),
-                violationSuffix));
+                r.getTotalRadarRisk()));
     }
 
     private void startPathAnimation(List<List<Vector3d>> frames) {

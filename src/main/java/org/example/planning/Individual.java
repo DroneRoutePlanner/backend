@@ -11,10 +11,6 @@ public final class Individual {
 
     private final double[] objectives;
 
-    private double constraintViolation;
-
-    private boolean feasible;
-
     private int rank;
 
     private double crowdingDistance;
@@ -43,8 +39,6 @@ public final class Individual {
         objectives[0] = result.getMakespan();
         objectives[1] = result.getTotalEnergy();
         objectives[2] = result.getTotalRadarRisk();
-        constraintViolation = result.getConstraintViolation();
-        feasible = result.isFeasible();
     }
 
     public Individual copy() {
@@ -54,8 +48,6 @@ public final class Individual {
         }
         Individual c = new Individual(g);
         System.arraycopy(objectives, 0, c.objectives, 0, OBJECTIVE_COUNT);
-        c.constraintViolation = constraintViolation;
-        c.feasible = feasible;
         return c;
     }
 
@@ -65,14 +57,6 @@ public final class Individual {
 
     public double[] getObjectives() {
         return objectives;
-    }
-
-    public double getConstraintViolation() {
-        return constraintViolation;
-    }
-
-    public boolean isFeasible() {
-        return feasible;
     }
 
     public int getRank() {
@@ -94,7 +78,7 @@ public final class Individual {
     @Override
     public String toString() {
         return String.format(
-                "Individual[ makespan=%.2f energy=%.2f radarRisk=%.2f feasible=%s cv=%.2f ]",
-                objectives[0], objectives[1], objectives[2], feasible, constraintViolation);
+                "Individual[ makespan=%.2f energy=%.2f radarRisk=%.2f ]",
+                objectives[0], objectives[1], objectives[2]);
     }
 }

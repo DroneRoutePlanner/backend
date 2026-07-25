@@ -10,20 +10,6 @@ import java.util.List;
 
 public final class MultiDroneRouteEvaluator {
 
-    private static final double PENALTY_NOT_GOAL = 2_000.0;
-
-    private static final double PENALTY_COLLISION = 8_000.0;
-
-    private static final double PENALTY_OOB = 3_000.0;
-
-    private static final double PENALTY_GROUND = 5_000.0;
-
-    private static final double PENALTY_NO_FLY = 6_000.0;
-
-    private static final double PENALTY_ENERGY = 50.0;
-
-    private static final double PENALTY_RADAR_EXPOSURE = 1.0;
-
     private static final double HORIZONTAL_ENERGY = 1.0;
 
     private static final double VERTICAL_ENERGY = 1.6;
@@ -61,7 +47,6 @@ public final class MultiDroneRouteEvaluator {
         }
 
         double radarSum = 0.0;
-        double violation = 0.0;
 
         ctx.getWindField().reset();
 
@@ -102,17 +87,7 @@ public final class MultiDroneRouteEvaluator {
 
                     if (x < 0 || x >= ctx.getWidth() || y < 0 || y >= ctx.getHeight()
                             || z < 0 || z > ctx.getMaxAltitude()) {
-                        violation += PENALTY_OOB;
                         continue;
-                    }
-
-                    if (ctx.isNoFly(x, y)) {
-                        violation += PENALTY_NO_FLY;
-                    }
-
-                    int ground = ctx.scaledGroundLevel(x, y);
-                    if (z < ground) {
-                        violation += PENALTY_GROUND;
                     }
 
                     double stepEnergy = stepEnergy(
@@ -123,30 +98,18 @@ public final class MultiDroneRouteEvaluator {
                     double newE = energyAcc.get(d) + stepEnergy;
                     energyAcc.set(d, newE);
 
-                    DroneMission mission = missions.get(d);
-                    if (newE > mission.energyBudget()) {
-                        violation += (newE - mission.energyBudget()) * PENALTY_ENERGY;
-                    }
-
                     next.set(d, to);
 
                     double risk = radarRiskAt(ctx.getRadars(), x + 0.5, y + 0.5, z + 0.5);
                     radarSum += risk;
 
+                    DroneMission mission = missions.get(d);
                     if (reachedGoal(ctx, to, mission)) {
                         arrived.set(d, true);
                         arrivalTime.set(d, t + 1);
                     }
                 } finally {
                     geneSlot[d]++;
-                }
-            }
-
-            for (int a = 0; a < dCount; a++) {
-                for (int b = a + 1; b < dCount; b++) {
-                    if (next.get(a).equals(next.get(b))) {
-                        violation += PENALTY_COLLISION;
-                    }
                 }
             }
 
@@ -165,15 +128,11 @@ public final class MultiDroneRouteEvaluator {
             } else {
                 DroneMission m = missions.get(d);
                 int dist = goalDistance(ctx, pos.get(d), m);
-                violation += dist * PENALTY_NOT_GOAL;
                 makespan = Math.max(makespan, tickLimit + dist);
             }
         }
 
-        violation += radarSum * PENALTY_RADAR_EXPOSURE;
-
-        boolean feasible = violation < 1e-6;
-        RouteEvaluationResult result = new RouteEvaluationResult(makespan, totalEnergy, radarSum, violation, feasible);
+        RouteEvaluationResult result = new RouteEvaluationResult(makespan, totalEnergy, radarSum);
         List<List<Vector3d>> frames = recordTimeline ? timeline : List.of();
         return new SimulationTrace(result, frames);
     }

@@ -124,9 +124,7 @@ public final class Nsga3Solver {
     }
 
     /**
-     * Dobór z {@code lastFront} metodą nisz (Deb & Jain), także gdy front zawiera
-     * niedopuszczalne
-     * (normalizacja celów z {@link #boundsFeasible}).
+     * Dobór z {@code lastFront} metodą nisz (Deb & Jain).
      */
     private void nichingFill(List<Individual> next, List<Individual> lastFront, int need, double[][] refDirs) {
         List<Individual> union = new ArrayList<>(next.size() + lastFront.size());
@@ -134,14 +132,12 @@ public final class Nsga3Solver {
         union.addAll(lastFront);
         double[] ideal = new double[Individual.OBJECTIVE_COUNT];
         double[] nadir = new double[Individual.OBJECTIVE_COUNT];
-        boundsFeasible(union, ideal, nadir);
+        computeObjectiveBounds(union, ideal, nadir);
 
         int[] rho = new int[refDirs.length];
         for (Individual s : next) {
-            if (s.isFeasible()) {
-                double[] z = normalizedObjectives(s, ideal, nadir);
-                rho[associate(z, refDirs)]++;
-            }
+            double[] z = normalizedObjectives(s, ideal, nadir);
+            rho[associate(z, refDirs)]++;
         }
 
         int picked = 0;
@@ -181,30 +177,16 @@ public final class Nsga3Solver {
         }
     }
 
-    private static void boundsFeasible(List<Individual> pool, double[] ideal, double[] nadir) {
+    private static void computeObjectiveBounds(List<Individual> pool, double[] ideal, double[] nadir) {
         for (int m = 0; m < Individual.OBJECTIVE_COUNT; m++) {
             ideal[m] = Double.POSITIVE_INFINITY;
             nadir[m] = Double.NEGATIVE_INFINITY;
         }
-        int feasibleCount = 0;
         for (Individual ind : pool) {
-            if (!ind.isFeasible()) {
-                continue;
-            }
-            feasibleCount++;
             double[] o = ind.getObjectives();
             for (int m = 0; m < Individual.OBJECTIVE_COUNT; m++) {
                 ideal[m] = Math.min(ideal[m], o[m]);
                 nadir[m] = Math.max(nadir[m], o[m]);
-            }
-        }
-        if (feasibleCount == 0) {
-            for (Individual ind : pool) {
-                double[] o = ind.getObjectives();
-                for (int m = 0; m < Individual.OBJECTIVE_COUNT; m++) {
-                    ideal[m] = Math.min(ideal[m], o[m]);
-                    nadir[m] = Math.max(nadir[m], o[m]);
-                }
             }
         }
     }

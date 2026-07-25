@@ -287,13 +287,10 @@ public final class GwoSolver {
             System.out.printf("... oraz %d pozostałych wilków w stadzie.%n", (population.size() - 3));
         }
 
-        long feasibleCount = population.stream().filter(Individual::isFeasible).count();
-        System.out.println("-----------------------------------------------------------------------------");
         System.out.printf(
-                "Rozwiązania dopuszczalne: %d/%d | Archiwum Pareto: %d%n",
-                feasibleCount,
-                population.size(),
-                archiveSize);
+                "Archiwum Pareto: %d | Najl. makespan: %.4f%n",
+                archiveSize,
+                population.get(0).getObjectives()[0]);
         System.out.println("=============================================================================\n");
     }
 }

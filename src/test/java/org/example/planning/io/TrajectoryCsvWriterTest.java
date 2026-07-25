@@ -20,7 +20,7 @@ class TrajectoryCsvWriterTest {
                 List.of(new Vector3d(0, 0, 1), new Vector3d(10, 10, 2)),
                 List.of(new Vector3d(1, 0, 1), new Vector3d(9, 10, 2))
         );
-        var result = new RouteEvaluationResult(1, 1, 0, 0, true);
+        var result = new RouteEvaluationResult(1, 1, 0);
         SimulationTrace trace = new SimulationTrace(result, frames);
 
         Path out = tmp.resolve("t.csv");
