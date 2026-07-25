@@ -9,15 +9,16 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import org.example.environment.Vector3d;
+import org.example.planning.Individual;
 import org.example.planning.MultiDroneRouteEvaluator;
 import org.example.planning.PlanningProblem;
 import org.example.planning.PlanningScenarioFactory;
-import org.example.planning.PlanningSolutionPicker;
+import org.example.planning.SolutionPicker;
 import org.example.planning.SimulationTrace;
+import org.example.planning.io.TerrainCsvWriter;
 import org.example.planning.io.TrajectoryCsvWriter;
 import org.example.planning.model.DroneMission;
 import org.example.planning.gwo.GwoSolver;
-import org.example.planning.nsga.Individual;
 import org.example.planning.nsga.nsga2.Nsga2Solver;
 import org.example.planning.nsga.nsga3.Nsga3Solver;
 import org.example.ui.MapVisualizer;
@@ -123,16 +124,16 @@ public class World extends Application {
 
     private void runPlanningAndAnimate(PlanningProblem problem, PlannerKind plannerKind) {
         final int populationSize = 1000;
-        final int generations = 1500;
+        final int generations = 1000;
 
         new Thread(() -> {
             try {
                 MultiDroneRouteEvaluator evaluator = new MultiDroneRouteEvaluator();
-                Individual chosen;
+                Individual chosenSolution;
 
                 if (plannerKind == PlannerKind.GWO) {
                     GwoSolver solver = new GwoSolver(System.nanoTime());
-                    chosen = solver.run(
+                    chosenSolution = solver.run(
                             problem,
                             populationSize,
                             generations,
@@ -154,6 +155,7 @@ public class World extends Application {
                             }));
                 } else if (plannerKind == PlannerKind.NSGA_II) {
                     Nsga2Solver solver = new Nsga2Solver(System.nanoTime());
+
                     List<Individual> pareto = solver.run(
                             problem,
                             populationSize,
@@ -174,10 +176,11 @@ public class World extends Application {
                                         populationSize,
                                         ms));
                             }));
-                    chosen = PlanningSolutionPicker.pickForReplay(pareto);
+
+                    chosenSolution = SolutionPicker.pickSolution(pareto);
                 } else {
                     Nsga3Solver solver = new Nsga3Solver(System.nanoTime());
-                    List<Individual> pareto = solver.run(
+                    List<Individual> paretoFirstFront = solver.run(
                             problem,
                             populationSize,
                             generations,
@@ -197,17 +200,20 @@ public class World extends Application {
                                         populationSize,
                                         ms));
                             }));
-                    chosen = PlanningSolutionPicker.pickForReplay(pareto);
+                    chosenSolution = SolutionPicker.pickSolution(paretoFirstFront);
                 }
 
-                SimulationTrace trace = evaluator.simulate(problem, chosen.getGenes(), true);
+                SimulationTrace trace = evaluator.simulate(problem, chosenSolution.getGenes(), true);
 
                 String csvProp = System.getProperty("drone.trajectory.csv");
                 String csvNote = null;
                 if (csvProp != null && !csvProp.isBlank()) {
                     try {
-                        TrajectoryCsvWriter.write(trace, Path.of(csvProp.trim()));
-                        csvNote = " | CSV: zapisano " + csvProp.trim();
+                        Path trajectoryPath = Path.of(csvProp.trim());
+                        TrajectoryCsvWriter.write(trace, trajectoryPath);
+                        Path terrainPath = TerrainCsvWriter.siblingTerrainPath(trajectoryPath);
+                        TerrainCsvWriter.write(problem.context().getTerrain(), terrainPath);
+                        csvNote = " | CSV: zapisano " + csvProp.trim() + " + " + terrainPath.getFileName();
                     } catch (Exception ex) {
                         csvNote = " | CSV: błąd zapisu — " + ex.getMessage();
                     }

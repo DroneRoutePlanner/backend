@@ -3,6 +3,8 @@ package org.example.planning.nsga;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.example.planning.Individual;
+
 public final class NonDominatedSorting {
 
     private NonDominatedSorting() {
@@ -12,9 +14,11 @@ public final class NonDominatedSorting {
         int n = population.size();
         List<List<Integer>> dominates = new ArrayList<>(n);
         int[] dominationCount = new int[n];
+
         for (int i = 0; i < n; i++) {
             dominates.add(new ArrayList<>());
         }
+
         for (int p = 0; p < n; p++) {
             for (int q = 0; q < n; q++) {
                 if (p == q) {
@@ -29,13 +33,16 @@ public final class NonDominatedSorting {
                 }
             }
         }
+
         List<List<Individual>> fronts = new ArrayList<>();
         List<Integer> currentFront = new ArrayList<>();
+
         for (int p = 0; p < n; p++) {
             if (dominationCount[p] == 0) {
                 currentFront.add(p);
             }
         }
+
         while (!currentFront.isEmpty()) {
             List<Individual> frontIndividuals = new ArrayList<>();
             for (int p : currentFront) {

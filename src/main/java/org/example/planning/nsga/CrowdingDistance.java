@@ -3,6 +3,8 @@ package org.example.planning.nsga;
 import java.util.Comparator;
 import java.util.List;
 
+import org.example.planning.Individual;
+
 public final class CrowdingDistance {
 
     private CrowdingDistance() {

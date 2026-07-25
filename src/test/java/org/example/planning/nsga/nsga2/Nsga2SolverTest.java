@@ -1,9 +1,9 @@
 package org.example.planning.nsga.nsga2;
 
 import org.example.Terrain;
+import org.example.planning.Individual;
 import org.example.planning.PlanningProblem;
 import org.example.planning.PlanningScenarioFactory;
-import org.example.planning.nsga.Individual;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

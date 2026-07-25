@@ -33,9 +33,9 @@ public final class PlanningScenarioFactory {
         int g2y = Math.min(3, h - 1);
 
         int[][] endpoints = {
-                {1, 1}, {g0x, g0y},
-                {s1x, s1y}, {g1x, g1y},
-                {s2x, s2y}, {g2x, g2y}
+                { 1, 1 }, { g0x, g0y },
+                { s1x, s1y }, { g1x, g1y },
+                { s2x, s2y }, { g2x, g2y }
         };
 
         boolean[][] noFly = new boolean[w][h];
@@ -48,10 +48,9 @@ public final class PlanningScenarioFactory {
         }
 
         List<RadarStation> radars = List.of(
-                new RadarStation(w * 0.28, h * 0.52, 5.0, Math.max(3.0, w * 0.25), 14.0),
-                new RadarStation(w * 0.72, h * 0.32, 4.0, Math.max(3.0, w * 0.22), 12.0),
-                new RadarStation(w * 0.52, h * 0.72, 6.0, Math.max(2.5, w * 0.2), 10.0)
-        );
+                new RadarStation(w * 0.28, h * 0.52, 5.0, Math.max(2.5, w * 0.20), 14.0),
+                new RadarStation(w * 0.72, h * 0.32, 4.0, Math.max(2.5, w * 0.18), 12.0),
+                new RadarStation(w * 0.52, h * 0.72, 6.0, Math.max(2.0, w * 0.16), 10.0));
 
         WindField wind = new WindField(0.55, -0.4);
 
@@ -62,8 +61,7 @@ public final class PlanningScenarioFactory {
                 terrain,
                 noFly,
                 radars,
-                wind
-        );
+                wind);
 
         List<DroneMission> missions = new ArrayList<>();
         missions.add(mission(terrain, 0, 1, 1, g0x, g0y, 240));
@@ -81,16 +79,14 @@ public final class PlanningScenarioFactory {
             int sy,
             int gx,
             int gy,
-            double energyBudget
-    ) {
+            double energyBudget) {
         int sz = safeAltitude(terrain, sx, sy);
         int gz = safeAltitude(terrain, gx, gy);
         return new DroneMission(
                 id,
                 new Vector3d(sx, sy, sz),
                 new Vector3d(gx, gy, gz),
-                energyBudget
-        );
+                energyBudget);
     }
 
     private static int safeAltitude(Terrain terrain, int x, int y) {

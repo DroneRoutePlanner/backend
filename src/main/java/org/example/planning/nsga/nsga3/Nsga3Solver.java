@@ -1,15 +1,12 @@
 package org.example.planning.nsga.nsga3;
 
+import org.example.planning.Individual;
 import org.example.planning.MultiDroneRouteEvaluator;
 import org.example.planning.PlanningProblem;
-import org.example.planning.nsga.CrowdingDistance;
-import org.example.planning.nsga.Individual;
 import org.example.planning.nsga.NonDominatedSorting;
 import org.example.planning.nsga.NsgaVariation;
-import org.example.planning.nsga.ReferenceDirections;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 import java.util.function.BiConsumer;
@@ -35,99 +32,101 @@ public final class Nsga3Solver {
             int populationSize,
             int generations,
             BiConsumer<Integer, List<Individual>> onGeneration) {
-        double[][] refDirs = ReferenceDirections.forPopulationSize(populationSize);
+        double[][] referenceDirections = ReferenceDirections.forPopulationSize(populationSize);
 
-        List<Individual> population = new ArrayList<>(populationSize);
+        List<Individual> currentPopulation = new ArrayList<>(populationSize);
+
         for (int i = 0; i < populationSize; i++) {
-            Individual ind = Individual.randomIndividual(problem, random);
-            ind.evaluate(problem, evaluator);
-            population.add(ind);
+            Individual individual = Individual.randomIndividual(problem, random);
+            individual.evaluate(problem, evaluator);
+            currentPopulation.add(individual);
         }
-        assignRankAndCrowding(population);
 
-        for (int g = 0; g < generations; g++) {
-            List<Individual> offspring = makeOffspring(problem, population, populationSize);
-            List<Individual> combined = new ArrayList<>(population.size() + offspring.size());
-            combined.addAll(population);
+        assignRanks(currentPopulation);
+        printPopulation(currentPopulation, "Populacja Początkowa");
+
+        for (int generation = 0; generation < generations; generation++) {
+            List<Individual> offspring = makeOffspring(problem, currentPopulation, populationSize);
+            List<Individual> combined = new ArrayList<>(currentPopulation.size() + offspring.size());
+            combined.addAll(currentPopulation);
             combined.addAll(offspring);
-            population = environmentalSelection(combined, populationSize, refDirs);
+
+            currentPopulation = environmentalSelection(combined, populationSize, referenceDirections);
+
             if (onGeneration != null) {
-                onGeneration.accept(g, new ArrayList<>(population));
+                onGeneration.accept(generation, new ArrayList<>(currentPopulation));
             }
+
+            printPopulation(currentPopulation, "Populacja Późniejsza");
         }
 
-        List<List<Individual>> fronts = NonDominatedSorting.sort(population);
+        List<List<Individual>> fronts = NonDominatedSorting.sort(currentPopulation);
         return new ArrayList<>(fronts.get(0));
     }
 
     private List<Individual> makeOffspring(PlanningProblem problem, List<Individual> population, int targetSize) {
         List<Individual> offspring = new ArrayList<>();
+
         while (offspring.size() < targetSize) {
-            Individual p1 = binaryTournament(population);
-            Individual p2 = binaryTournament(population);
-            Individual c1 = p1.copy();
-            Individual c2 = p2.copy();
+            Individual parent1 = binaryTournament(population);
+            Individual parent2 = binaryTournament(population);
+            Individual child1 = parent1.copy();
+            Individual child2 = parent2.copy();
+
             if (random.nextDouble() < 0.9) {
-                NsgaVariation.crossover(random, c1, c2);
+                NsgaVariation.crossover(random, child1, child2);
             }
-            NsgaVariation.mutate(random, c1, 0.12);
-            NsgaVariation.mutate(random, c2, 0.12);
-            c1.evaluate(problem, evaluator);
-            c2.evaluate(problem, evaluator);
-            offspring.add(c1);
-            offspring.add(c2);
+
+            NsgaVariation.mutate(random, child1, 0.12);
+            NsgaVariation.mutate(random, child2, 0.12);
+            child1.evaluate(problem, evaluator);
+            child2.evaluate(problem, evaluator);
+            offspring.add(child1);
+            offspring.add(child2);
         }
+
         while (offspring.size() > targetSize) {
             offspring.remove(offspring.size() - 1);
         }
+
         return offspring;
     }
 
-    private Individual binaryTournament(List<Individual> pop) {
-        Individual a = pop.get(random.nextInt(pop.size()));
-        Individual b = pop.get(random.nextInt(pop.size()));
-        if (better(a, b)) {
-            return a;
+    private Individual binaryTournament(List<Individual> population) {
+        Individual candidateA = population.get(random.nextInt(population.size()));
+        Individual candidateB = population.get(random.nextInt(population.size()));
+        if (candidateA.getRank() != candidateB.getRank()) {
+            return candidateA.getRank() < candidateB.getRank() ? candidateA : candidateB;
         }
-        return b;
+        return random.nextBoolean() ? candidateA : candidateB;
     }
 
-    private static boolean better(Individual a, Individual b) {
-        if (a.getRank() != b.getRank()) {
-            return a.getRank() < b.getRank();
-        }
-        return a.getCrowdingDistance() > b.getCrowdingDistance();
-    }
-
-    private List<Individual> environmentalSelection(List<Individual> combined, int n, double[][] refDirs) {
-        List<List<Individual>> fronts = NonDominatedSorting.sort(combined);
-        List<Individual> next = new ArrayList<>(n);
+    private List<Individual> environmentalSelection(List<Individual> combinedPopulation, int targetPopulationSize,
+            double[][] referenceDirections) {
+        List<List<Individual>> fronts = NonDominatedSorting.sort(combinedPopulation);
+        List<Individual> selectedPopulation = new ArrayList<>(targetPopulationSize);
         int frontIndex = 0;
-        while (frontIndex < fronts.size() && next.size() + fronts.get(frontIndex).size() <= n) {
-            CrowdingDistance.assign(fronts.get(frontIndex));
-            next.addAll(fronts.get(frontIndex));
+
+        while (frontIndex < fronts.size()
+                && selectedPopulation.size() + fronts.get(frontIndex).size() <= targetPopulationSize) {
+            selectedPopulation.addAll(fronts.get(frontIndex));
             frontIndex++;
         }
-        if (next.size() < n && frontIndex < fronts.size()) {
+
+        if (selectedPopulation.size() < targetPopulationSize && frontIndex < fronts.size()) {
             List<Individual> last = new ArrayList<>(fronts.get(frontIndex));
-            int need = n - next.size();
-            boolean allFeasible = last.stream().allMatch(Individual::isFeasible);
-            if (allFeasible) {
-                nichingFill(next, last, need, refDirs);
-            } else {
-                CrowdingDistance.assign(last);
-                last.sort(Comparator.comparingDouble(Individual::getCrowdingDistance).reversed());
-                for (int i = 0; i < need; i++) {
-                    next.add(last.get(i));
-                }
-            }
+            int individualsNeededSize = targetPopulationSize - selectedPopulation.size();
+            nichingFill(selectedPopulation, last, individualsNeededSize, referenceDirections);
         }
-        assignRankAndCrowding(next);
-        return next;
+
+        assignRanks(selectedPopulation);
+        return selectedPopulation;
     }
 
     /**
-     * Dobór z {@code lastFront} (wszystkie dopuszczalne) metodą nisz (Deb & Jain).
+     * Dobór z {@code lastFront} metodą nisz (Deb & Jain), także gdy front zawiera
+     * niedopuszczalne
+     * (normalizacja celów z {@link #boundsFeasible}).
      */
     private void nichingFill(List<Individual> next, List<Individual> lastFront, int need, double[][] refDirs) {
         List<Individual> union = new ArrayList<>(next.size() + lastFront.size());
@@ -174,15 +173,11 @@ public final class Nsga3Solver {
             rho[jStar]++;
             picked++;
         }
-        if (picked < need && !lastFront.isEmpty()) {
-            CrowdingDistance.assign(lastFront);
-            lastFront.sort(Comparator.comparingDouble(Individual::getCrowdingDistance).reversed());
-            int i = 0;
-            while (picked < need && i < lastFront.size()) {
-                next.add(lastFront.get(i));
-                i++;
-                picked++;
-            }
+
+        while (picked < need && !lastFront.isEmpty()) {
+            int idx = random.nextInt(lastFront.size());
+            next.add(lastFront.remove(idx));
+            picked++;
         }
     }
 
@@ -269,13 +264,39 @@ public final class Nsga3Solver {
         return j;
     }
 
-    private void assignRankAndCrowding(List<Individual> population) {
+    // rozstrzyganie losowe
+    private void assignRanks(List<Individual> population) {
         List<List<Individual>> fronts = NonDominatedSorting.sort(population);
         for (int i = 0; i < fronts.size(); i++) {
-            CrowdingDistance.assign(fronts.get(i));
             for (Individual ind : fronts.get(i)) {
                 ind.setRank(i);
             }
         }
+    }
+
+    public static void printPopulation(List<Individual> population, String title) {
+        if (population == null || population.isEmpty()) {
+            System.out.println("\n[INFO] Populacja jest pusta lub nie istnieje.");
+            return;
+        }
+
+        // Dynamicznie centrowany nagłówek dla estetyki
+        System.out.println("\n=========================== " + title.toUpperCase() + " ===========================");
+        System.out.printf("%-5s | %-5s | %-12s | %-12s | %-12s%n",
+                "Nr", "Rank", "Kryterium 0", "Kryterium 1", "Kryterium 2");
+        System.out.println("-----------------------------------------------------------------------------");
+
+        for (int i = 0; i < population.size(); i++) {
+            Individual ind = population.get(i);
+            double[] objectives = ind.getObjectives();
+
+            System.out.printf("#%-4d | %-5d | %-12.4f | %-12.4f | %-12.4f%n",
+                    (i + 1),
+                    ind.getRank(),
+                    objectives[0],
+                    objectives[1],
+                    objectives[2]);
+        }
+        System.out.println("=============================================================================\n");
     }
 }

@@ -22,13 +22,14 @@ public final class MultiDroneRouteEvaluator {
 
     private static final double PENALTY_ENERGY = 50.0;
 
+    private static final double PENALTY_RADAR_EXPOSURE = 1.0;
+
     private static final double HORIZONTAL_ENERGY = 1.0;
 
     private static final double VERTICAL_ENERGY = 1.6;
 
     private static final double CLIMB_EXTRA = 0.35;
 
-    /** Dodatkowa energia na jednostkę „przeciwwiatru”: −(mx·wx + my·wy) gdy ujemne. */
     private static final double WIND_OPPOSITION_COST = 0.65;
 
     public RouteEvaluationResult evaluate(PlanningProblem problem, int[][] genes) {
@@ -54,6 +55,7 @@ public final class MultiDroneRouteEvaluator {
         }
 
         List<List<Vector3d>> timeline = recordTimeline ? new ArrayList<>() : null;
+
         if (recordTimeline) {
             timeline.add(copyPositions(pos));
         }
@@ -63,7 +65,21 @@ public final class MultiDroneRouteEvaluator {
 
         ctx.getWindField().reset();
 
-        for (int t = 0; t < maxT; t++) {
+        int[] geneSlot = new int[dCount];
+        int tickLimit = maxT * dCount;
+
+        for (int t = 0; t < tickLimit; t++) {
+            boolean allArrived = true;
+            for (int d = 0; d < dCount; d++) {
+                if (!Boolean.TRUE.equals(arrived.get(d))) {
+                    allArrived = false;
+                    break;
+                }
+            }
+            if (allArrived) {
+                break;
+            }
+
             ctx.getWindField().advanceTick(t);
 
             List<Vector3d> next = new ArrayList<>(dCount);
@@ -71,56 +87,58 @@ public final class MultiDroneRouteEvaluator {
                 next.add(pos.get(d));
             }
 
-            for (int d = 0; d < dCount; d++) {
-                if (arrived.get(d)) {
-                    continue;
-                }
-                Vector3d from = pos.get(d);
-                int code = genes[d][t];
-                Vector3d delta = MoveEncoding.delta(code);
-                Vector3d to = from.add(delta);
+            int active = t % dCount;
+            if (!arrived.get(active) && geneSlot[active] < maxT) {
+                final int d = active;
+                try {
+                    Vector3d from = pos.get(d);
+                    int code = genes[d][geneSlot[d]];
+                    Vector3d delta = MoveEncoding.delta(code);
+                    Vector3d to = from.add(delta);
 
-                int x = to.getX();
-                int y = to.getY();
-                int z = to.getZ();
+                    int x = to.getX();
+                    int y = to.getY();
+                    int z = to.getZ();
 
-                if (x < 0 || x >= ctx.getWidth() || y < 0 || y >= ctx.getHeight()
-                        || z < 0 || z > ctx.getMaxAltitude()) {
-                    violation += PENALTY_OOB;
-                    continue;
-                }
+                    if (x < 0 || x >= ctx.getWidth() || y < 0 || y >= ctx.getHeight()
+                            || z < 0 || z > ctx.getMaxAltitude()) {
+                        violation += PENALTY_OOB;
+                        continue;
+                    }
 
-                if (ctx.isNoFly(x, y)) {
-                    violation += PENALTY_NO_FLY;
-                }
+                    if (ctx.isNoFly(x, y)) {
+                        violation += PENALTY_NO_FLY;
+                    }
 
-                int ground = ctx.scaledGroundLevel(x, y);
-                if (z < ground) {
-                    violation += PENALTY_GROUND;
-                }
+                    int ground = ctx.scaledGroundLevel(x, y);
+                    if (z < ground) {
+                        violation += PENALTY_GROUND;
+                    }
 
-                double stepEnergy = stepEnergy(
-                        from,
-                        to,
-                        ctx.getWindField().getWindX(),
-                        ctx.getWindField().getWindY()
-                );
-                double newE = energyAcc.get(d) + stepEnergy;
-                energyAcc.set(d, newE);
+                    double stepEnergy = stepEnergy(
+                            from,
+                            to,
+                            ctx.getWindField().getWindX(),
+                            ctx.getWindField().getWindY());
+                    double newE = energyAcc.get(d) + stepEnergy;
+                    energyAcc.set(d, newE);
 
-                DroneMission mission = missions.get(d);
-                if (newE > mission.energyBudget()) {
-                    violation += (newE - mission.energyBudget()) * PENALTY_ENERGY;
-                }
+                    DroneMission mission = missions.get(d);
+                    if (newE > mission.energyBudget()) {
+                        violation += (newE - mission.energyBudget()) * PENALTY_ENERGY;
+                    }
 
-                next.set(d, to);
+                    next.set(d, to);
 
-                double risk = radarRiskAt(ctx.getRadars(), x + 0.5, y + 0.5, z + 0.5);
-                radarSum += risk;
+                    double risk = radarRiskAt(ctx.getRadars(), x + 0.5, y + 0.5, z + 0.5);
+                    radarSum += risk;
 
-                if (reachedGoal(ctx, to, mission)) {
-                    arrived.set(d, true);
-                    arrivalTime.set(d, t + 1);
+                    if (reachedGoal(ctx, to, mission)) {
+                        arrived.set(d, true);
+                        arrivalTime.set(d, t + 1);
+                    }
+                } finally {
+                    geneSlot[d]++;
                 }
             }
 
@@ -148,9 +166,11 @@ public final class MultiDroneRouteEvaluator {
                 DroneMission m = missions.get(d);
                 int dist = goalDistance(ctx, pos.get(d), m);
                 violation += dist * PENALTY_NOT_GOAL;
-                makespan = Math.max(makespan, maxT + dist);
+                makespan = Math.max(makespan, tickLimit + dist);
             }
         }
+
+        violation += radarSum * PENALTY_RADAR_EXPOSURE;
 
         boolean feasible = violation < 1e-6;
         RouteEvaluationResult result = new RouteEvaluationResult(makespan, totalEnergy, radarSum, violation, feasible);

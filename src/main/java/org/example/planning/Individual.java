@@ -1,8 +1,4 @@
-package org.example.planning.nsga;
-
-import org.example.planning.MoveEncoding;
-import org.example.planning.MultiDroneRouteEvaluator;
-import org.example.planning.PlanningProblem;
+package org.example.planning;
 
 import java.util.Arrays;
 import java.util.Random;
@@ -31,24 +27,24 @@ public final class Individual {
     }
 
     public static Individual randomIndividual(PlanningProblem problem, Random rnd) {
-        int d = problem.droneCount();
-        int t = problem.maxStepsPerDrone();
-        int[][] g = new int[d][t];
-        for (int i = 0; i < d; i++) {
-            for (int j = 0; j < t; j++) {
-                g[i][j] = rnd.nextInt(MoveEncoding.COUNT);
+        int droneCount = problem.droneCount();
+        int maxSteps = problem.maxStepsPerDrone();
+        int[][] generatedGenes = new int[droneCount][maxSteps];
+        for (int i = 0; i < droneCount; i++) {
+            for (int j = 0; j < maxSteps; j++) {
+                generatedGenes[i][j] = rnd.nextInt(MoveEncoding.COUNT);
             }
         }
-        return new Individual(g);
+        return new Individual(generatedGenes);
     }
 
     public void evaluate(PlanningProblem problem, MultiDroneRouteEvaluator evaluator) {
-        var r = evaluator.evaluate(problem, genes);
-        objectives[0] = r.getMakespan();
-        objectives[1] = r.getTotalEnergy();
-        objectives[2] = r.getTotalRadarRisk();
-        constraintViolation = r.getConstraintViolation();
-        feasible = r.isFeasible();
+        var result = evaluator.evaluate(problem, genes);
+        objectives[0] = result.getMakespan();
+        objectives[1] = result.getTotalEnergy();
+        objectives[2] = result.getTotalRadarRisk();
+        constraintViolation = result.getConstraintViolation();
+        feasible = result.isFeasible();
     }
 
     public Individual copy() {
@@ -99,7 +95,6 @@ public final class Individual {
     public String toString() {
         return String.format(
                 "Individual[ makespan=%.2f energy=%.2f radarRisk=%.2f feasible=%s cv=%.2f ]",
-                objectives[0], objectives[1], objectives[2], feasible, constraintViolation
-        );
+                objectives[0], objectives[1], objectives[2], feasible, constraintViolation);
     }
 }

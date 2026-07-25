@@ -1,4 +1,4 @@
-package org.example.planning.nsga;
+package org.example.planning.nsga.nsga3;
 
 import java.util.ArrayList;
 import java.util.Comparator;

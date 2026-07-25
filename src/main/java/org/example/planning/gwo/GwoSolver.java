@@ -1,12 +1,11 @@
 package org.example.planning.gwo;
 
+import org.example.planning.Individual;
 import org.example.planning.MoveEncoding;
 import org.example.planning.MultiDroneRouteEvaluator;
 import org.example.planning.PlanningProblem;
-import org.example.planning.nsga.Individual;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
@@ -14,12 +13,10 @@ import java.util.function.BiConsumer;
 
 public final class GwoSolver {
 
-    private static final double INFEASIBLE_BASE = 1e15;
-
+    private static final double INFEASIBLE_BASE = 1e7;
     private static final int COUNT = MoveEncoding.COUNT;
 
     private final MultiDroneRouteEvaluator evaluator = new MultiDroneRouteEvaluator();
-
     private final Random random;
 
     public GwoSolver(long seed) {
@@ -35,69 +32,84 @@ public final class GwoSolver {
             int packSize,
             int iterations,
             BiConsumer<Integer, List<Individual>> onIteration) {
+
         if (packSize < 3) {
             throw new IllegalArgumentException("GWO wymaga co najmniej 3 wilków (α, β, δ)");
         }
         if (iterations < 1) {
             throw new IllegalArgumentException("GWO wymaga co najmniej 1 iteracji");
         }
+
         int drones = problem.droneCount();
         int steps = problem.maxStepsPerDrone();
 
-        List<double[][]> positions = new ArrayList<>(packSize);
         List<Individual> population = new ArrayList<>(packSize);
         for (int i = 0; i < packSize; i++) {
-            double[][] pos = randomPosition(drones, steps);
-            positions.add(pos);
-            int[][] genes = new int[drones][steps];
-            discreteFromContinuous(pos, genes);
-            Individual ind = new Individual(genes);
+            Individual ind = Individual.randomIndividual(problem, random);
             ind.evaluate(problem, evaluator);
             population.add(ind);
         }
 
-        sortByFitness(population, positions);
+        sortByFitness(population);
 
         for (int iter = 0; iter < iterations; iter++) {
             double a = 2.0 - iter * (2.0 / iterations);
 
-            double[][] xAlpha = positions.get(0);
-            double[][] xBeta = positions.get(1);
-            double[][] xDelta = positions.get(2);
+            int[][] gAlpha = cloneGenes(population.get(0).getGenes(), drones, steps);
+            int[][] gBeta = cloneGenes(population.get(1).getGenes(), drones, steps);
+            int[][] gDelta = cloneGenes(population.get(2).getGenes(), drones, steps);
 
             for (int w = 0; w < packSize; w++) {
-                double[][] x = positions.get(w);
+                int[][] currentGenes = population.get(w).getGenes();
+
                 for (int d = 0; d < drones; d++) {
                     for (int t = 0; t < steps; t++) {
+
                         double r1 = random.nextDouble();
                         double r2 = random.nextDouble();
                         double r3 = random.nextDouble();
-                        double r4 = random.nextDouble();
-                        double r5 = random.nextDouble();
-                        double r6 = random.nextDouble();
 
-                        double a1 = 2.0 * a * r1 - a;
-                        double a2 = 2.0 * a * r2 - a;
-                        double a3 = 2.0 * a * r3 - a;
-                        double c1 = 2.0 * r4;
-                        double c2 = 2.0 * r5;
-                        double c3 = 2.0 * r6;
+                        double A1 = 2.0 * a * r1 - a;
+                        double A2 = 2.0 * a * r2 - a;
+                        double A3 = 2.0 * a * r3 - a;
 
-                        double dAlpha = Math.abs(c1 * xAlpha[d][t] - x[d][t]);
-                        double dBeta = Math.abs(c2 * xBeta[d][t] - x[d][t]);
-                        double dDelta = Math.abs(c3 * xDelta[d][t] - x[d][t]);
+                        int x1 = (Math.abs(A1) < 1.0) ? gAlpha[d][t]
+                                : (random.nextBoolean() ? currentGenes[d][t] : random.nextInt(COUNT));
+                        int x2 = (Math.abs(A2) < 1.0) ? gBeta[d][t]
+                                : (random.nextBoolean() ? currentGenes[d][t] : random.nextInt(COUNT));
+                        int x3 = (Math.abs(A3) < 1.0) ? gDelta[d][t]
+                                : (random.nextBoolean() ? currentGenes[d][t] : random.nextInt(COUNT));
 
-                        double x1 = xAlpha[d][t] - a1 * dAlpha;
-                        double x2 = xBeta[d][t] - a2 * dBeta;
-                        double x3 = xDelta[d][t] - a3 * dDelta;
-                        x[d][t] = clampGene((x1 + x2 + x3) / 3.0);
+                        int nextMove;
+                        if (x1 == x2 || x1 == x3) {
+                            nextMove = x1;
+                        } else if (x2 == x3) {
+                            nextMove = x2;
+                        } else {
+                            double rand = random.nextDouble();
+                            if (rand < 0.5)
+                                nextMove = x1;
+                            else if (rand < 0.8)
+                                nextMove = x2;
+                            else
+                                nextMove = x3;
+                        }
+
+                        if (random.nextDouble() < (a * 0.05)) {
+                            nextMove = random.nextInt(COUNT);
+                        }
+
+                        currentGenes[d][t] = nextMove;
                     }
                 }
-                discreteFromContinuous(x, population.get(w).getGenes());
                 population.get(w).evaluate(problem, evaluator);
             }
 
-            sortByFitness(population, positions);
+            sortByFitness(population);
+
+            if (iter % 10 == 0 || iter == iterations - 1) {
+                printIterationProgress("GWO", iter, population);
+            }
 
             if (onIteration != null) {
                 onIteration.accept(iter, new ArrayList<>(population));
@@ -108,68 +120,69 @@ public final class GwoSolver {
     }
 
     public static double scalarFitness(Individual ind) {
+        double fitness = 0.0;
         if (!ind.isFeasible()) {
-            return INFEASIBLE_BASE + ind.getConstraintViolation();
+            fitness += INFEASIBLE_BASE + ind.getConstraintViolation();
         }
         double[] o = ind.getObjectives();
-        return o[0] + 0.02 * o[1] + o[2];
+        fitness += o[0] + 0.02 * o[1] + o[2];
+        return fitness;
     }
 
-    private static void sortByFitness(List<Individual> population, List<double[][]> positions) {
-        Integer[] idx = new Integer[population.size()];
-        for (int i = 0; i < idx.length; i++) {
-            idx[i] = i;
-        }
-        Arrays.sort(idx, Comparator.comparingDouble(i -> scalarFitness(population.get(i))));
-
-        List<Individual> sortedInd = new ArrayList<>(population.size());
-        List<double[][]> sortedPos = new ArrayList<>(positions.size());
-        for (int i : idx) {
-            sortedInd.add(population.get(i));
-            sortedPos.add(positions.get(i));
-        }
-        population.clear();
-        positions.clear();
-        population.addAll(sortedInd);
-        positions.addAll(sortedPos);
+    private static void sortByFitness(List<Individual> population) {
+        population.sort(Comparator.comparingDouble(GwoSolver::scalarFitness));
     }
 
-    private double[][] randomPosition(int drones, int steps) {
-        double[][] pos = new double[drones][steps];
+    private static int[][] cloneGenes(int[][] source, int drones, int steps) {
+        int[][] target = new int[drones][steps];
         for (int d = 0; d < drones; d++) {
-            for (int t = 0; t < steps; t++) {
-                pos[d][t] = random.nextDouble() * (COUNT - 1);
-            }
+            System.arraycopy(source[d], 0, target[d], 0, steps);
         }
-        return pos;
+        return target;
     }
 
-    private static void discreteFromContinuous(double[][] pos, int[][] genes) {
-        for (int d = 0; d < pos.length; d++) {
-            for (int t = 0; t < pos[d].length; t++) {
-                int v = (int) Math.round(pos[d][t]);
-                genes[d][t] = clampInt(v);
-            }
+    public void printIterationProgress(String title, int iteration, List<Individual> population) {
+        if (population == null || population.isEmpty()) {
+            System.out.println("--- Iteracja " + iteration + ": Populacja jest pusta ---");
+            return;
         }
-    }
 
-    private static double clampGene(double v) {
-        if (v < 0) {
-            return 0;
-        }
-        if (v > COUNT - 1) {
-            return COUNT - 1;
-        }
-        return v;
-    }
+        // Dynamiczny nagłówek informujący o bieżącej iteracji
+        String headerText = String.format(" ITERACJA %d [%s] ", iteration, title.toUpperCase());
+        System.out.println("\n=======================" + headerText + "=======================");
+        System.out.printf("%-5s | %-5s | %-13s | %-12s | %-12s | %-12s%n",
+                "Wilk", "Rank", "Crowding Dist", "Kryterium 0", "Kryterium 1", "Kryterium 2");
+        System.out.println("-----------------------------------------------------------------------------");
 
-    private static int clampInt(int v) {
-        if (v < 0) {
-            return 0;
+        // W trakcie iteracji drukujemy tylko TOP 3 (Alfa, Beta, Delta), żeby nie
+        // zapchać konsoli
+        int limit = Math.min(3, population.size());
+        String[] roles = { "Alpha", "Beta", "Delta" };
+
+        for (int i = 0; i < limit; i++) {
+            Individual ind = population.get(i);
+            double[] objectives = ind.getObjectives();
+
+            System.out.printf("%-5s | %-5d | %-13.4f | %-12.4f | %-12.4f | %-12.4f%n",
+                    roles[i],
+                    ind.getRank(),
+                    ind.getCrowdingDistance(),
+                    objectives[0],
+                    objectives[1],
+                    objectives[2]);
         }
-        if (v >= COUNT) {
-            return COUNT - 1;
+
+        // Jeśli populacja jest większa, dodajemy informację o reszcie stada
+        if (population.size() > 3) {
+            System.out.println("-----------------------------------------------------------------------------");
+            System.out.printf("... oraz %d pozostałych wilków w stadzie.%n", (population.size() - 3));
         }
-        return v;
+
+        // Dodatkowe szybkie statystyki pomocne przy debugowaniu zbieżności algorytmu
+        long feasibleCount = population.stream().filter(Individual::isFeasible).count();
+        System.out.println("-----------------------------------------------------------------------------");
+        System.out.printf("Rozwiązania dopuszczalne: %d/%d | Najlepszy Scalar Fitness: %.4f%n",
+                feasibleCount, population.size(), GwoSolver.scalarFitness(population.get(0)));
+        System.out.println("=============================================================================\n");
     }
 }

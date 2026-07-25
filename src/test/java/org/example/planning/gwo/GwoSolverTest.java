@@ -1,9 +1,9 @@
 package org.example.planning.gwo;
 
 import org.example.Terrain;
+import org.example.planning.Individual;
 import org.example.planning.PlanningProblem;
 import org.example.planning.PlanningScenarioFactory;
-import org.example.planning.nsga.Individual;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;

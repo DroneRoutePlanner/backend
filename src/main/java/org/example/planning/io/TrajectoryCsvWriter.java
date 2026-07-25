@@ -16,6 +16,9 @@ import java.util.List;
  * <p>
  * Kolumny: {@code step,drone_id,x,y,z} — {@code step} od 0, {@code drone_id} od 0.
  * <p>
+ * Przy zapisie trajektorii aplikacja zapisuje też heightmapę obok pliku: {@code *_terrain.csv}
+ * (patrz {@link org.example.planning.io.TerrainCsvWriter}).
+ * <p>
  * Przykład z Gradle: {@code ./gradlew -Ddrone.trajectory.csv=assets/trasa.csv run}
  * (właściwość musi być przekazana do JVM aplikacji — patrz {@code build.gradle}).
  */

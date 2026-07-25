@@ -1,5 +1,6 @@
 package org.example.planning.nsga;
 
+import org.example.planning.Individual;
 import org.example.planning.MoveEncoding;
 
 import java.util.Random;
@@ -9,33 +10,37 @@ public final class NsgaVariation {
     private NsgaVariation() {
     }
 
-    public static void crossover(Random random, Individual c1, Individual c2) {
-        int[][] g1 = c1.getGenes();
-        int[][] g2 = c2.getGenes();
-        int drones = g1.length;
-        for (int d = 0; d < drones; d++) {
+    // krzyżowanie jednopunktowe a nie SBX
+    public static void crossover(Random random, Individual child1, Individual child2) {
+        int[][] genes1 = child1.getGenes();
+        int[][] genes2 = child2.getGenes();
+        int drones = genes1.length;
+
+        for (int drone = 0; drone < drones; drone++) {
             if (random.nextBoolean()) {
                 continue;
             }
-            int len = g1[d].length;
+
+            int len = genes1[drone].length;
             if (len < 2) {
                 continue;
             }
-            int point = 1 + random.nextInt(len - 1);
-            for (int j = point; j < len; j++) {
-                int t = g1[d][j];
-                g1[d][j] = g2[d][j];
-                g2[d][j] = t;
+
+            int splitPoint = 1 + random.nextInt(len - 1);
+            for (int j = splitPoint; j < len; j++) {
+                int t = genes1[drone][j];
+                genes1[drone][j] = genes2[drone][j];
+                genes2[drone][j] = t;
             }
         }
     }
 
     public static void mutate(Random random, Individual ind, double rate) {
-        int[][] g = ind.getGenes();
-        for (int d = 0; d < g.length; d++) {
-            for (int t = 0; t < g[d].length; t++) {
+        int[][] droneGenes = ind.getGenes();
+        for (int droneIndex = 0; droneIndex < droneGenes.length; droneIndex++) {
+            for (int stepIndex = 0; stepIndex < droneGenes[droneIndex].length; stepIndex++) {
                 if (random.nextDouble() < rate) {
-                    g[d][t] = random.nextInt(MoveEncoding.COUNT);
+                    droneGenes[droneIndex][stepIndex] = random.nextInt(MoveEncoding.COUNT);
                 }
             }
         }
