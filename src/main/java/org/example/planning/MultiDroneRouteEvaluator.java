@@ -1,6 +1,7 @@
 package org.example.planning;
 
 import org.example.environment.Vector3d;
+import org.example.environment.WindField;
 import org.example.planning.model.DroneMission;
 import org.example.planning.model.PlanningContext;
 import org.example.planning.model.RadarStation;
@@ -8,6 +9,22 @@ import org.example.planning.model.RadarStation;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Symulator tras zespołu dronów i funkcja celu (trzy minimalizowane kryteria):
+ * makespan, łączna energia, łączne ryzyko wykrycia przez radary.
+ * <p>
+ * Model czasu: drony poruszają się naprzemiennie (round-robin) — w ticku {@code t} rusza się dron
+ * {@code t mod n}, zużywając kolejny gen swojej trasy. Każdy dron ma dokładnie
+ * {@code maxStepsPerDrone} tur, więc horyzont wynosi {@code maxStepsPerDrone * n} ticków.
+ * <p>
+ * Ograniczenia (granice mapy, pułap, teren, strefy zakazu lotu, kolizje między dronami) są
+ * egzekwowane twardo: ruch naruszający ograniczenie jest odrzucany — dron pozostaje w miejscu,
+ * a gen jest zużyty. Dzięki temu kryteria nie zawierają sztucznych kar, a każde rozwiązanie jest
+ * dopuszczalne przestrzennie. Dron, który nie dotarł do celu, otrzymuje makespan równy horyzontowi
+ * powiększonemu o pozostałą odległość do celu.
+ * <p>
+ * Klasa jest bezstanowa — jedną instancję można współdzielić między wątkami.
+ */
 public final class MultiDroneRouteEvaluator {
 
     private static final double HORIZONTAL_ENERGY = 1.0;
@@ -18,172 +35,127 @@ public final class MultiDroneRouteEvaluator {
 
     private static final double WIND_OPPOSITION_COST = 0.65;
 
+    private static final double RADAR_RISK_MULTIPLIER = 10.0;
+
+    private static final double RADAR_ZONE_STEP_PENALTY = 150.0;
+
     public RouteEvaluationResult evaluate(PlanningProblem problem, int[][] genes) {
         return simulate(problem, genes, false).result();
     }
 
+    /**
+     * @param recordTimeline czy zapisywać pozycje wszystkich dronów po każdym ticku (do animacji / CSV)
+     */
     public SimulationTrace simulate(PlanningProblem problem, int[][] genes, boolean recordTimeline) {
         PlanningContext ctx = problem.context();
         List<DroneMission> missions = problem.missions();
-        int dCount = missions.size();
-        int maxT = problem.maxStepsPerDrone();
+        int droneCount = missions.size();
+        int maxSteps = problem.maxStepsPerDrone();
+        int tickLimit = maxSteps * droneCount;
 
-        List<Vector3d> pos = new ArrayList<>(dCount);
-        List<Boolean> arrived = new ArrayList<>(dCount);
-        List<Integer> arrivalTime = new ArrayList<>(dCount);
-        List<Double> energyAcc = new ArrayList<>(dCount);
-
-        for (DroneMission m : missions) {
-            pos.add(m.start());
-            arrived.add(false);
-            arrivalTime.add(-1);
-            energyAcc.add(0.0);
+        Vector3d[] positions = new Vector3d[droneCount];
+        boolean[] arrived = new boolean[droneCount];
+        int[] arrivalTick = new int[droneCount];
+        double[] energy = new double[droneCount];
+        int[] nextGene = new int[droneCount];
+        for (int d = 0; d < droneCount; d++) {
+            positions[d] = missions.get(d).start();
         }
 
-        List<List<Vector3d>> timeline = recordTimeline ? new ArrayList<>() : null;
-
+        List<List<Vector3d>> timeline = recordTimeline ? new ArrayList<>(tickLimit + 1) : null;
         if (recordTimeline) {
-            timeline.add(copyPositions(pos));
+            timeline.add(List.of(positions.clone()));
         }
 
-        double radarSum = 0.0;
+        double radarRisk = 0.0;
+        int finishedDrones = 0;
 
-        ctx.getWindField().reset();
+        for (int t = 0; t < tickLimit && finishedDrones < droneCount; t++) {
+            int d = t % droneCount;
+            if (!arrived[d] && nextGene[d] < maxSteps) {
+                Vector3d from = positions[d];
+                Vector3d to = from.add(MoveEncoding.delta(genes[d][nextGene[d]++]));
 
-        int[] geneSlot = new int[dCount];
-        int tickLimit = maxT * dCount;
-
-        for (int t = 0; t < tickLimit; t++) {
-            boolean allArrived = true;
-            for (int d = 0; d < dCount; d++) {
-                if (!Boolean.TRUE.equals(arrived.get(d))) {
-                    allArrived = false;
-                    break;
+                if (ctx.isTraversable(to) && !isOccupied(positions, d, to)) {
+                    energy[d] += stepEnergy(from, to, ctx.getWindField().windAt(t));
+                    radarRisk += radarStepCost(radarRiskAt(ctx.getRadars(), to));
+                    positions[d] = to;
+                    if (reachedGoal(to, missions.get(d))) {
+                        arrived[d] = true;
+                        arrivalTick[d] = t + 1;
+                        finishedDrones++;
+                    }
+                }
+                if (!arrived[d] && nextGene[d] >= maxSteps) {
+                    finishedDrones++;
                 }
             }
-            if (allArrived) {
-                break;
-            }
-
-            ctx.getWindField().advanceTick(t);
-
-            List<Vector3d> next = new ArrayList<>(dCount);
-            for (int d = 0; d < dCount; d++) {
-                next.add(pos.get(d));
-            }
-
-            int active = t % dCount;
-            if (!arrived.get(active) && geneSlot[active] < maxT) {
-                final int d = active;
-                try {
-                    Vector3d from = pos.get(d);
-                    int code = genes[d][geneSlot[d]];
-                    Vector3d delta = MoveEncoding.delta(code);
-                    Vector3d to = from.add(delta);
-
-                    int x = to.getX();
-                    int y = to.getY();
-                    int z = to.getZ();
-
-                    if (x < 0 || x >= ctx.getWidth() || y < 0 || y >= ctx.getHeight()
-                            || z < 0 || z > ctx.getMaxAltitude()) {
-                        continue;
-                    }
-
-                    double stepEnergy = stepEnergy(
-                            from,
-                            to,
-                            ctx.getWindField().getWindX(),
-                            ctx.getWindField().getWindY());
-                    double newE = energyAcc.get(d) + stepEnergy;
-                    energyAcc.set(d, newE);
-
-                    next.set(d, to);
-
-                    double risk = radarRiskAt(ctx.getRadars(), x + 0.5, y + 0.5, z + 0.5);
-                    radarSum += risk;
-
-                    DroneMission mission = missions.get(d);
-                    if (reachedGoal(ctx, to, mission)) {
-                        arrived.set(d, true);
-                        arrivalTime.set(d, t + 1);
-                    }
-                } finally {
-                    geneSlot[d]++;
-                }
-            }
-
-            pos = next;
             if (recordTimeline) {
-                timeline.add(copyPositions(pos));
+                timeline.add(List.of(positions.clone()));
             }
         }
 
         double makespan = 0.0;
         double totalEnergy = 0.0;
-        for (int d = 0; d < dCount; d++) {
-            totalEnergy += energyAcc.get(d);
-            if (Boolean.TRUE.equals(arrived.get(d))) {
-                makespan = Math.max(makespan, arrivalTime.get(d));
-            } else {
-                DroneMission m = missions.get(d);
-                int dist = goalDistance(ctx, pos.get(d), m);
-                makespan = Math.max(makespan, tickLimit + dist);
-            }
+        for (int d = 0; d < droneCount; d++) {
+            totalEnergy += energy[d];
+            double droneTime = arrived[d]
+                    ? arrivalTick[d]
+                    : tickLimit + remainingDistance(ctx, positions[d], missions.get(d));
+            makespan = Math.max(makespan, droneTime);
         }
 
-        RouteEvaluationResult result = new RouteEvaluationResult(makespan, totalEnergy, radarSum);
-        List<List<Vector3d>> frames = recordTimeline ? timeline : List.of();
-        return new SimulationTrace(result, frames);
+        RouteEvaluationResult result = new RouteEvaluationResult(makespan, totalEnergy, radarRisk);
+        return new SimulationTrace(result, recordTimeline ? timeline : List.of());
     }
 
-    private static List<Vector3d> copyPositions(List<Vector3d> positions) {
-        return new ArrayList<>(positions);
+    private static boolean isOccupied(Vector3d[] positions, int movingDrone, Vector3d cell) {
+        for (int d = 0; d < positions.length; d++) {
+            if (d != movingDrone && positions[d].equals(cell)) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    private static double stepEnergy(Vector3d from, Vector3d to, double windX, double windY) {
+    private static double stepEnergy(Vector3d from, Vector3d to, WindField.Wind wind) {
         int mx = to.getX() - from.getX();
         int my = to.getY() - from.getY();
         int dz = to.getZ() - from.getZ();
-        int dx = Math.abs(mx);
-        int dy = Math.abs(my);
-        double horiz = (dx + dy) * HORIZONTAL_ENERGY;
-        double vert = Math.abs(dz) * VERTICAL_ENERGY;
+
+        double horizontal = (Math.abs(mx) + Math.abs(my)) * HORIZONTAL_ENERGY;
+        double vertical = Math.abs(dz) * VERTICAL_ENERGY;
         double climb = dz > 0 ? dz * CLIMB_EXTRA : 0.0;
-        double base = horiz + vert + climb;
-        if (mx != 0 || my != 0) {
-            double dot = mx * windX + my * windY;
-            if (dot < 0) {
-                base += WIND_OPPOSITION_COST * (-dot);
-            }
+        double cost = horizontal + vertical + climb;
+
+        double alongWind = mx * wind.x() + my * wind.y();
+        if (alongWind < 0) {
+            cost += WIND_OPPOSITION_COST * -alongWind;
         }
-        return base;
+        return cost;
     }
 
-    private static double radarRiskAt(List<RadarStation> radars, double x, double y, double z) {
-        double s = 0.0;
-        for (RadarStation r : radars) {
-            s += r.detectionRisk(x, y, z);
-        }
-        return s;
+    private static double radarStepCost(double risk) {
+        return risk <= 0.0 ? 0.0 : risk * RADAR_RISK_MULTIPLIER + RADAR_ZONE_STEP_PENALTY;
     }
 
-    private static boolean reachedGoal(PlanningContext ctx, Vector3d p, DroneMission m) {
-        Vector3d g = m.goal();
-        if (p.getX() != g.getX() || p.getY() != g.getY()) {
-            return false;
+    /** Ryzyko w środku komórki (x+0.5, y+0.5, z+0.5) — suma po wszystkich radarach. */
+    private static double radarRiskAt(List<RadarStation> radars, Vector3d cell) {
+        double sum = 0.0;
+        for (RadarStation radar : radars) {
+            sum += radar.detectionRisk(cell.getX() + 0.5, cell.getY() + 0.5, cell.getZ() + 0.5);
         }
-        int ground = ctx.scaledGroundLevel(g.getX(), g.getY());
-        int zMin = ground;
-        int zMax = ctx.getMaxAltitude();
-        return p.getZ() >= zMin && p.getZ() <= zMax;
+        return sum;
     }
 
-    private static int goalDistance(PlanningContext ctx, Vector3d p, DroneMission m) {
-        Vector3d g = m.goal();
-        int dxy = Math.abs(p.getX() - g.getX()) + Math.abs(p.getY() - g.getY());
-        int preferredZ = Math.min(g.getZ(), ctx.getMaxAltitude());
-        int dz = Math.abs(p.getZ() - preferredZ);
-        return dxy + dz;
+    /** Cel uznaje się za osiągnięty po dotarciu nad komórkę celu (dowolna dopuszczalna wysokość). */
+    private static boolean reachedGoal(Vector3d p, DroneMission mission) {
+        return p.getX() == mission.goal().getX() && p.getY() == mission.goal().getY();
+    }
+
+    private static int remainingDistance(PlanningContext ctx, Vector3d p, DroneMission mission) {
+        Vector3d goal = mission.goal();
+        int goalZ = Math.min(goal.getZ(), ctx.getMaxAltitude());
+        return p.chebyshevDistance(new Vector3d(goal.getX(), goal.getY(), goalZ));
     }
 }

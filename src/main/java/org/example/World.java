@@ -13,30 +13,43 @@ import org.example.planning.Individual;
 import org.example.planning.MultiDroneRouteEvaluator;
 import org.example.planning.PlanningProblem;
 import org.example.planning.PlanningScenarioFactory;
-import org.example.planning.SolutionPicker;
 import org.example.planning.SimulationTrace;
+import org.example.planning.SolutionPicker;
+import org.example.planning.io.ParetoFrontFormatter;
 import org.example.planning.io.TerrainCsvWriter;
 import org.example.planning.io.TrajectoryCsvWriter;
 import org.example.planning.model.DroneMission;
-import org.example.planning.gwo.GwoSolver;
-import org.example.planning.nsga.nsga2.Nsga2Solver;
-import org.example.planning.nsga.nsga3.Nsga3Solver;
+import org.example.planning.solver.MultiObjectiveSolver;
+import org.example.planning.solver.SolverKind;
 import org.example.ui.MapVisualizer;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Aplikacja JavaFX: generuje scenariusz, uruchamia wybrany algorytm w tle i animuje wybraną trasę.
+ * Punktem wejścia procesu jest {@link Launcher}.
+ * <p>
+ * Właściwości systemowe: {@code drone.planner} (gwo | nsga2 | nsga3, domyślnie nsga3),
+ * {@code drone.seed} (ziarno terenu i algorytmu; domyślnie losowe),
+ * {@code drone.trajectory.csv} (ścieżka zapisu trajektorii; obok powstaje *_terrain.csv).
+ */
 public class World extends Application {
 
-    /**
-     * Plansza 30×30; kafelek × pola (np. 30×10 = 300 px szerokości mapy).
-     */
     private static final int TILE_SIZE = 10;
 
     private static final int WIDTH = 30;
 
     private static final int HEIGHT = 30;
+
+    private static final int POPULATION_SIZE = 1000;
+
+    private static final int ITERATIONS = 1000;
+
+    private static final long FRAME_INTERVAL_NS = 95_000_000L;
+
+    private final MultiDroneRouteEvaluator evaluator = new MultiDroneRouteEvaluator();
 
     private List<Drone> drones;
 
@@ -46,21 +59,15 @@ public class World extends Application {
 
     @Override
     public void start(Stage stage) {
+        long seed = parseSeed(System.getProperty("drone.seed"));
+        SolverKind kind = SolverKind.parse(System.getProperty("drone.planner")).orElse(SolverKind.NSGA_III);
 
-        Terrain terrain = new Terrain(WIDTH, HEIGHT);
+        Terrain terrain = new Terrain(WIDTH, HEIGHT, seed);
         PlanningProblem problem = PlanningScenarioFactory.defaultMultiDrone(terrain);
         drones = dronesFromMissions(problem);
+        mapVisualizer = new MapVisualizer(WIDTH, HEIGHT, TILE_SIZE, drones, terrain, problem);
 
-        mapVisualizer = new MapVisualizer(
-                WIDTH,
-                HEIGHT,
-                TILE_SIZE,
-                drones,
-                terrain,
-                problem);
-
-        PlannerKind plannerKind = parsePlanner(System.getProperty("drone.planner", "nsga2"));
-        statusLabel = new Label(initialStatusLabel(plannerKind));
+        statusLabel = new Label(kind.displayName() + ": przygotowanie optymalizacji…");
         statusLabel.setPadding(new Insets(10));
         statusLabel.setWrapText(true);
         statusLabel.setMaxWidth(WIDTH * TILE_SIZE);
@@ -70,178 +77,79 @@ public class World extends Application {
         rootPane.setCenter(mapVisualizer.getRoot());
         rootPane.setBottom(statusLabel);
 
-        Scene scene = new Scene(rootPane, WIDTH * TILE_SIZE, HEIGHT * TILE_SIZE + 72);
-        stage.setTitle(windowTitle(plannerKind));
-        stage.setScene(scene);
+        stage.setTitle(kind.displayName() + " — planowanie trasy zespołu dronów (seed " + seed + ")");
+        stage.setScene(new Scene(rootPane, WIDTH * TILE_SIZE, HEIGHT * TILE_SIZE + 72));
         stage.show();
 
-        runPlanningAndAnimate(problem, plannerKind);
+        runPlanningAndAnimate(problem, kind, seed);
     }
 
-    private enum PlannerKind {
-        GWO,
-        NSGA_II,
-        NSGA_III
-    }
-
-    private static PlannerKind parsePlanner(String raw) {
-        String p = raw == null ? "" : raw.trim().toLowerCase();
-        if (p.contains("gwo")) {
-            return PlannerKind.GWO;
+    private static long parseSeed(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return System.nanoTime();
         }
-        if (p.contains("nsga3") || p.contains("nsga-iii")) {
-            return PlannerKind.NSGA_III;
-        }
-        if (p.contains("nsga2") || p.contains("nsga-ii")) {
-            return PlannerKind.NSGA_II;
-        }
-        return PlannerKind.GWO;
-    }
-
-    private static String initialStatusLabel(PlannerKind k) {
-        return switch (k) {
-            case GWO -> "GWO: przygotowanie optymalizacji…";
-            case NSGA_II -> "NSGA-II: przygotowanie optymalizacji…";
-            case NSGA_III -> "NSGA-III: przygotowanie optymalizacji…";
-        };
-    }
-
-    private static String windowTitle(PlannerKind k) {
-        return switch (k) {
-            case GWO -> "GWO — planowanie trasy zespołu dronów";
-            case NSGA_II -> "NSGA-II — planowanie trasy zespołu dronów";
-            case NSGA_III -> "NSGA-III — planowanie trasy zespołu dronów";
-        };
+        return Long.parseLong(raw.trim());
     }
 
     private static List<Drone> dronesFromMissions(PlanningProblem problem) {
         List<Drone> list = new ArrayList<>();
-        for (DroneMission m : problem.missions()) {
-            list.add(new Drone(m.id(), m.start(), m.energyBudget()));
+        for (DroneMission mission : problem.missions()) {
+            list.add(new Drone(mission.id(), mission.start()));
         }
         return List.copyOf(list);
     }
 
-    private void runPlanningAndAnimate(PlanningProblem problem, PlannerKind plannerKind) {
-        final int populationSize = 500;
-        final int generations = 500;
-
-        new Thread(() -> {
+    private void runPlanningAndAnimate(PlanningProblem problem, SolverKind kind, long seed) {
+        MultiObjectiveSolver solver = kind.create(seed);
+        Thread worker = new Thread(() -> {
             try {
-                MultiDroneRouteEvaluator evaluator = new MultiDroneRouteEvaluator();
-                Individual chosenSolution;
+                List<Individual> front = solver.run(problem, POPULATION_SIZE, ITERATIONS, (iteration, nonDominated) -> {
+                    double bestMakespan = nonDominated.stream()
+                            .mapToDouble(i -> i.objective(Individual.MAKESPAN))
+                            .min()
+                            .orElse(Double.NaN);
+                    String text = String.format("%s: iteracja %d / %d  |  front: %d  |  najl. makespan: %.1f",
+                            solver.name(), iteration + 1, ITERATIONS, nonDominated.size(), bestMakespan);
+                    Platform.runLater(() -> statusLabel.setText(text));
+                });
+                System.out.print(ParetoFrontFormatter.format("Front Pareto " + solver.name(), front));
 
-                if (plannerKind == PlannerKind.GWO) {
-                    GwoSolver solver = new GwoSolver(System.nanoTime());
-                    List<Individual> pareto = solver.run(
-                            problem,
-                            populationSize,
-                            generations,
-                            (iter, population) -> Platform.runLater(() -> {
-                                double bestMakespan = population.stream()
-                                        .mapToDouble(i -> i.getObjectives()[0])
-                                        .min()
-                                        .orElse(-1);
-                                String ms = bestMakespan >= 0 ? String.format("%.1f", bestMakespan) : "—";
-                                statusLabel.setText(String.format(
-                                        "MOGWO: iteracja %d / %d  |  najl. makespan: %s",
-                                        iter + 1,
-                                        generations,
-                                        ms));
-                            }));
-                    chosenSolution = SolutionPicker.pickSolution(pareto);
-                } else if (plannerKind == PlannerKind.NSGA_II) {
-                    Nsga2Solver solver = new Nsga2Solver(System.nanoTime());
+                Individual chosen = SolutionPicker.pickSolution(front);
+                SimulationTrace trace = evaluator.simulate(problem, chosen.getGenes(), true);
+                String csvNote = exportCsvIfRequested(problem, trace);
 
-                    List<Individual> pareto = solver.run(
-                            problem,
-                            populationSize,
-                            generations,
-                            (gen, population) -> Platform.runLater(() -> {
-                                double bestMakespan = population.stream()
-                                        .mapToDouble(i -> i.getObjectives()[0])
-                                        .min()
-                                        .orElse(-1);
-                                String ms = bestMakespan >= 0 ? String.format("%.1f", bestMakespan) : "—";
-                                statusLabel.setText(String.format(
-                                        "NSGA-II: pokolenie %d / %d  |  najl. makespan: %s",
-                                        gen + 1,
-                                        generations,
-                                        ms));
-                            }));
-
-                    chosenSolution = SolutionPicker.pickSolution(pareto);
-                } else {
-                    Nsga3Solver solver = new Nsga3Solver(System.nanoTime());
-                    List<Individual> paretoFirstFront = solver.run(
-                            problem,
-                            populationSize,
-                            generations,
-                            (gen, population) -> Platform.runLater(() -> {
-                                double bestMakespan = population.stream()
-                                        .mapToDouble(i -> i.getObjectives()[0])
-                                        .min()
-                                        .orElse(-1);
-                                String ms = bestMakespan >= 0 ? String.format("%.1f", bestMakespan) : "—";
-                                statusLabel.setText(String.format(
-                                        "NSGA-III: pokolenie %d / %d  |  najl. makespan: %s",
-                                        gen + 1,
-                                        generations,
-                                        ms));
-                            }));
-                    chosenSolution = SolutionPicker.pickSolution(paretoFirstFront);
-                }
-
-                SimulationTrace trace = evaluator.simulate(problem, chosenSolution.getGenes(), true);
-
-                String csvProp = System.getProperty("drone.trajectory.csv");
-                String csvNote = null;
-                if (csvProp != null && !csvProp.isBlank()) {
-                    try {
-                        Path trajectoryPath = Path.of(csvProp.trim());
-                        TrajectoryCsvWriter.write(trace, trajectoryPath);
-                        Path terrainPath = TerrainCsvWriter.siblingTerrainPath(trajectoryPath);
-                        TerrainCsvWriter.write(problem.context().getTerrain(), terrainPath);
-                        csvNote = " | CSV: zapisano " + csvProp.trim() + " + " + terrainPath.getFileName();
-                    } catch (Exception ex) {
-                        csvNote = " | CSV: błąd zapisu — " + ex.getMessage();
-                    }
-                }
-
-                final String csvSuffix = csvNote;
                 Platform.runLater(() -> {
-                    updateStatusAfterSolve(trace);
-                    if (csvSuffix != null) {
-                        statusLabel.setText(statusLabel.getText() + csvSuffix);
-                    }
+                    statusLabel.setText(describe(trace) + csvNote);
                     startPathAnimation(trace.positionsPerStep());
                 });
             } catch (Exception e) {
-                String tag = switch (plannerKind) {
-                    case GWO -> "GWO";
-                    case NSGA_II -> "NSGA-II";
-                    case NSGA_III -> "NSGA-III";
-                };
-                Platform.runLater(() -> statusLabel.setText("Błąd " + tag + ": " + e.getMessage()));
+                Platform.runLater(() -> statusLabel.setText("Błąd " + solver.name() + ": " + e.getMessage()));
             }
-        }, plannerThreadName(plannerKind)).start();
+        }, kind.name().toLowerCase() + "-planner");
+        worker.setDaemon(true);
+        worker.start();
     }
 
-    private static String plannerThreadName(PlannerKind k) {
-        return switch (k) {
-            case GWO -> "gwo-ui";
-            case NSGA_II -> "nsga2-ui";
-            case NSGA_III -> "nsga3-ui";
-        };
+    private static String exportCsvIfRequested(PlanningProblem problem, SimulationTrace trace) {
+        String csvProp = System.getProperty("drone.trajectory.csv");
+        if (csvProp == null || csvProp.isBlank()) {
+            return "";
+        }
+        try {
+            Path trajectoryPath = Path.of(csvProp.trim());
+            TrajectoryCsvWriter.write(trace, trajectoryPath);
+            Path terrainPath = TerrainCsvWriter.siblingTerrainPath(trajectoryPath);
+            TerrainCsvWriter.write(problem.context().getTerrain(), terrainPath);
+            return " | CSV: zapisano " + trajectoryPath + " + " + terrainPath.getFileName();
+        } catch (Exception ex) {
+            return " | CSV: błąd zapisu — " + ex.getMessage();
+        }
     }
 
-    private void updateStatusAfterSolve(SimulationTrace trace) {
+    private static String describe(SimulationTrace trace) {
         var r = trace.result();
-        statusLabel.setText(String.format(
-                "Wybrano trasę do animacji | czas zespołu=%.1f | energia=%.1f | ryzyko radarów=%.2f",
-                r.getMakespan(),
-                r.getTotalEnergy(),
-                r.getTotalRadarRisk()));
+        return String.format("Wybrano trasę do animacji | czas zespołu=%.1f | energia=%.1f | ryzyko radarów=%.2f",
+                r.makespan(), r.totalEnergy(), r.totalRadarRisk());
     }
 
     private void startPathAnimation(List<List<Vector3d>> frames) {
@@ -249,48 +157,34 @@ public class World extends Application {
             statusLabel.setText(statusLabel.getText() + " — za krótka ścieżka do animacji.");
             return;
         }
-
         AnimationTimer timer = new AnimationTimer() {
 
-            private long lastTickNs = 0;
+            private long lastTickNs;
 
-            private int frameIndex = 0;
+            private int frameIndex;
 
             @Override
             public void handle(long nowNs) {
-                if (lastTickNs == 0) {
-                    lastTickNs = nowNs;
-                    applyFrame(frames, 0);
-                    frameIndex = 1;
-                    return;
-                }
-                if (nowNs - lastTickNs < 95_000_000L) {
+                if (lastTickNs != 0 && nowNs - lastTickNs < FRAME_INTERVAL_NS) {
                     return;
                 }
                 lastTickNs = nowNs;
                 if (frameIndex >= frames.size()) {
                     stop();
-                    Platform.runLater(() -> statusLabel.setText(
-                            statusLabel.getText() + " — koniec animacji (możesz uruchomić ponownie)."));
+                    statusLabel.setText(statusLabel.getText() + " — koniec animacji.");
                     return;
                 }
-                applyFrame(frames, frameIndex);
-                frameIndex++;
+                applyFrame(frames.get(frameIndex++));
             }
         };
         timer.start();
     }
 
-    private void applyFrame(List<List<Vector3d>> frames, int index) {
-        List<Vector3d> snap = frames.get(index);
-        int n = Math.min(drones.size(), snap.size());
+    private void applyFrame(List<Vector3d> snapshot) {
+        int n = Math.min(drones.size(), snapshot.size());
         for (int d = 0; d < n; d++) {
-            drones.get(d).setPosition(snap.get(d));
+            drones.get(d).setPosition(snapshot.get(d));
         }
         mapVisualizer.updateDroneViews();
-    }
-
-    public static void main(String[] args) {
-        launch();
     }
 }

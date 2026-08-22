@@ -2,33 +2,16 @@ package org.example;
 
 import org.example.environment.Vector3d;
 
-public class Drone {
+/** Dron w warstwie prezentacji: tożsamość + bieżąca pozycja animowana na mapie. */
+public final class Drone {
 
     private final int id;
 
     private Vector3d position;
 
-    private final double energyBudget;
-
-    public Drone(Vector3d startPosition) {
-        this(0, startPosition, 200.0);
-    }
-
-    public Drone(int id, Vector3d startPosition, double energyBudget) {
+    public Drone(int id, Vector3d startPosition) {
         this.id = id;
         this.position = startPosition;
-        this.energyBudget = energyBudget;
-    }
-
-    public void move(Direction direction) {
-        switch (direction) {
-            case FORWARD -> position = position.add(new Vector3d(1, 0, 0));
-            case BACKWARD -> position = position.add(new Vector3d(-1, 0, 0));
-            case LEFT -> position = position.add(new Vector3d(0, -1, 0));
-            case RIGHT -> position = position.add(new Vector3d(0, 1, 0));
-            case UP -> position = position.add(new Vector3d(0, 0, 1));
-            case DOWN -> position = position.add(new Vector3d(0, 0, -1));
-        }
     }
 
     public int getId() {
@@ -41,9 +24,5 @@ public class Drone {
 
     public void setPosition(Vector3d position) {
         this.position = position;
-    }
-
-    public double getEnergyBudget() {
-        return energyBudget;
     }
 }

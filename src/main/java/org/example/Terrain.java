@@ -2,95 +2,127 @@ package org.example;
 
 import java.util.Random;
 
-public class Terrain {
+/**
+ * Mapa wysokości terenu (wartości surowe 0–{@value #MAX_RAW_HEIGHT}) indeksowana {@code [x][y]}.
+ * Generator jest deterministyczny dla zadanego ziarna, co pozwala powtarzać eksperymenty.
+ */
+public final class Terrain {
+
+    public static final int MAX_RAW_HEIGHT = 100;
+
+    private static final int PEAK_COUNT = 4;
+
+    private static final int PEAK_PLACEMENT_ATTEMPTS = 80;
 
     private final int[][] heightMap;
 
     private final int width;
 
-    private final int height;
+    private final int depth;
 
-    private final Random random = new Random();
-
-    public Terrain(int width, int height) {
-        this.width = width;
-        this.height = height;
-        heightMap = new int[width][height];
-
-        generateTerrain();
+    /** Losowy teren z losowym ziarnem (nieodtwarzalny — do szybkiego podglądu). */
+    public Terrain(int width, int depth) {
+        this(width, depth, new Random().nextLong());
     }
 
-    private void generateTerrain() {
-        // Niższe „dno” mapy — większość terytorium zostaje płaska / niska.
-        double baseHeight = 10 + random.nextDouble() * 14;
+    /** Losowy teren odtwarzalny dla zadanego ziarna. */
+    public Terrain(int width, int depth, long seed) {
+        this(generate(width, depth, new Random(seed)));
+    }
 
-        double mapRadius = Math.hypot(width - 1, height - 1) / 2.0;
-        if (mapRadius < 1e-6) {
-            mapRadius = 1.0;
+    private Terrain(int[][] heightMap) {
+        this.width = heightMap.length;
+        this.depth = heightMap[0].length;
+        this.heightMap = heightMap;
+    }
+
+    /** Teren z jawnej mapy wysokości {@code heightMap[x][y]} (kopiowanej). */
+    public static Terrain fromHeightMap(int[][] heightMap) {
+        if (heightMap.length == 0 || heightMap[0].length == 0) {
+            throw new IllegalArgumentException("Mapa wysokości musi mieć co najmniej 1×1 komórek");
+        }
+        int[][] copy = new int[heightMap.length][];
+        for (int x = 0; x < heightMap.length; x++) {
+            if (heightMap[x].length != heightMap[0].length) {
+                throw new IllegalArgumentException("Mapa wysokości musi być prostokątna");
+            }
+            copy[x] = heightMap[x].clone();
+        }
+        return new Terrain(copy);
+    }
+
+    /** Płaski teren o stałej wysokości — wygodny w testach. */
+    public static Terrain flat(int width, int depth, int rawHeight) {
+        int[][] map = new int[width][depth];
+        for (int[] column : map) {
+            java.util.Arrays.fill(column, rawHeight);
+        }
+        return new Terrain(map);
+    }
+
+    private static int[][] generate(int width, int depth, Random random) {
+        if (width < 1 || depth < 1) {
+            throw new IllegalArgumentException("Wymiary terenu muszą być dodatnie");
+        }
+        int[][] map = new int[width][depth];
+
+        // Niskie „dno” mapy — większość terytorium zostaje płaska / niska.
+        double baseHeight = 4 + random.nextDouble() * 10;
+
+        double mapRadius = Math.max(1.0, Math.hypot(width - 1, depth - 1) / 2.0);
+        int minPeakDist = Math.max(6, (int) Math.round(Math.min(width, depth) / 5.0));
+        int minPeakDistSq = minPeakDist * minPeakDist;
+
+        int[] peakX = new int[PEAK_COUNT];
+        int[] peakY = new int[PEAK_COUNT];
+        double[] peakHeight = new double[PEAK_COUNT];
+        double[] sigmaSq = new double[PEAK_COUNT];
+
+        for (int p = 0; p < PEAK_COUNT; p++) {
+            if (p == 0) {
+                peakX[0] = random.nextInt(width);
+                peakY[0] = random.nextInt(depth);
+            } else {
+                int attempts = 0;
+                do {
+                    peakX[p] = random.nextInt(width);
+                    peakY[p] = random.nextInt(depth);
+                    attempts++;
+                } while (!isFarFromOtherPeaks(peakX, peakY, p, minPeakDistSq) && attempts < PEAK_PLACEMENT_ATTEMPTS);
+                if (attempts >= PEAK_PLACEMENT_ATTEMPTS) {
+                    peakX[p] = (peakX[p - 1] + minPeakDist * p) % width;
+                    peakY[p] = (peakY[p - 1] + minPeakDist / 2) % depth;
+                }
+            }
+            peakHeight[p] = 58 + random.nextDouble() * 20;
+            double sigma = mapRadius * (0.10 + random.nextDouble() * 0.12);
+            sigmaSq[p] = sigma * sigma;
         }
 
-        int minPeakDist = Math.max(8, (int) Math.round(Math.min(width, height) / 4.0));
-        int peak1X = random.nextInt(width);
-        int peak1Y = random.nextInt(height);
-        int peak2X;
-        int peak2Y;
-        int guard = 0;
-        do {
-            peak2X = random.nextInt(width);
-            peak2Y = random.nextInt(height);
-            guard++;
-        } while (squaredDist(peak1X, peak1Y, peak2X, peak2Y) < minPeakDist * minPeakDist
-                && guard < 80);
-        if (guard >= 80) {
-            peak2X = (peak1X + minPeakDist) % width;
-            peak2Y = (peak1Y + minPeakDist / 2) % height;
-        }
+        int noiseAmplitude = 2 + random.nextInt(6);
 
-        // Szczyty lokalne — stosunkowo niewielki ułamek mapy wysoki (reszta przy bazie).
-        double peakHeight1 = 72 + random.nextDouble() * 20;
-        double peakHeight2 = 62 + random.nextDouble() * 22;
-
-        // Wąskie Gaussy: góry zajmują znacznie mniejszą powierzchnię niż przy σ ~ 0.2–0.6 × mapRadius.
-        double sigma1 = mapRadius * (0.055 + random.nextDouble() * 0.09);
-        double sigma2 = mapRadius * (0.055 + random.nextDouble() * 0.09);
-        double sigma1Sq = sigma1 * sigma1;
-        double sigma2Sq = sigma2 * sigma2;
-
-        int noiseAmp = 2 + random.nextInt(6);
-
-        for (int y = 0; y < height; y++) {
+        for (int y = 0; y < depth; y++) {
             for (int x = 0; x < width; x++) {
-                double f1 = gaussianFalloff(x, y, peak1X, peak1Y, sigma1Sq);
-                double f2 = gaussianFalloff(x, y, peak2X, peak2Y, sigma2Sq);
-
-                double h = baseHeight
-                        + (peakHeight1 - baseHeight) * f1
-                        + (peakHeight2 - baseHeight) * f2;
-                h += (random.nextDouble() * 2.0 - 1.0) * noiseAmp;
-
-                int z = (int) Math.round(h);
-                if (z < 0) {
-                    z = 0;
+                double h = baseHeight;
+                for (int p = 0; p < PEAK_COUNT; p++) {
+                    h += (peakHeight[p] - baseHeight) * gaussianFalloff(x, y, peakX[p], peakY[p], sigmaSq[p]);
                 }
-                if (z > 100) {
-                    z = 100;
-                }
-                heightMap[x][y] = z;
+                h += (random.nextDouble() * 2.0 - 1.0) * noiseAmplitude;
+                map[x][y] = (int) Math.max(0, Math.min(MAX_RAW_HEIGHT, Math.round(h)));
             }
         }
-
-        System.out.printf(
-                "Terrain: góra1 (%d,%d) h≈%.0f σ=%.2f | góra2 (%d,%d) h≈%.0f σ=%.2f | dno≈%.0f szum±%d%n",
-                peak1X, peak1Y, peakHeight1, sigma1,
-                peak2X, peak2Y, peakHeight2, sigma2,
-                baseHeight, noiseAmp
-        );
+        return map;
     }
 
-    private static int squaredDist(int ax, int ay, int bx, int by) {
-        int dx = ax - bx;
-        int dy = ay - by;
-        return dx * dx + dy * dy;
+    private static boolean isFarFromOtherPeaks(int[] peakX, int[] peakY, int index, int minDistSq) {
+        for (int i = 0; i < index; i++) {
+            int dx = peakX[index] - peakX[i];
+            int dy = peakY[index] - peakY[i];
+            if (dx * dx + dy * dy < minDistSq) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static double gaussianFalloff(int x, int y, int peakX, int peakY, double sigmaSq) {
@@ -99,15 +131,18 @@ public class Terrain {
         return Math.exp(-(dx * dx + dy * dy) / (2.0 * sigmaSq));
     }
 
+    /** Surowa wysokość terenu (0–{@value #MAX_RAW_HEIGHT}) w komórce {@code (x, y)}. */
     public int getHeight(int x, int y) {
         return heightMap[x][y];
     }
 
+    /** Liczba komórek w osi X. */
     public int getWidth() {
         return width;
     }
 
-    public int getHeightMapHeight() {
-        return height;
+    /** Liczba komórek w osi Y. */
+    public int getDepth() {
+        return depth;
     }
 }

@@ -5,7 +5,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
-import org.example.Direction;
 import org.example.Drone;
 import org.example.Terrain;
 import org.example.planning.PlanningProblem;
@@ -16,7 +15,8 @@ import org.example.planning.model.RadarStation;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MapVisualizer {
+/** Widok 2D mapy (rzut z góry): teren, strefy radarów, cele misji i pozycje dronów. */
+public final class MapVisualizer {
 
     private static final Color[] DRONE_COLORS = {
             Color.DODGERBLUE, Color.CRIMSON, Color.DARKORANGE, Color.MEDIUMPURPLE, Color.LIMEGREEN
@@ -35,10 +35,6 @@ public class MapVisualizer {
     private final List<Circle> droneViews = new ArrayList<>();
 
     private final Terrain terrain;
-
-    public MapVisualizer(int widthTiles, int heightTiles, int tileSize, List<Drone> drones, Terrain terrain) {
-        this(widthTiles, heightTiles, tileSize, drones, terrain, null);
-    }
 
     public MapVisualizer(
             int widthTiles,
@@ -169,14 +165,5 @@ public class MapVisualizer {
                     (heightTiles - 1 - drone.getPosition().getY()) * tileSize + tileSize / 2.0
             );
         }
-    }
-
-    public void moveDrone(int droneIndex, Direction direction) {
-        drones.get(droneIndex).move(direction);
-        updateDroneViews();
-    }
-
-    public void moveDrone(Direction direction) {
-        moveDrone(0, direction);
     }
 }

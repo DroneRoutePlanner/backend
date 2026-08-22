@@ -4,293 +4,196 @@ import org.example.planning.Individual;
 import org.example.planning.MoveEncoding;
 import org.example.planning.MultiDroneRouteEvaluator;
 import org.example.planning.PlanningProblem;
-import org.example.planning.nsga.CrowdingDistance;
-import org.example.planning.nsga.NonDominatedSorting;
-import org.example.planning.nsga.NsgaVariation;
+import org.example.planning.pareto.CrowdingDistance;
+import org.example.planning.pareto.ParetoArchive;
+import org.example.planning.solver.IterationListener;
+import org.example.planning.solver.MultiObjectiveSolver;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
-import java.util.function.BiConsumer;
 
 /**
- * Dyskretne MOGWO: archiwum Pareto, elitizm (environmental selection) oraz update
- * segmentowy tras (fragmenty genów od α, β, δ zamiast modyfikacji gen-po-genie).
+ * Wielokryterialny, dyskretny Grey Wolf Optimizer (MOGWO, Mirjalili et al. 2016) dostosowany do
+ * kodowania tras jako ciągów kodów ruchów.
+ * <p>
+ * Elementy MOGWO: zewnętrzne archiwum rozwiązań niezdominowanych ({@link ParetoArchive}) oraz
+ * wybór przywódców α, β, δ z archiwum metodą ruletki preferującą rzadziej zaludnione rejony frontu
+ * (tu: wagi proporcjonalne do odległości stłoczenia zamiast siatki hipersześcianów z oryginału).
+ * Przywódcy są różnymi rozwiązaniami; gdy archiwum ma mniej niż 3 elementy, uzupełniane jest
+ * losowymi wilkami z watahy.
+ * <p>
+ * Dyskretna aktualizacja pozycji: dla każdego genu każdy przywódca składa propozycję —
+ * przy {@code |A| < 1} (eksploatacja) swój własny gen, przy {@code |A| ≥ 1} (eksploracja)
+ * gen bieżący wilka lub losowy ruch. Wynik to głosowanie większościowe propozycji z losowym
+ * rozstrzyganiem ważonym na korzyść α. Dodatkowo gen mutuje losowo z prawdopodobieństwem
+ * malejącym wraz z {@code a} (2 → 0), analogicznie do zaniku składowej eksploracyjnej w GWO.
+ * Liczba ocen na iterację jest równa rozmiarowi watahy — taka sama jak w NSGA dla tej samej
+ * wielkości populacji, co umożliwia uczciwe porównanie hiperobjętością.
  */
-public final class GwoSolver {
+public final class GwoSolver implements MultiObjectiveSolver {
 
-    private static final int COUNT = MoveEncoding.COUNT;
+    private static final int LEADER_COUNT = 3;
+
+    /** Prawdopodobieństwo losowej mutacji genu = {@code a * EXPLORATION_MUTATION_SCALE}. */
+    private static final double EXPLORATION_MUTATION_SCALE = 0.05;
+
+    /** Wagi rozstrzygania głosowania, gdy wszystkie propozycje są różne: α, β, δ. */
+    private static final double[] TIE_BREAK_WEIGHTS = { 0.5, 0.3, 0.2 };
+
+    private static final double WEIGHT_EPS = 1e-9;
 
     private final MultiDroneRouteEvaluator evaluator = new MultiDroneRouteEvaluator();
+
     private final Random random;
 
     public GwoSolver(long seed) {
         this.random = new Random(seed);
     }
 
-    public List<Individual> run(PlanningProblem problem, int packSize, int iterations) {
-        return run(problem, packSize, iterations, null);
+    @Override
+    public String name() {
+        return "MOGWO";
     }
 
-    public List<Individual> run(
-            PlanningProblem problem,
-            int packSize,
-            int iterations,
-            BiConsumer<Integer, List<Individual>> onIteration) {
-
-        if (packSize < 3) {
+    /**
+     * @param packSize   rozmiar watahy i jednocześnie pojemność archiwum
+     * @param iterations liczba iteracji
+     */
+    @Override
+    public List<Individual> run(PlanningProblem problem, int packSize, int iterations, IterationListener listener) {
+        if (packSize < LEADER_COUNT) {
             throw new IllegalArgumentException("MOGWO wymaga co najmniej 3 wilków (α, β, δ)");
         }
         if (iterations < 1) {
             throw new IllegalArgumentException("MOGWO wymaga co najmniej 1 iteracji");
         }
+        Objects.requireNonNull(listener, "listener");
 
-        List<Individual> population = new ArrayList<>(packSize);
+        List<Individual> pack = new ArrayList<>(packSize);
         for (int i = 0; i < packSize; i++) {
-            Individual ind = Individual.randomIndividual(problem, random);
-            ind.evaluate(problem, evaluator);
-            population.add(ind);
+            Individual wolf = Individual.randomIndividual(problem, random);
+            wolf.evaluate(problem, evaluator);
+            pack.add(wolf);
         }
 
-        List<Individual> archive = new ArrayList<>();
-        assignRankAndCrowding(population);
-        updateArchive(archive, population, packSize);
+        ParetoArchive archive = new ParetoArchive(packSize);
+        archive.offerAll(pack);
 
-        for (int iter = 0; iter < iterations; iter++) {
-            double a = 2.0 - iter * (2.0 / iterations);
+        for (int iteration = 0; iteration < iterations; iteration++) {
+            double a = 2.0 * (1.0 - (double) iteration / iterations);
+            Individual[] leaders = selectLeaders(archive, pack);
 
-            Individual[] leaders = selectAlphaBetaDelta(archive, population);
-            Individual alpha = leaders[0];
-            Individual beta = leaders[1];
-            Individual delta = leaders[2];
-
-            List<Individual> candidates = new ArrayList<>(packSize);
-            for (Individual wolf : population) {
-                Individual candidate = discreteSegmentUpdate(wolf, alpha, beta, delta, a);
-                candidate.evaluate(problem, evaluator);
-                candidates.add(candidate);
+            for (int w = 0; w < packSize; w++) {
+                Individual moved = new Individual(updatePosition(pack.get(w).getGenes(), leaders, a));
+                moved.evaluate(problem, evaluator);
+                pack.set(w, moved);
             }
 
-            List<Individual> combined = new ArrayList<>(archive.size() + candidates.size());
-            for (Individual elite : archive) {
-                combined.add(elite.copy());
-            }
-            combined.addAll(candidates);
-
-            population = environmentalSelection(combined, packSize);
-            updateArchive(archive, population, packSize);
-
-            if (iter % 10 == 0 || iter == iterations - 1) {
-                printIterationProgress("MOGWO", iter, population, archive.size());
-            }
-
-            if (onIteration != null) {
-                onIteration.accept(iter, new ArrayList<>(population));
-            }
+            archive.offerAll(pack);
+            listener.onIteration(iteration, archive.members());
         }
-
-        List<Individual> merged = new ArrayList<>(archive.size() + population.size());
-        merged.addAll(archive);
-        merged.addAll(population);
-        List<List<Individual>> fronts = NonDominatedSorting.sort(merged);
-        return new ArrayList<>(fronts.get(0));
+        return archive.snapshot();
     }
 
-    private Individual discreteSegmentUpdate(
-            Individual wolf,
-            Individual alpha,
-            Individual beta,
-            Individual delta,
-            double a) {
+    private int[][] updatePosition(int[][] current, Individual[] leaders, double a) {
+        int[][] next = new int[current.length][];
+        int[] proposals = new int[LEADER_COUNT];
 
-        Individual candidate = wolf.copy();
-
-        double r1 = random.nextDouble();
-        double r2 = random.nextDouble();
-        double r3 = random.nextDouble();
-
-        double a1 = 2.0 * a * r1 - a;
-        double a2 = 2.0 * a * r2 - a;
-        double a3 = 2.0 * a * r3 - a;
-
-        if (Math.abs(a1) < 1.0) {
-            applyRandomSegmentCopy(candidate, alpha);
+        for (int d = 0; d < current.length; d++) {
+            next[d] = new int[current[d].length];
+            for (int t = 0; t < current[d].length; t++) {
+                for (int k = 0; k < LEADER_COUNT; k++) {
+                    double coefficientA = 2.0 * a * random.nextDouble() - a;
+                    if (Math.abs(coefficientA) < 1.0) {
+                        proposals[k] = leaders[k].getGenes()[d][t];
+                    } else {
+                        proposals[k] = random.nextBoolean() ? current[d][t] : random.nextInt(MoveEncoding.COUNT);
+                    }
+                }
+                int gene = vote(proposals);
+                if (random.nextDouble() < a * EXPLORATION_MUTATION_SCALE) {
+                    gene = random.nextInt(MoveEncoding.COUNT);
+                }
+                next[d][t] = gene;
+            }
         }
-        if (Math.abs(a2) < 1.0) {
-            applyRandomSegmentCopy(candidate, beta);
-        }
-        if (Math.abs(a3) < 1.0) {
-            applyRandomSegmentCopy(candidate, delta);
-        }
-        if (Math.abs(a1) >= 1.0 && Math.abs(a2) >= 1.0 && Math.abs(a3) >= 1.0) {
-            mutateRandomSegment(candidate);
-        }
-
-        NsgaVariation.mutate(random, candidate, Math.min(0.12, a * 0.03));
-        return candidate;
+        return next;
     }
 
-    private void applyRandomSegmentCopy(Individual target, Individual leader) {
-        int[][] targetGenes = target.getGenes();
-        int[][] leaderGenes = leader.getGenes();
-        int drones = targetGenes.length;
+    private int vote(int[] proposals) {
+        if (proposals[0] == proposals[1] || proposals[0] == proposals[2]) {
+            return proposals[0];
+        }
+        if (proposals[1] == proposals[2]) {
+            return proposals[1];
+        }
+        double r = random.nextDouble();
+        if (r < TIE_BREAK_WEIGHTS[0]) {
+            return proposals[0];
+        }
+        return r < TIE_BREAK_WEIGHTS[0] + TIE_BREAK_WEIGHTS[1] ? proposals[1] : proposals[2];
+    }
 
-        int segments = 1 + random.nextInt(Math.min(3, drones));
-        for (int s = 0; s < segments; s++) {
-            int drone = random.nextInt(drones);
-            int len = targetGenes[drone].length;
-            if (len < 2) {
+    /** Ruletka po odległości stłoczenia (bez zwracania) — trzech różnych przywódców. */
+    private Individual[] selectLeaders(ParetoArchive archive, List<Individual> pack) {
+        List<Individual> pool = new ArrayList<>(archive.members());
+        while (pool.size() < LEADER_COUNT) {
+            pool.add(pack.get(random.nextInt(pack.size())));
+        }
+        CrowdingDistance.assign(pool);
+        double[] weights = rouletteWeights(pool);
+
+        Individual[] leaders = new Individual[LEADER_COUNT];
+        boolean[] taken = new boolean[pool.size()];
+        for (int k = 0; k < LEADER_COUNT; k++) {
+            int index = spin(weights, taken);
+            leaders[k] = pool.get(index);
+            taken[index] = true;
+        }
+        return leaders;
+    }
+
+    /** Skrajne punkty frontu (+∞) dostają dwukrotność największej skończonej odległości. */
+    private static double[] rouletteWeights(List<Individual> pool) {
+        double maxFinite = 0.0;
+        for (Individual individual : pool) {
+            double cd = individual.getCrowdingDistance();
+            if (Double.isFinite(cd)) {
+                maxFinite = Math.max(maxFinite, cd);
+            }
+        }
+        double boundaryWeight = maxFinite > 0.0 ? 2.0 * maxFinite : 1.0;
+
+        double[] weights = new double[pool.size()];
+        for (int i = 0; i < weights.length; i++) {
+            double cd = pool.get(i).getCrowdingDistance();
+            weights[i] = (Double.isFinite(cd) ? cd : boundaryWeight) + WEIGHT_EPS;
+        }
+        return weights;
+    }
+
+    private int spin(double[] weights, boolean[] taken) {
+        double total = 0.0;
+        int lastFree = -1;
+        for (int i = 0; i < weights.length; i++) {
+            if (!taken[i]) {
+                total += weights[i];
+                lastFree = i;
+            }
+        }
+        double target = random.nextDouble() * total;
+        double accumulated = 0.0;
+        for (int i = 0; i < weights.length; i++) {
+            if (taken[i]) {
                 continue;
             }
-            int maxSegLen = Math.max(2, len / 8);
-            int start = random.nextInt(len - 1);
-            int segLen = 1 + random.nextInt(Math.min(len - start, maxSegLen));
-            System.arraycopy(leaderGenes[drone], start, targetGenes[drone], start, segLen);
-        }
-    }
-
-    private void mutateRandomSegment(Individual target) {
-        int[][] genes = target.getGenes();
-        int drone = random.nextInt(genes.length);
-        int len = genes[drone].length;
-        if (len == 0) {
-            return;
-        }
-        int start = random.nextInt(len);
-        int maxSegLen = Math.max(1, len / 10);
-        int segLen = 1 + random.nextInt(Math.min(len - start, maxSegLen));
-        for (int t = start; t < start + segLen; t++) {
-            genes[drone][t] = random.nextInt(COUNT);
-        }
-    }
-
-    private Individual[] selectAlphaBetaDelta(List<Individual> archive, List<Individual> population) {
-        List<Individual> pool = new ArrayList<>(archive);
-        if (pool.size() < 3) {
-            List<List<Individual>> fronts = NonDominatedSorting.sort(population);
-            for (Individual ind : fronts.get(0)) {
-                if (pool.size() >= 3) {
-                    break;
-                }
-                pool.add(ind);
+            accumulated += weights[i];
+            if (accumulated >= target) {
+                return i;
             }
         }
-        while (pool.size() < 3) {
-            pool.add(pool.get(pool.size() - 1).copy());
-        }
-
-        CrowdingDistance.assign(pool);
-        pool.sort(Comparator.comparingDouble(Individual::getCrowdingDistance).reversed());
-        return new Individual[] { pool.get(0), pool.get(1), pool.get(2) };
-    }
-
-    private void updateArchive(List<Individual> archive, List<Individual> candidates, int maxSize) {
-        List<Individual> combined = new ArrayList<>(archive.size() + candidates.size());
-        for (Individual stored : archive) {
-            combined.add(stored.copy());
-        }
-        for (Individual candidate : candidates) {
-            combined.add(candidate.copy());
-        }
-
-        List<Individual> nextArchive = new ArrayList<>(maxSize);
-        List<List<Individual>> fronts = NonDominatedSorting.sort(combined);
-        for (List<Individual> front : fronts) {
-            if (nextArchive.size() + front.size() <= maxSize) {
-                CrowdingDistance.assign(front);
-                for (Individual ind : front) {
-                    nextArchive.add(ind.copy());
-                }
-            } else {
-                CrowdingDistance.assign(front);
-                front.sort(Comparator.comparingDouble(Individual::getCrowdingDistance).reversed());
-                int needed = maxSize - nextArchive.size();
-                for (int i = 0; i < needed; i++) {
-                    nextArchive.add(front.get(i).copy());
-                }
-                break;
-            }
-        }
-
-        archive.clear();
-        archive.addAll(nextArchive);
-    }
-
-    private List<Individual> environmentalSelection(List<Individual> combinedPopulation, int targetPopulationSize) {
-        List<List<Individual>> sortedFronts = NonDominatedSorting.sort(combinedPopulation);
-        List<Individual> selectedPopulation = new ArrayList<>(targetPopulationSize);
-
-        int frontNumber = 0;
-        while (frontNumber < sortedFronts.size()
-                && selectedPopulation.size() + sortedFronts.get(frontNumber).size() <= targetPopulationSize) {
-            CrowdingDistance.assign(sortedFronts.get(frontNumber));
-            selectedPopulation.addAll(sortedFronts.get(frontNumber));
-            frontNumber++;
-        }
-
-        if (selectedPopulation.size() < targetPopulationSize && frontNumber < sortedFronts.size()) {
-            List<Individual> splittingFront = sortedFronts.get(frontNumber);
-            CrowdingDistance.assign(splittingFront);
-            splittingFront.sort(Comparator.comparingDouble(Individual::getCrowdingDistance).reversed());
-            int individualsNeeded = targetPopulationSize - selectedPopulation.size();
-            for (int i = 0; i < individualsNeeded; i++) {
-                selectedPopulation.add(splittingFront.get(i));
-            }
-        }
-
-        assignRankAndCrowding(selectedPopulation);
-        return selectedPopulation;
-    }
-
-    private void assignRankAndCrowding(List<Individual> population) {
-        List<List<Individual>> fronts = NonDominatedSorting.sort(population);
-        for (int frontIndex = 0; frontIndex < fronts.size(); frontIndex++) {
-            List<Individual> currentFront = fronts.get(frontIndex);
-            CrowdingDistance.assign(currentFront);
-            for (Individual individual : currentFront) {
-                individual.setRank(frontIndex);
-            }
-        }
-    }
-
-    public void printIterationProgress(String title, int iteration, List<Individual> population, int archiveSize) {
-        if (population == null || population.isEmpty()) {
-            System.out.println("--- Iteracja " + iteration + ": Populacja jest pusta ---");
-            return;
-        }
-
-        String headerText = String.format(" ITERACJA %d [%s] ", iteration, title.toUpperCase());
-        System.out.println("\n=======================" + headerText + "=======================");
-        System.out.printf("%-5s | %-5s | %-13s | %-12s | %-12s | %-12s%n",
-                "Wilk", "Rank", "Crowding Dist", "Kryterium 0", "Kryterium 1", "Kryterium 2");
-        System.out.println("-----------------------------------------------------------------------------");
-
-        int limit = Math.min(3, population.size());
-        String[] roles = { "Alpha", "Beta", "Delta" };
-
-        for (int i = 0; i < limit; i++) {
-            Individual ind = population.get(i);
-            double[] objectives = ind.getObjectives();
-
-            System.out.printf("%-5s | %-5d | %-13.4f | %-12.4f | %-12.4f | %-12.4f%n",
-                    roles[i],
-                    ind.getRank(),
-                    ind.getCrowdingDistance(),
-                    objectives[0],
-                    objectives[1],
-                    objectives[2]);
-        }
-
-        if (population.size() > 3) {
-            System.out.println("-----------------------------------------------------------------------------");
-            System.out.printf("... oraz %d pozostałych wilków w stadzie.%n", (population.size() - 3));
-        }
-
-        System.out.printf(
-                "Archiwum Pareto: %d | Najl. makespan: %.4f%n",
-                archiveSize,
-                population.get(0).getObjectives()[0]);
-        System.out.println("=============================================================================\n");
+        return lastFree;
     }
 }

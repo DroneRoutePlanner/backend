@@ -22,59 +22,48 @@ javafx {
 }
 
 application {
-    mainClass = 'org.example.World'
+    // Launcher, nie World — patrz Javadoc org.example.Launcher (JavaFX z classpath).
+    mainClass = 'org.example.Launcher'
 }
 
-/** -D z linii Gradle trafia do JVM daemona, nie do aplikacji — przekaż tutaj. */
-def trajectoryCsvProp = System.getProperty('drone.trajectory.csv')
+/*
+ * -D z linii Gradle trafia do JVM daemona, nie do aplikacji — właściwości przekazywane jawnie:
+ *   drone.trajectory.csv  ścieżka zapisu trajektorii (obok powstaje *_terrain.csv)
+ *   drone.seed            ziarno terenu i algorytmu (odtwarzalność)
+ */
+def forwardedProperties = ['drone.trajectory.csv', 'drone.seed']
 
-tasks.named('run', JavaExec) {
-    if (trajectoryCsvProp != null) {
-        systemProperty 'drone.trajectory.csv', trajectoryCsvProp
+def forwardProperties = { JavaExec task ->
+    forwardedProperties.each { name ->
+        def value = System.getProperty(name)
+        if (value != null) {
+            task.systemProperty name, value
+        }
     }
 }
 
-tasks.register('runGwo', JavaExec) {
-    group = 'application'
-    description = 'Uruchamia World (JavaFX) z algorytmem GWO'
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'org.example.World'
-    systemProperty 'drone.planner', 'gwo'
-    if (trajectoryCsvProp != null) {
-        systemProperty 'drone.trajectory.csv', trajectoryCsvProp
+tasks.named('run', JavaExec) { forwardProperties(it) }
+
+['gwo', 'nsga2', 'nsga3'].each { planner ->
+    tasks.register("run${planner.capitalize()}", JavaExec) {
+        group = 'application'
+        description = "Uruchamia World (JavaFX) z algorytmem ${planner}"
+        classpath = sourceSets.main.runtimeClasspath
+        mainClass = 'org.example.Launcher'
+        systemProperty 'drone.planner', planner
+        forwardProperties(it)
     }
 }
 
-tasks.register('runNsga2', JavaExec) {
+tasks.register('runCompare', JavaExec) {
     group = 'application'
-    description = 'Uruchamia World (JavaFX) z NSGA-II'
+    description = 'Porównanie NSGA-II / NSGA-III / MOGWO hiperobjętością (bez UI). ' +
+            'Opcje: -PcompareArgs="pop=100 iter=100 runs=3 seed=42 out=csv/comparison"'
     classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'org.example.World'
-    systemProperty 'drone.planner', 'nsga2'
-    if (trajectoryCsvProp != null) {
-        systemProperty 'drone.trajectory.csv', trajectoryCsvProp
-    }
-}
-
-tasks.register('runNsga3', JavaExec) {
-    group = 'application'
-    description = 'Uruchamia World (JavaFX) z NSGA-III'
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'org.example.World'
-    systemProperty 'drone.planner', 'nsga3'
-    if (trajectoryCsvProp != null) {
-        systemProperty 'drone.trajectory.csv', trajectoryCsvProp
-    }
-}
-
-tasks.register('runNsga2Bench', JavaExec) {
-    group = 'application'
-    description = 'Tabela metryk NSGA-II vs iteracje (CSV z sep=;) — opcjonalnie: -PbenchArgs="500 42" (populacja, ziarno)'
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'org.example.bench.Nsga2MetricsBench'
-    def ba = project.findProperty('benchArgs')
-    if (ba != null) {
-        args(ba.toString().trim().split(/\s+/).findAll { it.length() > 0 })
+    mainClass = 'org.example.bench.AlgorithmComparison'
+    def compareArgs = project.findProperty('compareArgs')
+    if (compareArgs != null) {
+        args(compareArgs.toString().trim().split(/\s+/).findAll { it.length() > 0 })
     }
 }
 

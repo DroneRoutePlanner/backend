@@ -1,36 +1,16 @@
 package org.example.planning;
 
-public final class RouteEvaluationResult {
+/**
+ * Wynik oceny trasy zespołu dronów — trzy minimalizowane kryteria.
+ *
+ * @param makespan       czas zakończenia misji przez ostatniego drona (w tickach symulacji)
+ * @param totalEnergy    łączna energia zużyta przez wszystkie drony
+ * @param totalRadarRisk łączne ryzyko wykrycia przez radary
+ */
+public record RouteEvaluationResult(double makespan, double totalEnergy, double totalRadarRisk) {
 
-    private final double makespan;
-
-    private final double totalEnergy;
-
-    private final double totalRadarRisk;
-
-    public RouteEvaluationResult(
-            double makespan,
-            double totalEnergy,
-            double totalRadarRisk
-    ) {
-        this.makespan = makespan;
-        this.totalEnergy = totalEnergy;
-        this.totalRadarRisk = totalRadarRisk;
-    }
-
-    public double getMakespan() {
-        return makespan;
-    }
-
-    public double getTotalEnergy() {
-        return totalEnergy;
-    }
-
-    public double getTotalRadarRisk() {
-        return totalRadarRisk;
-    }
-
-    public double[] objectivesMinimize() {
-        return new double[]{makespan, totalEnergy, totalRadarRisk};
+    /** Kryteria w kolejności indeksów z {@link Individual}: makespan, energia, ryzyko radarowe. */
+    public double[] objectives() {
+        return new double[] { makespan, totalEnergy, totalRadarRisk };
     }
 }

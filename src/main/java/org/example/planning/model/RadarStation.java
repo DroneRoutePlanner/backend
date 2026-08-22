@@ -1,5 +1,6 @@
 package org.example.planning.model;
 
+/** Radar naziemny: ryzyko wykrycia {@code strength/(d²+1)} w kuli o promieniu {@code influenceRadius}. */
 public final class RadarStation {
 
     private final double x;

@@ -22,6 +22,7 @@ import csv
 from collections import defaultdict
 from pathlib import Path
 
+import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 
 try:
@@ -32,7 +33,7 @@ except ImportError as e:  # pragma: no cover
     ) from e
 
 # Jak PlanningScenarioFactory / PlanningContext dla domyślnego scenariusza
-_TERRAIN_MAX_ALT = 12
+_TERRAIN_MAX_ALT = 20
 
 
 def scaled_ground_z(raw: np.ndarray, max_altitude: int) -> np.ndarray:
@@ -68,20 +69,33 @@ def terrain_sibling_csv(trajectory_csv: Path) -> Path:
     return trajectory_csv.with_name(f"{trajectory_csv.stem}_terrain.csv")
 
 
-def planning_factory_radars(map_w: int, map_h: int) -> list[tuple[float, float, float, float]]:
+def planning_factory_radars(
+    map_w: int,
+    map_h: int,
+    hmap_raw: np.ndarray | None = None,
+) -> list[tuple[float, float, float, float]]:
     """
     Te same wzory co w Java: PlanningScenarioFactory.defaultMultiDrone — RadarStation(...).
-    Zwraca listę (x, y, z, influence_radius).
+    Zwraca listę (x, y, z, influence_radius). Gdy podano hmap_raw, z = wysokość terenu w komórce.
     """
     w, h = float(map_w), float(map_h)
-    r0 = max(2.5, w * 0.20)
-    r1 = max(2.5, w * 0.18)
-    r2 = max(2.0, w * 0.16)
-    return [
-        (w * 0.28, h * 0.52, 5.0, r0),
-        (w * 0.72, h * 0.32, 4.0, r1),
-        (w * 0.52, h * 0.72, 6.0, r2),
+    specs = [
+        (w * 0.28, h * 0.52, max(2.5, w * 0.20)),
+        (w * 0.72, h * 0.32, max(2.5, w * 0.18)),
+        (w * 0.52, h * 0.72, max(2.0, w * 0.16)),
     ]
+    radars: list[tuple[float, float, float, float]] = []
+    for x, y, radius in specs:
+        if hmap_raw is not None:
+            ix = int(round(x))
+            iy = int(round(y))
+            ix = max(0, min(hmap_raw.shape[0] - 1, ix))
+            iy = max(0, min(hmap_raw.shape[1] - 1, iy))
+            z = float(scaled_ground_z(hmap_raw[ix : ix + 1, iy : iy + 1], _TERRAIN_MAX_ALT)[0, 0])
+        else:
+            z = 0.0
+        radars.append((x, y, z, radius))
+    return radars
 
 
 def plot_radar_sphere(
@@ -91,49 +105,92 @@ def plot_radar_sphere(
     cz: float,
     radius: float,
     *,
-    color: str = "lightcoral",
-    alpha: float = 0.16,
-    resolution: int = 28,
+    hmap_raw: np.ndarray | None = None,
+    color: str = "#FF4444",
+    alpha: float = 0.18,
+    edge_color: str = "#FF0000",
+    line_width: float = 2.8,
+    resolution: int = 72,
 ) -> None:
-    """Półprzezroczysta sfera: zasięg ryzyka = influenceRadius (poza kulą ryzyko = 0 w Java)."""
+    """
+    Sfera zasięgu radarowego: lekkie półprzezroczyste wypełnienie + gruby czerwony obrys (linie 3D).
+    """
+    del hmap_raw, color
+
     u = np.linspace(0.0, 2.0 * np.pi, resolution)
-    v = np.linspace(0.0, np.pi, resolution // 2)
+    v = np.linspace(0.0, np.pi, max(18, resolution // 3))
     uu, vv = np.meshgrid(u, v)
     x = cx + radius * np.cos(uu) * np.sin(vv)
     y = cy + radius * np.sin(uu) * np.sin(vv)
     z = cz + radius * np.cos(vv)
+
+    fill_rgba = mcolors.to_rgba("#FF5555", alpha=alpha)
     ax.plot_surface(
         x,
         y,
         z,
-        color=color,
-        alpha=alpha,
+        color=fill_rgba,
         linewidth=0,
-        antialiased=True,
+        antialiased=False,
         shade=False,
-        rstride=1,
-        cstride=1,
+        rstride=4,
+        cstride=4,
     )
 
+    theta = np.linspace(0.0, 2.0 * np.pi, 120)
+    phi = np.linspace(0.0, np.pi, 72)
 
-def plot_terrain_wireframe(ax, hmap_raw: np.ndarray) -> None:
-    """Siatka 3D: wysokość Z w jednostkach jak trasy (scaled ground), indeks hmap [x,y] raw 0..100."""
+    lw = float(line_width)
+    for z_frac in (0.0, 0.25, 0.5, 0.75, 0.92, 1.0):
+        zc = cz + radius * z_frac
+        r_xy = radius * np.sqrt(max(0.0, 1.0 - z_frac * z_frac))
+        ax.plot(
+            cx + r_xy * np.cos(theta),
+            cy + r_xy * np.sin(theta),
+            np.full_like(theta, zc),
+            color=edge_color,
+            linewidth=lw if z_frac >= 0.5 else lw * 0.85,
+            alpha=1.0,
+        )
+
+    for az in np.linspace(0.0, 2.0 * np.pi, 10, endpoint=False):
+        ax.plot(
+            cx + radius * np.sin(phi) * np.cos(az),
+            cy + radius * np.sin(phi) * np.sin(az),
+            cz + radius * np.cos(phi),
+            color=edge_color,
+            linewidth=lw * 0.9,
+            alpha=1.0,
+        )
+
+    ax.scatter([cx], [cy], [cz], color=edge_color, s=70, depthshade=False, zorder=10)
+
+
+def plot_terrain_surface(ax, hmap_raw: np.ndarray, *, alpha: float = 0.97):
+    """Powierzchnia 3D pokolorowana wysokością (góry widoczne na PNG)."""
     w, h = hmap_raw.shape
     x_idx = np.arange(w)
     y_idx = np.arange(h)
     X, Y = np.meshgrid(x_idx, y_idx, indexing="xy")
-    Zmw = scaled_ground_z(hmap_raw, _TERRAIN_MAX_ALT).astype(np.float64)
-    Z = Zmw.T
-    stride = max(1, min(w, h) // 25)
-    ax.plot_wireframe(
+    Z = scaled_ground_z(hmap_raw, _TERRAIN_MAX_ALT).astype(np.float64).T
+    z_min = float(Z.min())
+    z_max = float(Z.max())
+    if z_max <= z_min:
+        z_max = z_min + 1.0
+    return ax.plot_surface(
         X,
         Y,
         Z,
-        rstride=stride,
-        cstride=stride,
-        color="cornflowerblue",
-        linewidth=0.35,
-        alpha=0.85,
+        cmap="terrain",
+        vmin=z_min,
+        vmax=z_max,
+        linewidth=0.3,
+        edgecolor=(0.35, 0.28, 0.22, 0.45),
+        alpha=alpha,
+        antialiased=True,
+        shade=True,
+        rcount=min(w, 80),
+        ccount=min(h, 80),
     )
 
 
@@ -182,9 +239,9 @@ def main() -> None:
     parser.add_argument(
         "--z-aspect",
         type=float,
-        default=0.42,
+        default=0.52,
         metavar="F",
-        help="jak „spłaszczyć” oś Z w pudełku 3D względem XY (0.3–0.5 jak szeroki teren na 2. wykresie; 1.0 = szczególnie wysoki Z)",
+        help="jak „spłaszczyć” oś Z w pudełku 3D względem XY (0.3–0.5 jak szeroki teren; 1.0 = pełna wysokość Z)",
     )
     parser.add_argument(
         "--markers-max",
@@ -211,14 +268,32 @@ def main() -> None:
     parser.add_argument(
         "--radar-alpha",
         type=float,
-        default=0.16,
-        help="przezroczystość sfer radarów 0–1 (domyślnie 0.16)",
+        default=0.18,
+        help="przezroczystość wypełnienia sfery radarów 0–1 (domyślnie 0.18; obrys zawsze pełny)",
     )
     parser.add_argument(
         "--radar-color",
         type=str,
-        default="lightcoral",
-        help="kolor wypełnienia sfer (matplotlib, domyślnie bladoczerwony: lightcoral)",
+        default="#FF4444",
+        help="kolor wypełnienia sfer (domyślnie #FF4444)",
+    )
+    parser.add_argument(
+        "--radar-edge-color",
+        type=str,
+        default="#FF0000",
+        help="kolor obrysu kopuły i markera środka (domyślnie #FF0000)",
+    )
+    parser.add_argument(
+        "--terrain-alpha",
+        type=float,
+        default=None,
+        help="przezroczystość terenu 0–1 (domyślnie 0.82 z radarami, 0.97 bez)",
+    )
+    parser.add_argument(
+        "--radar-linewidth",
+        type=float,
+        default=2.8,
+        help="grubość czerwonego obrysu sfery radarowej (domyślnie 2.8)",
     )
     parser.add_argument(
         "--terrain",
@@ -256,33 +331,24 @@ def main() -> None:
     all_y: list[float] = []
     all_z: list[float] = []
 
+    dims = parse_factory_dims(args.factory_radars)
+    radars: list[tuple[float, float, float, float]] = []
+    if dims is not None:
+        radars.extend(planning_factory_radars(dims[0], dims[1], terrain_hmap))
+    radars.extend(args.radar)
+
+    terrain_alpha = args.terrain_alpha
+    if terrain_alpha is None:
+        terrain_alpha = 0.58 if radars else 0.97
+
+    terrain_surf = None
     if terrain_hmap is not None:
-        plot_terrain_wireframe(ax, terrain_hmap)
+        terrain_surf = plot_terrain_surface(ax, terrain_hmap, alpha=float(terrain_alpha))
         w0, h0 = terrain_hmap.shape
         z_disp = scaled_ground_z(terrain_hmap, _TERRAIN_MAX_ALT)
         all_x.extend([0, w0 - 1])
         all_y.extend([0, h0 - 1])
         all_z.extend([float(z_disp.min()), float(z_disp.max())])
-
-    dims = parse_factory_dims(args.factory_radars)
-    radars: list[tuple[float, float, float, float]] = []
-    if dims is not None:
-        radars.extend(planning_factory_radars(dims[0], dims[1]))
-    radars.extend(args.radar)
-
-    for cx, cy, cz, rr in radars:
-        plot_radar_sphere(
-            ax,
-            cx,
-            cy,
-            cz,
-            rr,
-            color=args.radar_color,
-            alpha=float(args.radar_alpha),
-        )
-        all_x.extend((cx - rr, cx + rr))
-        all_y.extend((cy - rr, cy + rr))
-        all_z.extend((cz - rr, cz + rr))
 
     for d in sorted(traces):
         t = traces[d]
@@ -313,6 +379,23 @@ def main() -> None:
             linewidth=1.1,
         )
 
+    for cx, cy, cz, rr in radars:
+        plot_radar_sphere(
+            ax,
+            cx,
+            cy,
+            cz,
+            rr,
+            hmap_raw=terrain_hmap,
+            color=args.radar_color,
+            alpha=float(args.radar_alpha),
+            edge_color=args.radar_edge_color,
+            line_width=float(args.radar_linewidth),
+        )
+        all_x.extend((cx - rr, cx + rr))
+        all_y.extend((cy - rr, cy + rr))
+        all_z.extend((cz - rr, cz + rr))
+
     ax.set_xlabel("X (komórki)")
     ax.set_ylabel("Y (komórki)")
     ax.set_zlabel("Z (komórki)")
@@ -339,10 +422,17 @@ def main() -> None:
     except AttributeError:
         pass
 
+    if radars:
+        ax.view_init(elev=31, azim=-56)
+
+    if terrain_surf is not None:
+        cbar = fig.colorbar(terrain_surf, ax=ax, shrink=0.55, pad=0.08)
+        cbar.set_label("Wysokość terenu (Z)")
+
     fig.tight_layout()
 
     if args.output:
-        plt.savefig(args.output, dpi=args.dpi, bbox_inches="tight")
+        plt.savefig(args.output, dpi=args.dpi, bbox_inches="tight", facecolor="white")
         print(f"Zapisano: {args.output}")
     else:
         plt.show()

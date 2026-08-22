@@ -25,7 +25,7 @@ public final class TerrainCsvWriter {
             Files.createDirectories(parent);
         }
         int w = terrain.getWidth();
-        int h = terrain.getHeightMapHeight();
+        int h = terrain.getDepth();
         try (BufferedWriter bw = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
             bw.write(Integer.toString(w));
             bw.write(',');
