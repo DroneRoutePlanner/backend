@@ -1,0 +1,166 @@
+\chapter{Podsumowanie}
+\label{ch:podsumowanie}
+
+Rozdział zamyka pracę. W~podrozdziale \ref{sec:podsumowanie_praca} zestawiono
+wykonane zadania z~celem postawionym w~rozdziale~\ref{ch:wstep}, oceniono stopień
+jego realizacji i~sformułowano najważniejsze wnioski z~analizy porównawczej.
+Podrozdział \ref{sec:podsumowanie_rozwoj} wskazuje możliwości dalszego rozwoju
+--- zarówno samych algorytmów, jak i~środowiska symulacyjnego oraz metodyki
+badań --- a~podrozdział \ref{sec:podsumowanie_zastosowania} omawia potencjalne
+obszary zastosowania uzyskanych wyników i~opracowanego oprogramowania.
+
+\section{Podsumowanie pracy}
+\label{sec:podsumowanie_praca}
+
+Celem pracy było opracowanie, implementacja oraz przeprowadzenie statystycznej
+analizy porównawczej wielokryterialnych algorytmów metaheurystycznych NSGA-II,
+NSGA-III i~GWO w~zadaniu planowania tras zespołu bezzałogowych statków
+powietrznych w~niestacjonarnym środowisku. Cel ten zrealizowano w~następujących
+krokach.
+
+Zaprojektowano i~zaimplementowano autorskie środowisko symulacyjne
+(rozdział~\ref{ch:wyniki}): dyskretną siatkę trójwymiarową z~proceduralnie
+generowaną rzeźbą terenu, strefami zakazu lotu, modelem wykrywalności radarowej
+oraz zmiennym w~czasie polem wiatru. Trasy zespołu dronów oceniane są według
+trzech minimalizowanych kryteriów --- czasu wykonania misji, zużycia energii
+i~ryzyka wykrycia --- przy twardym egzekwowaniu ograniczeń przestrzennych
+i~kolizyjnych, bez funkcji kary zniekształcających wartości kryteriów.
+
+Zaimplementowano trzy algorytmy na wspólnym kodowaniu rozwiązań, ze wspólnym
+ewaluatorem i~jednakowym budżetem ocen funkcji celu (rozdział~\ref{ch:sota}),
+co wyeliminowało różnice implementacyjne jako źródło rozbieżności wyników.
+Ponieważ klasyczny GWO jest algorytmem jednokryterialnym operującym w~przestrzeni
+ciągłej, opracowano jego wielokryterialny i~dyskretny wariant: MOGWO z~zewnętrznym
+archiwum Pareto, ruletkowym wyborem liderów oraz aktualizacją pozycji opartą na
+głosowaniu propozycji liderów dla poszczególnych genów trasy.
+
+Zbudowano protokół porównawczy oparty na dokładnie obliczanej hiperobjętości
+ze wspólną normalizacją frontów oraz na testach statystycznych dla prób
+sparowanych (test Friedmana, testy Wilcoxona z~poprawką Holma, delta Cliffa).
+Poprawność metryki zweryfikowano dwiema niezależnymi implementacjami, a~cały
+eksperyment --- 20 instancji problemu w~eksperymencie głównym oraz seria
+czterech budżetów obliczeniowych --- jest w~pełni odtwarzalny dzięki jawnemu
+ziarnowaniu generatorów losowych i~skryptom automatyzującym obliczenia
+i~analizę.
+
+Cel pracy uznaje się za zrealizowany w~zakresie określonym w~rozdziale
+\ref{ch:wyniki}: porównanie przeprowadzono dla planowania z~pełną znajomością
+modelu środowiska, w~którym niestacjonarność przejawia się zależnością kosztu
+ruchu od czasu jego wykonania. Adaptacja tras w~trakcie lotu do zmian
+nieznanych w~chwili planowania nie była przedmiotem pracy i~stanowi jeden
+z~kierunków jej rozwoju.
+
+\subsection{Najważniejsze wnioski}
+\label{sec:podsumowanie_wnioski}
+
+\begin{enumerate}
+    \item Algorytmy ewolucyjne NSGA-II i~NSGA-III uzyskują istotnie wyższą
+    hiperobjętość niż dyskretny wariant MOGWO ($p_{\text{Holm}} < 0{,}001$,
+    $\delta$ Cliffa $0{,}81$--$0{,}88$); MOGWO przegrywa w~19 z~20 instancji
+    i~nie wygrał w~żadnej.
+    \item Różnica między NSGA-II (średnia $0{,}73$) a~NSGA-III ($0{,}58$) nie jest
+    istotna statystycznie ($p = 0{,}114$, efekt mały) i~zależy od budżetu:
+    NSGA-III jest lepszy przy małym budżecie, a~przy dużym oba algorytmy dają
+    fronty tej samej jakości. Jest to zgodne z~doniesieniami literaturowymi
+    o~braku przewagi NSGA-III dla trzech kryteriów.
+    \item Główną słabością MOGWO jest kryterium czasu: w~$30\%$ instancji wataha
+    nie znalazła tras doprowadzających wszystkie drony do celu, a~jej krzywa
+    zbieżności wypłaszcza się po $60\%$ budżetu, co wskazuje na przedwczesną
+    utratę różnorodności.
+    \item Duży rozmiar archiwum MOGWO (średnio $56$ rozwiązań) nie przekłada
+    się na jakość frontu --- liczność zbioru niezdominowanego nie jest miarą jego
+    jakości.
+    \item Jakość frontów wszystkich algorytmów rośnie bez nasycenia w~całym
+    badanym zakresie budżetu ($100$--$1000$ iteracji); przy równym budżecie ocen
+    MOGWO potrzebuje $1{,}8$ raza więcej czasu procesora.
+    \item Zaobserwowane różnice dają się wyjaśnić niedopasowaniem genowego
+    operatora MOGWO do kodowania z~zależnościami pozycyjnymi i~czasowymi,
+    brakiem elitaryzmu w~watasze oraz wygaszaniem eksploracji przez harmonogram
+    parametru $a$ --- co wskazuje konkretne kierunki dalszych prac nad adaptacją
+    GWO do dyskretnego planowania tras.
+\end{enumerate}
+
+Odpowiedź na pytanie o~przydatność badanych metod jest zatem zróżnicowana.
+Algorytmy z~rodziny NSGA okazały się skutecznym narzędziem wyznaczania zbioru
+tras kompromisowych dla zespołu dronów w~rozważanym środowisku, a~wybór między
+NSGA-II i~NSGA-III ma mniejsze znaczenie niż dobór budżetu obliczeniowego.
+Bezpośrednie przeniesienie mechanizmów GWO na grunt dyskretny, mimo zachowania
+wszystkich jego charakterystycznych elementów, nie dało konkurencyjnej metody
+--- wynik ten jest jednak wartościowy poznawczo, gdyż pozwolił zidentyfikować,
+które z~założeń algorytmu ciągłego nie przenoszą się na kodowanie trasowe.
+
+\section{Możliwości dalszego rozwoju}
+\label{sec:podsumowanie_rozwoj}
+
+\paragraph{Rozwój algorytmów.}
+Analiza z~rozdziału~\ref{ch:analiza} wskazuje trzy modyfikacje MOGWO, które
+bezpośrednio adresują zidentyfikowane słabości: przejmowanie od liderów spójnych
+segmentów tras zamiast pojedynczych genów (zachowanie kontekstu przestrzennego
+i~czasowego), wprowadzenie elitaryzmu w~watasze przez zachowanie części archiwum
+w~populacji oraz dolne ograniczenie prawdopodobieństwa mutacji niezależne od
+parametru $a$. Warto również zweryfikować wpływ zastąpienia odległości zatłoczenia
+oryginalną siatką hipersześcianów. Niezależnie od GWO, naturalnym rozszerzeniem
+jest włączenie do porównania innych paradygmatów --- dekompozycyjnego MOEA/D,
+wielokryterialnej optymalizacji rojem cząstek czy algorytmów mrówkowych,
+które ze względu na konstrukcyjny charakter dobrze pasują do kodowania trasowego
+--- a~także hybrydyzacja z~lokalnym przeszukiwaniem lub operatorami naprawczymi
+wykorzystującymi wiedzę o~problemie (np. krzyżowanie w~punkcie, w~którym trasy
+rodziców przechodzą przez tę samą komórkę). Osobnym zadaniem jest systematyczne
+strojenie parametrów operatorów, które w~niniejszej pracy przyjęto na podstawie
+literatury, bez optymalizacji pod rozważany problem.
+
+\paragraph{Rozwój środowiska symulacyjnego.}
+Najpilniejszym uzupełnieniem jest eksperyment ablacyjny z~wyłączonymi podmuchami
+wiatru, który pozwoliłby ilościowo wyodrębnić wpływ niestacjonarności na jakość
+frontów. Dalsze kroki to wprowadzenie zmian środowiska nieznanych w~chwili
+planowania --- dryfu lub pojawiania się radarów, ruchomych przeszkód --- wraz
+z~planowaniem w~trybie przesuwanego horyzontu, w~którym algorytm przeplanowuje
+trasę co określoną liczbę tików na podstawie bieżącej populacji. Model można
+również wzbogacić o~egzekwowanie budżetu energii jako ograniczenia zasięgu,
+zróżnicowane prędkości dronów, ciągłą (pozbawioną składnika stałego) funkcję
+kosztu ryzyka radarowego oraz większe zespoły i~mapy w~celu zbadania
+skalowalności. Ponieważ ewaluator tras jest bezstanowy, ocena populacji daje się
+zrównoleglić, co umożliwiłoby eksperymenty o~znacznie większym budżecie.
+
+\paragraph{Rozwój metodyki badań.}
+Zwiększenie liczby instancji podniosłoby moc testów i~pozwoliło rozstrzygnąć,
+czy mała, nieistotna statystycznie przewaga NSGA-II nad NSGA-III jest
+systematyczna. Hiperobjętość warto uzupełnić miarami o~odmiennym charakterze
+(IGD$^{+}$, wskaźnik $\varepsilon$, miary rozpiętości) oraz zbadać wrażliwość
+wyników na położenie punktu referencyjnego. Interesującym kierunkiem jest też
+porównanie przy równym czasie procesora zamiast równej liczby ocen oraz analiza
+zależności między cechami instancji (np. udziałem komórek zakazanych, pokryciem
+radarowym) a~wynikami poszczególnych algorytmów, która mogłaby wyjaśnić dużą
+zmienność między instancjami zaobserwowaną w~rozdziale~\ref{ch:analiza}.
+
+\section{Potencjalne obszary zastosowania}
+\label{sec:podsumowanie_zastosowania}
+
+Opracowane rozwiązanie ma dwojaki charakter: jest zarazem narzędziem
+planistycznym i~środowiskiem badawczym.
+
+Jako narzędzie planistyczne bezpośrednio odpowiada potrzebom misji, w~których
+zespół dronów ma dotrzeć do wyznaczonych celów możliwie szybko i~oszczędnie,
+unikając przy tym wykrycia. Takie sformułowanie jest właściwe dla zadań
+rozpoznawczych i~obserwacyjnych w~zastosowaniach obronnych, gdzie strefy
+wykrywalności odpowiadają zasięgom radarów przeciwnika, ale przenosi się także
+na zastosowania cywilne: w~akcjach poszukiwawczo-ratowniczych i~monitoringu
+infrastruktury strefy ,,wykrywalności'' można interpretować jako obszary
+zakłóceń łączności lub ruchu lotniczego, a~w~logistyce dronowej --- jako strefy
+o~podwyższonym ryzyku lub ograniczeniach prawnych. Istotną zaletą podejścia
+wielokryterialnego jest to, że wynikiem nie jest jedna trasa, lecz zbiór tras
+kompromisowych; decyzja o~tym, ile czasu lub energii warto poświęcić dla
+zmniejszenia ryzyka, pozostaje po stronie operatora, który dokonuje jej
+a~posteriori, mając przed sobą cały front. Należy jednak podkreślić, że model
+symulacyjny jest uproszczony (dyskretna siatka, brak dynamiki lotu, planowanie
+z~pełną znajomością środowiska), więc zastosowanie praktyczne wymagałoby
+integracji z~warstwą sterowania lotem i~walidacji na danych rzeczywistych.
+
+Jako środowisko badawcze symulator wraz z~protokołem eksperymentalnym stanowi
+gotowe stanowisko do testowania metaheurystyk dyskretnych: wspólny interfejs
+algorytmów, bezstanowy ewaluator, dokładna metryka hiperobjętości oraz skrypty
+analizy statystycznej pozwalają włączyć nowy algorytm do porównania bez
+ingerencji w~pozostałe komponenty. Pełna odtwarzalność eksperymentów czyni go
+również przydatnym w~dydaktyce --- do ilustrowania pojęć dominacji Pareto,
+hiperobjętości i~równowagi między eksploracją a~eksploatacją na problemie
+o~czytelnej interpretacji fizycznej.

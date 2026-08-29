@@ -15,6 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
@@ -24,17 +25,27 @@ import java.util.Map;
 /**
  * Bezokienkowe porównanie NSGA-II, NSGA-III i MOGWO na tych samych scenariuszach z tym samym
  * budżetem (populacja × iteracje). Dla każdego uruchomienia fronty wszystkich algorytmów są
- * normalizowane do wspólnych granic (ideal/nadir sumy frontów) i oceniane hiperobjętością
- * z punktem referencyjnym {@code 1 + margin}.
+ * normalizowane do wspólnych granic (ideal/nadir sumy frontów końcowych) i oceniane hiperobjętością
+ * z punktem referencyjnym {@code 1 + margin}. W tych samych granicach oceniane są też migawki zbioru
+ * niezdominowanego zapisywane w trakcie optymalizacji (krzywe zbieżności).
  * <p>
  * Argumenty {@code klucz=wartość}: {@code pop} (100), {@code iter} (100), {@code runs} (3),
- * {@code seed} (42), {@code width}/{@code height} (30), {@code margin} (0.1),
- * {@code out} (csv/comparison — prefiks plików *_summary.csv i *_fronts.csv).
+ * {@code seed} (42 — baza ziaren algorytmów), {@code terrainSeed} (= seed — ziarno jednej, stałej
+ * instancji terenu wspólnej dla wszystkich uruchomień), {@code width}/{@code height} (30), {@code margin} (0.1),
+ * {@code checkpoints} (50 — liczba punktów krzywej zbieżności),
+ * {@code out} (csv/comparison — prefiks plików *_summary.csv, *_fronts.csv, *_convergence.csv).
  */
 public final class AlgorithmComparison {
 
     private record RunResult(int run, SolverKind kind, List<Individual> front, long millis,
                              double hypervolume, double hypervolumeRatio) {
+    }
+
+    private record Snapshot(SolverKind kind, int iteration, List<double[]> objectives) {
+    }
+
+    private record ConvergenceRow(int run, SolverKind kind, int iteration, int frontSize,
+                                  double hypervolume, double hypervolumeRatio) {
     }
 
     private AlgorithmComparison() {
@@ -46,28 +57,42 @@ public final class AlgorithmComparison {
         int iterations = intOption(options, "iter", 100);
         int runs = intOption(options, "runs", 3);
         long baseSeed = Long.parseLong(options.getOrDefault("seed", "42"));
+        long terrainSeed = Long.parseLong(options.getOrDefault("terrainSeed", Long.toString(baseSeed)));
         int width = intOption(options, "width", 30);
         int height = intOption(options, "height", 30);
         double margin = Double.parseDouble(options.getOrDefault("margin", "0.1"));
+        int checkpoints = intOption(options, "checkpoints", 50);
         Path outPrefix = Path.of(options.getOrDefault("out", "csv/comparison"));
 
-        System.out.printf(Locale.ROOT, "Porównanie: pop=%d iter=%d runs=%d seed=%d mapa=%dx%d%n",
-                populationSize, iterations, runs, baseSeed, width, height);
+        int checkpointStep = Math.max(1, iterations / checkpoints);
+        double maxHv = Hypervolume.maxNormalized(margin);
+
+        System.out.printf(Locale.ROOT, "Porównanie: pop=%d iter=%d runs=%d seed=%d terrainSeed=%d mapa=%dx%d%n",
+                populationSize, iterations, runs, baseSeed, terrainSeed, width, height);
+
+        // Jedna, stała instancja problemu dla wszystkich uruchomień i algorytmów —
+        // między runami zmienia się wyłącznie ziarno generatora losowego algorytmu.
+        Terrain terrain = new Terrain(width, height, terrainSeed);
+        PlanningProblem problem = PlanningScenarioFactory.defaultMultiDrone(terrain);
 
         List<RunResult> results = new ArrayList<>();
+        List<ConvergenceRow> convergence = new ArrayList<>();
         for (int run = 0; run < runs; run++) {
-            long scenarioSeed = baseSeed + run;
-            Terrain terrain = new Terrain(width, height, scenarioSeed);
-            PlanningProblem problem = PlanningScenarioFactory.defaultMultiDrone(terrain);
+            long runSeed = baseSeed + run;
 
             Map<SolverKind, List<Individual>> fronts = new EnumMap<>(SolverKind.class);
             Map<SolverKind, Long> times = new EnumMap<>(SolverKind.class);
+            List<Snapshot> snapshots = new ArrayList<>();
             for (SolverKind kind : SolverKind.values()) {
-                MultiObjectiveSolver solver = kind.create(scenarioSeed * 31 + kind.ordinal());
+                MultiObjectiveSolver solver = kind.create(runSeed * 31 + kind.ordinal());
                 final int runIndex = run;
                 long start = System.nanoTime();
                 List<Individual> front = solver.run(problem, populationSize, iterations, (iteration, nonDominated) -> {
-                    if ((iteration + 1) % Math.max(1, iterations / 10) == 0 || iteration == iterations - 1) {
+                    boolean last = iteration == iterations - 1;
+                    if ((iteration + 1) % checkpointStep == 0 || last) {
+                        snapshots.add(new Snapshot(kind, iteration + 1, copyObjectives(nonDominated)));
+                    }
+                    if ((iteration + 1) % Math.max(1, iterations / 10) == 0 || last) {
                         System.out.printf(Locale.ROOT, "  [%s] run %d  iteracja %d/%d  front=%d%n",
                                 kind.displayName(), runIndex + 1, iteration + 1, iterations, nonDominated.size());
                     }
@@ -77,10 +102,20 @@ public final class AlgorithmComparison {
             }
 
             ObjectiveBounds bounds = ObjectiveBounds.ofFronts(fronts.values());
-            double maxHv = Hypervolume.maxNormalized(margin);
+            double[] reference = new double[Individual.OBJECTIVE_COUNT];
+            Arrays.fill(reference, 1.0 + margin);
             for (SolverKind kind : SolverKind.values()) {
                 double hv = Hypervolume.normalized(fronts.get(kind), bounds, margin);
                 results.add(new RunResult(run, kind, fronts.get(kind), times.get(kind), hv, hv / maxHv));
+            }
+            for (Snapshot snapshot : snapshots) {
+                List<double[]> normalized = new ArrayList<>(snapshot.objectives().size());
+                for (double[] point : snapshot.objectives()) {
+                    normalized.add(bounds.normalize(point));
+                }
+                double hv = Hypervolume.of(normalized, reference);
+                convergence.add(new ConvergenceRow(run, snapshot.kind(), snapshot.iteration(),
+                        snapshot.objectives().size(), hv, hv / maxHv));
             }
             printRunTable(run, results);
         }
@@ -88,7 +123,17 @@ public final class AlgorithmComparison {
         printSummary(results);
         writeSummaryCsv(results, Path.of(outPrefix + "_summary.csv"));
         writeFrontsCsv(results, Path.of(outPrefix + "_fronts.csv"));
-        System.out.printf("Zapisano %s_summary.csv i %s_fronts.csv%n", outPrefix, outPrefix);
+        writeConvergenceCsv(convergence, Path.of(outPrefix + "_convergence.csv"));
+        System.out.printf("Zapisano %s_summary.csv, %s_fronts.csv i %s_convergence.csv%n",
+                outPrefix, outPrefix, outPrefix);
+    }
+
+    private static List<double[]> copyObjectives(List<Individual> front) {
+        List<double[]> copy = new ArrayList<>(front.size());
+        for (Individual individual : front) {
+            copy.add(individual.getObjectives().clone());
+        }
+        return copy;
     }
 
     private static void printRunTable(int run, List<RunResult> results) {
@@ -144,6 +189,19 @@ public final class AlgorithmComparison {
                             individual.objective(Individual.RADAR_RISK)));
                     w.newLine();
                 }
+            }
+        }
+    }
+
+    private static void writeConvergenceCsv(List<ConvergenceRow> rows, Path path) throws IOException {
+        createParent(path);
+        try (BufferedWriter w = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+            w.write("run,algorithm,iteration,front_size,hypervolume,hypervolume_ratio");
+            w.newLine();
+            for (ConvergenceRow r : rows) {
+                w.write(String.format(Locale.ROOT, "%d,%s,%d,%d,%.6f,%.6f",
+                        r.run(), r.kind().displayName(), r.iteration(), r.frontSize(), r.hypervolume(), r.hypervolumeRatio()));
+                w.newLine();
             }
         }
     }

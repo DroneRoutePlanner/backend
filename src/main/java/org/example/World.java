@@ -43,9 +43,11 @@ public class World extends Application {
 
     private static final int HEIGHT = 30;
 
-    private static final int POPULATION_SIZE = 1000;
+    /** Domyślny rozmiar populacji; nadpisywalny właściwością {@code -Ddrone.pop}. */
+    private static final int DEFAULT_POPULATION_SIZE = 1000;
 
-    private static final int ITERATIONS = 1000;
+    /** Domyślna liczba pokoleń / iteracji; nadpisywalna właściwością {@code -Ddrone.iter}. */
+    private static final int DEFAULT_ITERATIONS = 1000;
 
     private static final long FRAME_INTERVAL_NS = 95_000_000L;
 
@@ -57,10 +59,18 @@ public class World extends Application {
 
     private Label statusLabel;
 
+    private int populationSize;
+
+    private int iterations;
+
     @Override
     public void start(Stage stage) {
         long seed = parseSeed(System.getProperty("drone.seed"));
         SolverKind kind = SolverKind.parse(System.getProperty("drone.planner")).orElse(SolverKind.NSGA_III);
+        populationSize = intProperty("drone.pop", DEFAULT_POPULATION_SIZE);
+        iterations = intProperty("drone.iter", DEFAULT_ITERATIONS);
+        System.out.printf("Start: algorytm=%s seed=%d populacja=%d iteracje=%d mapa=%dx%d%n",
+                kind.displayName(), seed, populationSize, iterations, WIDTH, HEIGHT);
 
         Terrain terrain = new Terrain(WIDTH, HEIGHT, seed);
         PlanningProblem problem = PlanningScenarioFactory.defaultMultiDrone(terrain);
@@ -84,6 +94,11 @@ public class World extends Application {
         runPlanningAndAnimate(problem, kind, seed);
     }
 
+    private static int intProperty(String name, int defaultValue) {
+        String raw = System.getProperty(name);
+        return raw == null || raw.isBlank() ? defaultValue : Integer.parseInt(raw.trim());
+    }
+
     private static long parseSeed(String raw) {
         if (raw == null || raw.isBlank()) {
             return System.nanoTime();
@@ -103,18 +118,20 @@ public class World extends Application {
         MultiObjectiveSolver solver = kind.create(seed);
         Thread worker = new Thread(() -> {
             try {
-                List<Individual> front = solver.run(problem, POPULATION_SIZE, ITERATIONS, (iteration, nonDominated) -> {
+                long startNs = System.nanoTime();
+                List<Individual> front = solver.run(problem, populationSize, iterations, (iteration, nonDominated) -> {
                     double bestMakespan = nonDominated.stream()
                             .mapToDouble(i -> i.objective(Individual.MAKESPAN))
                             .min()
                             .orElse(Double.NaN);
                     String text = String.format("%s: iteracja %d / %d  |  front: %d  |  najl. makespan: %.1f",
-                            solver.name(), iteration + 1, ITERATIONS, nonDominated.size(), bestMakespan);
+                            solver.name(), iteration + 1, iterations, nonDominated.size(), bestMakespan);
                     Platform.runLater(() -> statusLabel.setText(text));
                 });
+                System.out.printf("Optymalizacja zakończona w %d ms%n", (System.nanoTime() - startNs) / 1_000_000L);
                 System.out.print(ParetoFrontFormatter.format("Front Pareto " + solver.name(), front));
 
-                Individual chosen = SolutionPicker.pickSolution(front);
+                Individual chosen = SolutionPicker.pickSolution(front, problem);
                 SimulationTrace trace = evaluator.simulate(problem, chosen.getGenes(), true);
                 String csvNote = exportCsvIfRequested(problem, trace);
 

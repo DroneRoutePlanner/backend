@@ -45,5 +45,24 @@ dron (p=0.9) i mutacja losowa genu (p=0.12) — `AbstractNsgaSolver`.
 python3 scripts/plot_drone_trajectories_3d.py csv/trasa.csv --terrain
 ```
 
-`runCompare` zapisuje `*_summary.csv` (run, algorytm, rozmiar frontu, HV, HV/max, czas) oraz
-`*_fronts.csv` (wszystkie punkty frontów) do dalszej analizy.
+`runCompare` zapisuje `*_summary.csv` (run, algorytm, rozmiar frontu, HV, HV/max, czas),
+`*_fronts.csv` (wszystkie punkty frontów) oraz `*_convergence.csv` (HV bieżącego zbioru
+niezdominowanego w kolejnych iteracjach, w tych samych granicach normalizacji co front końcowy).
+
+## Protokół eksperymentalny i analiza statystyczna
+
+```bash
+./gradlew compileJava
+./experiments/run_all.sh          # 20 instancji × 500 iter + seria budżetów 100/250/1000 × 10 instancji
+python3 scripts/analyze_comparison.py --main experiments/results/main \
+    --budget 100=experiments/results/budget100 --budget 250=experiments/results/budget250 \
+    --budget 500=experiments/results/main --budget 1000=experiments/results/budget1000 \
+    --out experiments/analysis
+```
+
+Skrypt analizy (tylko NumPy + Matplotlib) liczy statystyki opisowe, test Friedmana, testy
+Wilcoxona dla par z poprawką Holma, deltę Cliffa, krzywe zbieżności i wrażliwość na budżet
+(ze wspólną normalizacją per instancja po wszystkich budżetach), a zapisuje tabele LaTeX
+(`tab_*.tex`), rysunki (`fig_*.png/pdf`) i `summary.json`. Wszystkie uruchomienia i algorytmy
+pracują na jednej, stałej instancji terenu o ziarnie `terrainSeed` (domyślnie równym `seed`);
+między runami zmienia się wyłącznie ziarno algorytmu: `(seed + run) * 31 + indeks algorytmu`.

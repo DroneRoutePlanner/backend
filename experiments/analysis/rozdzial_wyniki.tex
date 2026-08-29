@@ -1,0 +1,385 @@
+\chapter{Wyniki badań eksperymentalnych}
+\label{ch:wyniki}
+
+W~niniejszym rozdziale przedstawiono wyniki eksperymentów numerycznych
+przeprowadzonych w~opracowanym środowisku symulacyjnym. Rozdział ma charakter
+sprawozdawczy: opisuje, co i~jak zmierzono, oraz prezentuje surowe wyniki;
+ich statystyczna analiza i~interpretacja są przedmiotem
+rozdziału~\ref{ch:analiza}. W~podrozdziale \ref{sec:wyniki_cel} sformułowano
+cel i~zakres badań. Podrozdział \ref{sec:wyniki_protokol} opisuje protokół
+eksperymentalny --- instancje problemu, parametry algorytmów, mierzone wielkości
+oraz konfigurację sprzętową i~programową --- wraz ze sposobem odtworzenia
+wszystkich wyników. W~podrozdziale \ref{sec:wyniki_trasy} zaprezentowano
+przykładowe trasy wyznaczone przez każdy z~algorytmów na tej samej instancji,
+a~w~podrozdziałach \ref{sec:wyniki_glowny} i~\ref{sec:wyniki_budzet} --- surowe
+wyniki eksperymentu głównego oraz serii badającej wpływ budżetu obliczeniowego.
+
+\section{Cel i~zakres eksperymentów}
+\label{sec:wyniki_cel}
+
+Eksperymenty zaprojektowano tak, aby odpowiedzieć na trzy pytania:
+\begin{enumerate}
+    \item który z~algorytmów --- NSGA-II, NSGA-III czy dyskretny wariant MOGWO
+    --- wyznacza fronty Pareto o~najwyższej jakości przy jednakowym budżecie
+    ocen funkcji celu;
+    \item jak jakość frontów zmienia się wraz z~budżetem obliczeniowym i~czy
+    uporządkowanie algorytmów jest od budżetu niezależne;
+    \item jak algorytmy zachowują się w~przestrzeni poszczególnych kryteriów
+    (czasu, energii, ryzyka wykrycia), w~tym czy wyznaczane trasy doprowadzają
+    wszystkie drony do celu.
+\end{enumerate}
+Miarą jakości frontu jest hiperobjętość, której definicję, sposób normalizacji
+i~metodę obliczania opisano w~podrozdziale~\ref{sec:analiza_metodyka}.
+Wszystkie eksperymenty dotyczą planowania z~pełną znajomością modelu
+środowiska (podrozdział~\ref{sec:niestacjonarnosc}); scenariusz jest
+domyślnym scenariuszem symulatora o~parametrach z~tabeli~\ref{tab:scenariusz_parametry}:
+mapa $30 \times 30$ komórek, pułap $20$, trzy drony, trzy radary, horyzont
+symulacji $900$ tików.
+
+\section{Protokół eksperymentalny}
+\label{sec:wyniki_protokol}
+
+\subsection{Instancje problemu}
+\label{sec:wyniki_instancje}
+Instancję problemu wyznacza ziarno generatora terenu: rzeźba terenu, a~wraz
+z~nią strefy zakazu lotu, wysokości radarów i~wysokości startowe dronów są
+funkcją ziarna, natomiast położenia startów, celów i~radarów w~płaszczyźnie
+oraz wiatr są stałe. Eksperyment główny objął $20$ instancji o~ziarnach
+$42$--$61$ (instancja $i$ odpowiada ziarnu $41 + i$). Każdy algorytm otrzymuje
+własne ziarno wyznaczane deterministycznie z~ziarna instancji
+($31 \cdot \text{ziarno} + k$, gdzie $k$ jest indeksem algorytmu), dzięki czemu
+wszystkie przebiegi są odtwarzalne, a~wyniki trzech algorytmów na tej samej
+instancji tworzą próbę sparowaną.
+
+\subsection{Parametry algorytmów}
+\label{sec:wyniki_parametry}
+Wszystkie algorytmy uruchamiano z~populacją (watahą) o~liczebności $N = 100$,
+co oznacza dokładnie $100$ ocen funkcji celu na iterację w~każdym z~nich.
+W~eksperymencie głównym wykonywano $500$ iteracji ($50\,000$ ocen na algorytm
+i~instancję). Parametry operatorów przyjęto na podstawie literatury i~nie
+strojono ich pod rozważany problem; zestawiono je w~tabeli~\ref{tab:parametry_algorytmow}.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Parametry algorytmów w~eksperymentach}
+    \label{tab:parametry_algorytmow}
+    \begin{tabular}{l l l}
+        \hline
+        \textbf{Algorytm} & \textbf{Parametr} & \textbf{Wartość} \\
+        \hline
+        wszystkie & liczebność populacji / watahy $N$ & $100$ \\
+        wszystkie & liczba iteracji (eksperyment główny) & $500$ \\
+        wszystkie & liczba iteracji (seria budżetowa) & $100$, $250$, $500$, $1000$ \\
+        wszystkie & długość trasy $S$ (genów na drona) & $300$ \\
+        NSGA-II, NSGA-III & krzyżowanie & jednopunktowe per dron, $p_c = 0{,}9$ \\
+        NSGA-II, NSGA-III & mutacja & losowy kod ruchu, $p_m = 0{,}12$ na gen \\
+        NSGA-II & selekcja rodziców & turniej binarny $\prec_n$ \\
+        NSGA-III & punkty referencyjne & Das--Dennis, $p = 12$, $H = 91$ \\
+        NSGA-III & normalizacja & adaptacyjna (ASF, $\varepsilon = 10^{-6}$) \\
+        NSGA-III & selekcja rodziców & turniej po randze, remisy losowo \\
+        MOGWO & pojemność archiwum & $100$ \\
+        MOGWO & wybór liderów & ruletka po odległości zatłoczenia, bez zwracania \\
+        MOGWO & wagi rozstrzygania głosowania $\alpha/\beta/\delta$ & $0{,}5 / 0{,}3 / 0{,}2$ \\
+        MOGWO & mutacja eksploracyjna & $p_{\text{mut}} = 0{,}05 \cdot a$ \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Mierzone wielkości}
+\label{sec:wyniki_pomiary}
+Dla każdego przebiegu (instancja $\times$ algorytm) rejestrowano:
+\begin{itemize}
+    \item front końcowy --- zbiór rozwiązań wzajemnie niezdominowanych zwrócony
+    przez algorytm (pierwszy front populacji końcowej w~NSGA-II/III, archiwum
+    w~MOGWO) wraz z~wartościami trzech kryteriów każdego rozwiązania;
+    \item znormalizowaną hiperobjętość frontu końcowego
+    $\mathrm{HV}/\mathrm{HV}_{\max}$ (normalizacja wspólna dla trzech
+    algorytmów w~obrębie instancji, punkt referencyjny $1{,}1$);
+    \item migawki bieżącego zbioru niezdominowanego co $10$ iteracji, oceniane
+    w~tych samych granicach normalizacji co front końcowy (krzywe zbieżności);
+    \item czas obliczeń algorytmu (bez wczytywania klas i~generowania instancji).
+\end{itemize}
+Z~frontów wyznaczano dodatkowo najlepszą wartość każdego kryterium, udział
+rozwiązań o~zerowym ryzyku oraz informację, czy istnieje rozwiązanie kończące
+misję w~horyzoncie (makespan $\leq 900$), czyli doprowadzające wszystkie drony
+do celu. Dane zapisywano do plików CSV (\texttt{*\_summary.csv},
+\texttt{*\_fronts.csv}, \texttt{*\_convergence.csv}), stanowiących wejście
+skryptu analizy statystycznej.
+
+\subsection{Seria budżetowa}
+\label{sec:wyniki_seria}
+W~celu zbadania wpływu budżetu na pierwszych $10$ instancjach powtórzono
+porównanie dla $100$, $250$ i~$1000$ iteracji, przy niezmienionych pozostałych
+parametrach; wyniki dla $500$ iteracji pochodzą z~eksperymentu głównego.
+Ponieważ harmonogram parametru $a$ w~MOGWO zależy od całkowitej liczby
+iteracji, każdy budżet stanowi osobny przebieg, a~nie przerwanie przebiegu
+dłuższego.
+
+\subsection{Konfiguracja sprzętowa i~programowa}
+\label{sec:wyniki_konfiguracja}
+Obliczenia wykonano na komputerze z~procesorem Apple M1 Pro i~16~GB pamięci
+RAM pod systemem macOS, w~środowisku OpenJDK (Temurin) 17.0.19, jednowątkowo.
+Analizę statystyczną i~rysunki wykonano w~Pythonie~3 z~bibliotekami NumPy
+i~Matplotlib. Cały protokół uruchamia jeden skrypt
+(\texttt{experiments/run\_all.sh}, ok.~12~minut obliczeń), a~analizę --- skrypt
+\texttt{scripts/analyze\_comparison.py}; obie ścieżki są opisane w~dokumentacji
+repozytorium.
+
+\section{Przykładowe trasy}
+\label{sec:wyniki_trasy}
+
+Algorytm wielokryterialny zwraca zbiór tras kompromisowych, a~nie jedną trasę.
+Do wizualizacji i~animacji wybierane jest a~posteriori jedno rozwiązanie
+z~frontu według ustalonej reguły: spośród rozwiązań kończących misję
+w~horyzoncie (wszystkie drony u~celu) wybierane jest to o~najmniejszym ryzyku
+radarowym, a~przy remisie o~najmniejszym makespanie i~energii. Warunek
+kompletnej misji jest istotny: reguła preferująca wyłącznie minimalne ryzyko
+wskazywałaby w~$3$ z~$20$ instancji dla NSGA-II, w~$2$ dla NSGA-III i~w~$10$
+dla MOGWO trasę, w~której któryś dron nigdy nie dociera do celu --- trasa
+taka ma zerowe ryzyko i~niską energię, więc należy do frontu, choć z~punktu
+widzenia misji jest bezużyteczna. Obraz ,,drona, który nie dotarł'' byłby
+wówczas artefaktem reguły wyboru, a~nie cechą algorytmu; w~przypadku NSGA-II
+front w~każdej z~20 instancji zawiera trasy doprowadzające wszystkie drony do
+celu (tabela~\ref{tab:per_run_objectives}).
+
+Rysunki \ref{fig:trasy_nsga2}--\ref{fig:trasy_gwo} przedstawiają trasy wybrane
+tą regułą z~frontów trzech algorytmów na instancji~1 (ziarno $42$), uzyskanych
+w~eksperymencie głównym ($N = 100$, $500$ iteracji). Lewy panel pokazuje widok
+trójwymiarowy z~powierzchnią terenu i~sferami zasięgu radarów, prawy --- rzut
+z~góry. Parametry wybranych tras zestawiono w~tabeli~\ref{tab:wyniki_trasy_instancja1}.
+
+\begin{figure}[!ht]
+    \centering
+    \begin{subfigure}{.49\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{img/traj_nsga2.png}
+      \caption{Widok trójwymiarowy}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{.49\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{img/traj_nsga2_top.png}
+      \caption{Rzut z~góry}
+    \end{subfigure}
+    \caption{Trasy wybrane z~frontu NSGA-II, instancja~1}
+    \label{fig:trasy_nsga2}
+\end{figure}
+
+\begin{figure}[!ht]
+    \centering
+    \begin{subfigure}{.49\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{img/traj_nsga3.png}
+      \caption{Widok trójwymiarowy}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{.49\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{img/traj_nsga3_top.png}
+      \caption{Rzut z~góry}
+    \end{subfigure}
+    \caption{Trasy wybrane z~frontu NSGA-III, instancja~1}
+    \label{fig:trasy_nsga3}
+\end{figure}
+
+\begin{figure}[!ht]
+    \centering
+    \begin{subfigure}{.49\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{img/traj_gwo.png}
+      \caption{Widok trójwymiarowy}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{.49\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{img/traj_gwo_top.png}
+      \caption{Rzut z~góry}
+    \end{subfigure}
+    \caption{Trasy wybrane z~frontu MOGWO, instancja~1}
+    \label{fig:trasy_gwo}
+\end{figure}
+
+\begin{table}[htbp]
+    \centering
+    \caption{Trasy wybrane do wizualizacji na instancji~1: wartości kryteriów, tik dotarcia każdego drona do celu oraz rozmiar frontu, z~którego dokonano wyboru}
+    \label{tab:wyniki_trasy_instancja1}
+    \begin{tabular}{l c c c c c c c}
+        \hline
+        Algorytm & Makespan & Energia & Ryzyko & Dron 0 & Dron 1 & Dron 2 & $|F|$ \\
+        \hline
+        NSGA-II & 389 & 893{,}7 & 0 & 352 & 389 & 300 & 9 \\
+        NSGA-III & 307 & 747{,}4 & 0 & 307 & 254 & 303 & 4 \\
+        MOGWO & 649 & 1137{,}1 & 0 & 649 & 644 & 603 & 8 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\FloatBarrier
+
+Na tej instancji każdy z~algorytmów znalazł trasę bezpieczną (ryzyko $0$),
+w~której wszystkie trzy drony docierają do celu. Różnice dotyczą czasu
+i~energii: trasa NSGA-III kończy misję w~$307$ tikach, NSGA-II w~$389$,
+a~MOGWO dopiero w~$649$, zużywając o~$52\%$ więcej energii niż NSGA-III.
+Rzuty z~góry ujawniają dwa zjawiska jakościowe. Po pierwsze, drony~1 i~2
+przelatują w~rzucie poziomym przez okręgi zasięgu radarów, nie wchodząc w~strefę
+wykrycia --- trasy prowadzą \emph{nad} sferami (np. dron~1 w~komórce $(13, 15)$
+na wysokości $12$ jest w~odległości ok.~$11$ jednostek od radaru o~promieniu $6$).
+Unikanie radarów odbywa się zatem w~znacznej mierze w~pionie, co jest możliwe
+dzięki pułapowi $20$ przewyższającemu promienie zasięgu. Po drugie, trasy MOGWO
+zawierają liczne oscylacje i~ruchy nieproduktywne --- ,,dreptanie'' w~narożnikach
+mapy (dron~0 w~okolicy $(0$--$5, 0)$, dron~1 w~okolicy $(29, 0)$), gdzie część
+kodów ruchu wskazuje poza mapę i~jest odrzucana przez ograniczenia --- podczas
+gdy trasy NSGA-II i~NSGA-III są bardziej bezpośrednie. Obserwacja ta jest
+spójna z~wynikami ilościowymi w~tabeli~\ref{tab:per_run_objectives}.
+
+\section{Wyniki eksperymentu głównego}
+\label{sec:wyniki_glowny}
+
+Tabela~\ref{tab:per_run} zawiera znormalizowaną hiperobjętość i~rozmiar frontu
+końcowego każdego algorytmu w~każdej z~20 instancji, a~tabela
+\ref{tab:per_run_objectives} --- najlepszy makespan i~najlepszą energię na
+froncie. Wartości te są materiałem wejściowym analizy statystycznej
+w~rozdziale~\ref{ch:analiza}; tu ograniczono się do ich przedstawienia oraz
+odnotowania faktów bezpośrednio z~nich wynikających.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Znormalizowana hiperobjętość $\mathrm{HV}/\mathrm{HV}_{\max}$ (najlepszy wynik pogrubiony) i~rozmiar frontu końcowego $|F|$ w~poszczególnych instancjach}
+    \label{tab:per_run}
+    \begin{tabular}{l c c c c c c}
+        \hline
+        Instancja & NSGA-II HV & NSGA-II $|F|$ & NSGA-III HV & NSGA-III $|F|$ & MOGWO HV & MOGWO $|F|$ \\
+        \hline
+        1 & 0{,}581 & 9 & \textbf{0{,}862} & 4 & 0{,}082 & 8 \\
+        2 & \textbf{0{,}951} & 18 & 0{,}375 & 47 & 0{,}368 & 52 \\
+        3 & 0{,}682 & 12 & \textbf{0{,}790} & 17 & 0{,}641 & 23 \\
+        4 & 0{,}193 & 57 & \textbf{0{,}637} & 48 & 0{,}156 & 36 \\
+        5 & 0{,}686 & 9 & \textbf{0{,}977} & 11 & 0{,}045 & 52 \\
+        6 & \textbf{0{,}981} & 14 & 0{,}640 & 14 & 0{,}112 & 100 \\
+        7 & \textbf{0{,}623} & 23 & 0{,}381 & 26 & 0{,}066 & 72 \\
+        8 & \textbf{0{,}993} & 7 & 0{,}712 & 13 & 0{,}083 & 39 \\
+        9 & \textbf{0{,}712} & 20 & 0{,}302 & 33 & 0{,}274 & 80 \\
+        10 & 0{,}118 & 89 & \textbf{0{,}949} & 4 & 0{,}512 & 58 \\
+        11 & \textbf{0{,}799} & 41 & 0{,}420 & 28 & 0{,}177 & 89 \\
+        12 & \textbf{0{,}965} & 9 & 0{,}455 & 22 & 0{,}080 & 96 \\
+        13 & 0{,}817 & 18 & \textbf{0{,}970} & 10 & 0{,}111 & 69 \\
+        14 & \textbf{0{,}995} & 8 & 0{,}424 & 25 & 0{,}129 & 66 \\
+        15 & 0{,}394 & 74 & \textbf{0{,}408} & 59 & 0{,}231 & 50 \\
+        16 & \textbf{0{,}738} & 30 & 0{,}235 & 55 & 0{,}213 & 91 \\
+        17 & \textbf{0{,}934} & 25 & 0{,}296 & 35 & 0{,}130 & 85 \\
+        18 & \textbf{0{,}793} & 27 & 0{,}754 & 11 & 0{,}121 & 14 \\
+        19 & \textbf{0{,}972} & 13 & 0{,}088 & 54 & 0{,}128 & 8 \\
+        20 & 0{,}633 & 32 & \textbf{0{,}830} & 25 & 0{,}182 & 31 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+    \centering
+    \caption{Najlepszy makespan $T_{\min}$ [tiki] i~najlepsza energia $E_{\min}$ na froncie końcowym w~poszczególnych instancjach (makespan $> 900$ oznacza, że żadna trasa nie kończy misji w~horyzoncie)}
+    \label{tab:per_run_objectives}
+    \begin{tabular}{l c c c c c c}
+        \hline
+        Instancja & NSGA-II $T_{\min}$ & NSGA-II $E_{\min}$ & NSGA-III $T_{\min}$ & NSGA-III $E_{\min}$ & MOGWO $T_{\min}$ & MOGWO $E_{\min}$ \\
+        \hline
+        1 & 383 & 650 & 307 & 718 & 649 & 1098 \\
+        2 & 363 & 718 & 586 & 862 & 660 & 917 \\
+        3 & 398 & 769 & 337 & 702 & 496 & 745 \\
+        4 & 815 & 1176 & 651 & 1133 & 904 & 1081 \\
+        5 & 400 & 848 & 300 & 734 & 873 & 1213 \\
+        6 & 353 & 832 & 493 & 986 & 901 & 880 \\
+        7 & 383 & 729 & 546 & 623 & 905 & 989 \\
+        8 & 312 & 720 & 376 & 831 & 904 & 868 \\
+        9 & 428 & 702 & 667 & 744 & 692 & 895 \\
+        10 & 780 & 1127 & 372 & 832 & 635 & 770 \\
+        11 & 514 & 856 & 633 & 949 & 831 & 872 \\
+        12 & 288 & 699 & 497 & 919 & 877 & 1039 \\
+        13 & 415 & 826 & 353 & 769 & 900 & 877 \\
+        14 & 307 & 736 & 536 & 945 & 800 & 971 \\
+        15 & 758 & 756 & 758 & 631 & 887 & 788 \\
+        16 & 422 & 637 & 717 & 667 & 729 & 759 \\
+        17 & 484 & 868 & 698 & 1248 & 904 & 815 \\
+        18 & 384 & 615 & 376 & 792 & 761 & 1167 \\
+        19 & 448 & 933 & 907 & 1232 & 905 & 971 \\
+        20 & 474 & 882 & 451 & 838 & 741 & 919 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\FloatBarrier
+
+Najwyższą hiperobjętość uzyskał NSGA-II w~12 instancjach, NSGA-III w~8,
+a~MOGWO w~żadnej. Rozmiar frontu końcowego waha się od $7$ do $89$ rozwiązań
+dla NSGA-II, od $4$ do $59$ dla NSGA-III i~od $8$ do $100$ (pełna pojemność
+archiwum) dla MOGWO. NSGA-II w~każdej instancji wyznaczył co najmniej jedną
+trasę kończącą misję w~horyzoncie; NSGA-III nie zdołał tego dokonać w~jednej
+instancji, a~MOGWO w~sześciu (wartości $T_{\min} > 900$ w~tabeli
+\ref{tab:per_run_objectives}). Najkrótszy czas misji w~całym eksperymencie
+($288$ tików) uzyskał NSGA-II; najniższą energię ($615$) również NSGA-II.
+Minimalne ryzyko radarowe wyniosło $0$ dla każdego algorytmu w~każdej instancji
+i~z~tego powodu nie zostało ujęte w~tabeli. Czasy obliczeń wyniosły średnio
+$3{,}60$~s dla NSGA-II, $3{,}65$~s dla NSGA-III i~$6{,}38$~s dla MOGWO na
+przebieg ($50\,000$ ocen).
+
+\section{Wyniki serii budżetowej}
+\label{sec:wyniki_budzet}
+
+Tabela~\ref{tab:per_run_budget} zawiera hiperobjętość frontów końcowych dla
+czterech budżetów na pierwszych $10$ instancjach. W~odróżnieniu od tabeli
+\ref{tab:per_run} wartości kryteriów znormalizowano tu do granic wspólnych dla
+instancji po \emph{wszystkich} budżetach i~algorytmach, dzięki czemu wartości
+w~kolumnie są porównywalne między budżetami (wiersze dla $500$ iteracji różnią
+się więc od odpowiednich wartości w~tabeli~\ref{tab:per_run}, choć dotyczą tych
+samych frontów). Średnie czasy obliczeń zestawiono w~tabeli~\ref{tab:wyniki_czas}.
+
+\begin{table}[htbp]
+    \small
+    \centering
+    \caption{Seria budżetowa: $\mathrm{HV}/\mathrm{HV}_{\max}$ przy normalizacji wspólnej dla instancji po wszystkich budżetach; kolumny --- instancje 1--10}
+    \label{tab:per_run_budget}
+    \begin{tabular}{l c c c c c c c c c c }
+        \hline
+        Iteracje / algorytm & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 \\
+        \hline
+        100 / NSGA-II & 0{,}077 & 0{,}158 & 0{,}099 & 0{,}070 & 0{,}123 & 0{,}149 & 0{,}121 & 0{,}393 & 0{,}273 & 0{,}061 \\
+        100 / NSGA-III & 0{,}372 & 0{,}179 & 0{,}189 & 0{,}084 & 0{,}192 & 0{,}155 & 0{,}108 & 0{,}234 & 0{,}087 & 0{,}085 \\
+        100 / MOGWO & 0{,}065 & 0{,}088 & 0{,}073 & 0{,}081 & 0{,}044 & 0{,}055 & 0{,}074 & 0{,}047 & 0{,}082 & 0{,}059 \\
+        250 / NSGA-II & 0{,}408 & 0{,}418 & 0{,}558 & 0{,}101 & 0{,}358 & 0{,}462 & 0{,}396 & 0{,}735 & 0{,}391 & 0{,}069 \\
+        250 / NSGA-III & 0{,}707 & 0{,}304 & 0{,}570 & 0{,}135 & 0{,}582 & 0{,}237 & 0{,}270 & 0{,}441 & 0{,}128 & 0{,}479 \\
+        250 / MOGWO & 0{,}088 & 0{,}131 & 0{,}207 & 0{,}262 & 0{,}532 & 0{,}092 & 0{,}088 & 0{,}096 & 0{,}103 & 0{,}083 \\
+        500 / NSGA-II & 0{,}686 & 0{,}820 & 0{,}726 & 0{,}150 & 0{,}543 & 0{,}649 & 0{,}699 & 0{,}800 & 0{,}686 & 0{,}101 \\
+        500 / NSGA-III & 0{,}825 & 0{,}394 & 0{,}813 & 0{,}381 & 0{,}716 & 0{,}429 & 0{,}476 & 0{,}643 & 0{,}352 & 0{,}656 \\
+        500 / MOGWO & 0{,}317 & 0{,}358 & 0{,}625 & 0{,}110 & 0{,}070 & 0{,}086 & 0{,}089 & 0{,}093 & 0{,}317 & 0{,}363 \\
+        1000 / NSGA-II & 0{,}790 & 0{,}995 & 0{,}906 & 0{,}210 & 0{,}766 & 0{,}999 & 0{,}906 & 0{,}987 & 0{,}892 & 0{,}611 \\
+        1000 / NSGA-III & 0{,}949 & 0{,}532 & 0{,}898 & 0{,}966 & 0{,}825 & 0{,}852 & 0{,}922 & 0{,}764 & 0{,}581 & 0{,}742 \\
+        1000 / MOGWO & 0{,}187 & 0{,}218 & 0{,}810 & 0{,}356 & 1{,}000 & 0{,}340 & 0{,}256 & 0{,}130 & 0{,}123 & 0{,}999 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+    \centering
+    \caption{Średni czas obliczeń jednego przebiegu [s] w~zależności od liczby iteracji (10 instancji)}
+    \label{tab:wyniki_czas}
+    \begin{tabular}{l c c c c}
+        \hline
+        Algorytm & 100 & 250 & 500 & 1000 \\
+        \hline
+        NSGA-II & 0{,}8 & 1{,}8 & 3{,}6 & 6{,}9 \\
+        NSGA-III & 0{,}8 & 1{,}8 & 3{,}7 & 7{,}1 \\
+        MOGWO & 1{,}4 & 3{,}2 & 6{,}4 & 12{,}2 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\FloatBarrier
+
+Dla NSGA-II i~NSGA-III hiperobjętość rośnie wraz z~budżetem w~każdej z~10
+instancji i~przy każdym z~trzech przejść między kolejnymi budżetami. Dla MOGWO
+zwiększenie budżetu dało front gorszy w~7 z~30 takich przejść --- najwyraźniej
+w~instancji~5, gdzie po $250$ iteracjach uzyskano $0{,}532$, a~po $500$
+zaledwie $0{,}070$. Ponieważ budżety stanowią niezależne uruchomienia (inny
+harmonogram parametru $a$), przypadki te świadczą o~dużej zależności wyniku
+MOGWO od przebiegu losowego, a~nie o~pogarszaniu się rozwiązań w~trakcie jednego
+przebiegu. Czas obliczeń rośnie liniowo z~liczbą iteracji, a~stosunek czasu
+MOGWO do czasu algorytmów ewolucyjnych pozostaje stały i~wynosi ok.~$1{,}8$.

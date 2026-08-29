@@ -36,10 +36,23 @@ except ImportError as e:  # pragma: no cover
 _TERRAIN_MAX_ALT = 20
 
 
+#: Kolory markerów początku i końca trasy (dobrane tak, by nie myliły się
+#: z czerwienią radarów ani z domyślną paletą linii tras).
+_START_COLOR = "#00C853"
+_END_COLOR = "#AA00FF"
+
+
 def scaled_ground_z(raw: np.ndarray, max_altitude: int) -> np.ndarray:
-    """Jak PlanningContext.scaledGroundLevel: raw * max_altitude / 100, obcięte do [0, max_altitude]."""
-    z = (raw.astype(np.float64) * max_altitude / 100.0).round()
-    return np.clip(z, 0, max_altitude)
+    """
+    Dokładnie jak PlanningContext.scaledGroundLevel w Javie:
+    dzielenie CAŁKOWITE raw * max_altitude / 100 (obcięcie w dół, nie zaokrąglenie),
+    a następnie obcięcie do [0, max_altitude].
+
+    Zaokrąglanie zamiast obcinania rysowałoby teren i radary o 1 jednostkę za wysoko,
+    przez co trasy wyglądałyby, jakby przecinały zbocze, choć symulacja tego nie dopuszcza.
+    """
+    z = np.floor_divide(raw.astype(np.int64) * int(max_altitude), 100)
+    return np.clip(z, 0, max_altitude).astype(np.float64)
 
 
 def load_terrain_grid_csv(path: Path) -> np.ndarray:
@@ -150,7 +163,8 @@ def plot_radar_sphere(
             np.full_like(theta, zc),
             color=edge_color,
             linewidth=lw if z_frac >= 0.5 else lw * 0.85,
-            alpha=1.0,
+            alpha=0.65,
+            zorder=2,
         )
 
     for az in np.linspace(0.0, 2.0 * np.pi, 10, endpoint=False):
@@ -160,10 +174,11 @@ def plot_radar_sphere(
             cz + radius * np.cos(phi),
             color=edge_color,
             linewidth=lw * 0.9,
-            alpha=1.0,
+            alpha=0.65,
+            zorder=2,
         )
 
-    ax.scatter([cx], [cy], [cz], color=edge_color, s=70, depthshade=False, zorder=10)
+    ax.scatter([cx], [cy], [cz], color=edge_color, s=70, depthshade=False, zorder=2)
 
 
 def plot_terrain_surface(ax, hmap_raw: np.ndarray, *, alpha: float = 0.97):
@@ -191,6 +206,7 @@ def plot_terrain_surface(ax, hmap_raw: np.ndarray, *, alpha: float = 0.97):
         shade=True,
         rcount=min(w, 80),
         ccount=min(h, 80),
+        zorder=1,
     )
 
 
@@ -251,6 +267,11 @@ def main() -> None:
         help="co najwyżej N markerów na trasę (0 = bez markerów, tylko linia)",
     )
     parser.add_argument(
+        "--no-endpoints",
+        action="store_true",
+        help="nie zaznaczaj punktów startowych i docelowych dronów",
+    )
+    parser.add_argument(
         "--factory-radars",
         nargs="*",
         type=int,
@@ -292,8 +313,14 @@ def main() -> None:
     parser.add_argument(
         "--radar-linewidth",
         type=float,
-        default=2.8,
-        help="grubość czerwonego obrysu sfery radarowej (domyślnie 2.8)",
+        default=1.6,
+        help="grubość czerwonego obrysu sfery radarowej (domyślnie 1.6)",
+    )
+    parser.add_argument(
+        "--view",
+        choices=["3d", "top"],
+        default="3d",
+        help="3d (domyślnie) lub top — rzut z góry (oś Z prostopadła do kartki)",
     )
     parser.add_argument(
         "--terrain",
@@ -326,6 +353,9 @@ def main() -> None:
 
     fig = plt.figure(figsize=tuple(args.figsize))
     ax = fig.add_subplot(projection="3d")
+    # Jawne warstwy zamiast sortowania po głębi: trasy zawsze na wierzchu (sfery radarów
+    # zasłaniałyby trasy przelatujące NAD nimi, co sugerowałoby wejście w strefę wykrycia).
+    ax.computed_zorder = False
 
     all_x: list[float] = []
     all_y: list[float] = []
@@ -350,6 +380,9 @@ def main() -> None:
         all_y.extend([0, h0 - 1])
         all_z.extend([float(z_disp.min()), float(z_disp.max())])
 
+    # Etykiety legendy dla start/cel dodajemy przy ostatniej trasie, żeby w legendzie
+    # znalazły się pod pozycjami dronów, a nie pomiędzy nimi.
+    last_drone = sorted(traces)[-1] if traces else None
     for d in sorted(traces):
         t = traces[d]
         xs, ys, zs = t["x"], t["y"], t["z"]
@@ -376,8 +409,34 @@ def main() -> None:
             marker=marker,
             markersize=2.2,
             markevery=markevery,
-            linewidth=1.1,
+            linewidth=1.3,
+            zorder=5,
         )
+
+        if not args.no_endpoints:
+            first = d == last_drone
+            ax.scatter(
+                [xs[0]], [ys[0]], [zs[0]],
+                marker="o",
+                s=120,
+                c=_START_COLOR,
+                edgecolors="black",
+                linewidths=1.2,
+                depthshade=False,
+                zorder=7,
+                label="Punkt startowy" if first else None,
+            )
+            ax.scatter(
+                [xs[-1]], [ys[-1]], [zs[-1]],
+                marker="*",
+                s=300,
+                c=_END_COLOR,
+                edgecolors="black",
+                linewidths=1.0,
+                depthshade=False,
+                zorder=7,
+                label="Punkt końcowy" if first else None,
+            )
 
     for cx, cy, cz, rr in radars:
         plot_radar_sphere(
@@ -400,7 +459,7 @@ def main() -> None:
     ax.set_ylabel("Y (komórki)")
     ax.set_zlabel("Z (komórki)")
     ax.legend(loc="upper left", fontsize=9)
-    title = "Trasy dronów (3D)"
+    title = "Trasy dronów (widok z góry)" if args.view == "top" else "Trasy dronów (3D)"
     bits = []
     if terrain_hmap is not None:
         bits.append("teren")
@@ -422,7 +481,11 @@ def main() -> None:
     except AttributeError:
         pass
 
-    if radars:
+    if args.view == "top":
+        ax.view_init(elev=90, azim=-90)
+        ax.set_zticks([])
+        ax.set_zlabel("")
+    elif radars:
         ax.view_init(elev=31, azim=-56)
 
     if terrain_surf is not None:

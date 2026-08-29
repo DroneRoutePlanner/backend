@@ -1,0 +1,1830 @@
+Porównanie: pop=100 iter=500 runs=20 seed=42 mapa=30x30
+  [MOGWO] run 1  iteracja 50/500  front=26
+  [MOGWO] run 1  iteracja 100/500  front=22
+  [MOGWO] run 1  iteracja 150/500  front=38
+  [MOGWO] run 1  iteracja 200/500  front=45
+  [MOGWO] run 1  iteracja 250/500  front=18
+  [MOGWO] run 1  iteracja 300/500  front=3
+  [MOGWO] run 1  iteracja 350/500  front=7
+  [MOGWO] run 1  iteracja 400/500  front=12
+  [MOGWO] run 1  iteracja 450/500  front=6
+  [MOGWO] run 1  iteracja 500/500  front=8
+  [NSGA-II] run 1  iteracja 50/500  front=46
+  [NSGA-II] run 1  iteracja 100/500  front=45
+  [NSGA-II] run 1  iteracja 150/500  front=26
+  [NSGA-II] run 1  iteracja 200/500  front=21
+  [NSGA-II] run 1  iteracja 250/500  front=11
+  [NSGA-II] run 1  iteracja 300/500  front=12
+  [NSGA-II] run 1  iteracja 350/500  front=9
+  [NSGA-II] run 1  iteracja 400/500  front=5
+  [NSGA-II] run 1  iteracja 450/500  front=8
+  [NSGA-II] run 1  iteracja 500/500  front=9
+  [NSGA-III] run 1  iteracja 50/500  front=36
+  [NSGA-III] run 1  iteracja 100/500  front=16
+  [NSGA-III] run 1  iteracja 150/500  front=20
+  [NSGA-III] run 1  iteracja 200/500  front=8
+  [NSGA-III] run 1  iteracja 250/500  front=10
+  [NSGA-III] run 1  iteracja 300/500  front=10
+  [NSGA-III] run 1  iteracja 350/500  front=4
+  [NSGA-III] run 1  iteracja 400/500  front=8
+  [NSGA-III] run 1  iteracja 450/500  front=4
+  [NSGA-III] run 1  iteracja 500/500  front=4
+
+--- Run 1 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |      8 |    0.10854 |   0.0815 |     6237
+NSGA-II   |      9 |    0.77343 |   0.5811 |     3581
+NSGA-III  |      4 |    1.14767 |   0.8623 |     3692
+  [MOGWO] run 2  iteracja 50/500  front=38
+  [MOGWO] run 2  iteracja 100/500  front=50
+  [MOGWO] run 2  iteracja 150/500  front=40
+  [MOGWO] run 2  iteracja 200/500  front=32
+  [MOGWO] run 2  iteracja 250/500  front=20
+  [MOGWO] run 2  iteracja 300/500  front=21
+  [MOGWO] run 2  iteracja 350/500  front=27
+  [MOGWO] run 2  iteracja 400/500  front=38
+  [MOGWO] run 2  iteracja 450/500  front=54
+  [MOGWO] run 2  iteracja 500/500  front=52
+  [NSGA-II] run 2  iteracja 50/500  front=42
+  [NSGA-II] run 2  iteracja 100/500  front=34
+  [NSGA-II] run 2  iteracja 150/500  front=33
+  [NSGA-II] run 2  iteracja 200/500  front=25
+  [NSGA-II] run 2  iteracja 250/500  front=31
+  [NSGA-II] run 2  iteracja 300/500  front=24
+  [NSGA-II] run 2  iteracja 350/500  front=21
+  [NSGA-II] run 2  iteracja 400/500  front=15
+  [NSGA-II] run 2  iteracja 450/500  front=16
+  [NSGA-II] run 2  iteracja 500/500  front=18
+  [NSGA-III] run 2  iteracja 50/500  front=27
+  [NSGA-III] run 2  iteracja 100/500  front=36
+  [NSGA-III] run 2  iteracja 150/500  front=32
+  [NSGA-III] run 2  iteracja 200/500  front=38
+  [NSGA-III] run 2  iteracja 250/500  front=44
+  [NSGA-III] run 2  iteracja 300/500  front=45
+  [NSGA-III] run 2  iteracja 350/500  front=45
+  [NSGA-III] run 2  iteracja 400/500  front=38
+  [NSGA-III] run 2  iteracja 450/500  front=39
+  [NSGA-III] run 2  iteracja 500/500  front=47
+
+--- Run 2 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     52 |    0.48999 |   0.3681 |     6554
+NSGA-II   |     18 |    1.26621 |   0.9513 |     3636
+NSGA-III  |     47 |    0.49848 |   0.3745 |     3582
+  [MOGWO] run 3  iteracja 50/500  front=23
+  [MOGWO] run 3  iteracja 100/500  front=32
+  [MOGWO] run 3  iteracja 150/500  front=8
+  [MOGWO] run 3  iteracja 200/500  front=6
+  [MOGWO] run 3  iteracja 250/500  front=11
+  [MOGWO] run 3  iteracja 300/500  front=11
+  [MOGWO] run 3  iteracja 350/500  front=13
+  [MOGWO] run 3  iteracja 400/500  front=16
+  [MOGWO] run 3  iteracja 450/500  front=19
+  [MOGWO] run 3  iteracja 500/500  front=23
+  [NSGA-II] run 3  iteracja 50/500  front=29
+  [NSGA-II] run 3  iteracja 100/500  front=27
+  [NSGA-II] run 3  iteracja 150/500  front=20
+  [NSGA-II] run 3  iteracja 200/500  front=13
+  [NSGA-II] run 3  iteracja 250/500  front=7
+  [NSGA-II] run 3  iteracja 300/500  front=11
+  [NSGA-II] run 3  iteracja 350/500  front=16
+  [NSGA-II] run 3  iteracja 400/500  front=12
+  [NSGA-II] run 3  iteracja 450/500  front=11
+  [NSGA-II] run 3  iteracja 500/500  front=12
+  [NSGA-III] run 3  iteracja 50/500  front=13
+  [NSGA-III] run 3  iteracja 100/500  front=8
+  [NSGA-III] run 3  iteracja 150/500  front=12
+  [NSGA-III] run 3  iteracja 200/500  front=15
+  [NSGA-III] run 3  iteracja 250/500  front=5
+  [NSGA-III] run 3  iteracja 300/500  front=13
+  [NSGA-III] run 3  iteracja 350/500  front=15
+  [NSGA-III] run 3  iteracja 400/500  front=19
+  [NSGA-III] run 3  iteracja 450/500  front=24
+  [NSGA-III] run 3  iteracja 500/500  front=17
+
+--- Run 3 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     23 |    0.85294 |   0.6408 |     6055
+NSGA-II   |     12 |    0.90734 |   0.6817 |     3933
+NSGA-III  |     17 |    1.05209 |   0.7905 |     3437
+  [MOGWO] run 4  iteracja 50/500  front=32
+  [MOGWO] run 4  iteracja 100/500  front=41
+  [MOGWO] run 4  iteracja 150/500  front=42
+  [MOGWO] run 4  iteracja 200/500  front=54
+  [MOGWO] run 4  iteracja 250/500  front=41
+  [MOGWO] run 4  iteracja 300/500  front=39
+  [MOGWO] run 4  iteracja 350/500  front=45
+  [MOGWO] run 4  iteracja 400/500  front=41
+  [MOGWO] run 4  iteracja 450/500  front=35
+  [MOGWO] run 4  iteracja 500/500  front=36
+  [NSGA-II] run 4  iteracja 50/500  front=40
+  [NSGA-II] run 4  iteracja 100/500  front=33
+  [NSGA-II] run 4  iteracja 150/500  front=42
+  [NSGA-II] run 4  iteracja 200/500  front=35
+  [NSGA-II] run 4  iteracja 250/500  front=38
+  [NSGA-II] run 4  iteracja 300/500  front=44
+  [NSGA-II] run 4  iteracja 350/500  front=43
+  [NSGA-II] run 4  iteracja 400/500  front=42
+  [NSGA-II] run 4  iteracja 450/500  front=50
+  [NSGA-II] run 4  iteracja 500/500  front=57
+  [NSGA-III] run 4  iteracja 50/500  front=58
+  [NSGA-III] run 4  iteracja 100/500  front=40
+  [NSGA-III] run 4  iteracja 150/500  front=46
+  [NSGA-III] run 4  iteracja 200/500  front=52
+  [NSGA-III] run 4  iteracja 250/500  front=49
+  [NSGA-III] run 4  iteracja 300/500  front=68
+  [NSGA-III] run 4  iteracja 350/500  front=61
+  [NSGA-III] run 4  iteracja 400/500  front=50
+  [NSGA-III] run 4  iteracja 450/500  front=41
+  [NSGA-III] run 4  iteracja 500/500  front=48
+
+--- Run 4 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     36 |    0.20787 |   0.1562 |     6680
+NSGA-II   |     57 |    0.25676 |   0.1929 |     3650
+NSGA-III  |     48 |    0.84787 |   0.6370 |     3669
+  [MOGWO] run 5  iteracja 50/500  front=21
+  [MOGWO] run 5  iteracja 100/500  front=29
+  [MOGWO] run 5  iteracja 150/500  front=40
+  [MOGWO] run 5  iteracja 200/500  front=22
+  [MOGWO] run 5  iteracja 250/500  front=28
+  [MOGWO] run 5  iteracja 300/500  front=47
+  [MOGWO] run 5  iteracja 350/500  front=59
+  [MOGWO] run 5  iteracja 400/500  front=48
+  [MOGWO] run 5  iteracja 450/500  front=53
+  [MOGWO] run 5  iteracja 500/500  front=52
+  [NSGA-II] run 5  iteracja 50/500  front=36
+  [NSGA-II] run 5  iteracja 100/500  front=39
+  [NSGA-II] run 5  iteracja 150/500  front=21
+  [NSGA-II] run 5  iteracja 200/500  front=11
+  [NSGA-II] run 5  iteracja 250/500  front=14
+  [NSGA-II] run 5  iteracja 300/500  front=19
+  [NSGA-II] run 5  iteracja 350/500  front=13
+  [NSGA-II] run 5  iteracja 400/500  front=3
+  [NSGA-II] run 5  iteracja 450/500  front=11
+  [NSGA-II] run 5  iteracja 500/500  front=9
+  [NSGA-III] run 5  iteracja 50/500  front=22
+  [NSGA-III] run 5  iteracja 100/500  front=18
+  [NSGA-III] run 5  iteracja 150/500  front=6
+  [NSGA-III] run 5  iteracja 200/500  front=7
+  [NSGA-III] run 5  iteracja 250/500  front=8
+  [NSGA-III] run 5  iteracja 300/500  front=11
+  [NSGA-III] run 5  iteracja 350/500  front=17
+  [NSGA-III] run 5  iteracja 400/500  front=6
+  [NSGA-III] run 5  iteracja 450/500  front=11
+  [NSGA-III] run 5  iteracja 500/500  front=11
+
+--- Run 5 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     52 |    0.06047 |   0.0454 |     6543
+NSGA-II   |      9 |    0.91241 |   0.6855 |     3462
+NSGA-III  |     11 |    1.30000 |   0.9767 |     3340
+  [MOGWO] run 6  iteracja 50/500  front=35
+  [MOGWO] run 6  iteracja 100/500  front=34
+  [MOGWO] run 6  iteracja 150/500  front=48
+  [MOGWO] run 6  iteracja 200/500  front=66
+  [MOGWO] run 6  iteracja 250/500  front=51
+  [MOGWO] run 6  iteracja 300/500  front=72
+  [MOGWO] run 6  iteracja 350/500  front=78
+  [MOGWO] run 6  iteracja 400/500  front=90
+  [MOGWO] run 6  iteracja 450/500  front=97
+  [MOGWO] run 6  iteracja 500/500  front=100
+  [NSGA-II] run 6  iteracja 50/500  front=15
+  [NSGA-II] run 6  iteracja 100/500  front=12
+  [NSGA-II] run 6  iteracja 150/500  front=9
+  [NSGA-II] run 6  iteracja 200/500  front=16
+  [NSGA-II] run 6  iteracja 250/500  front=16
+  [NSGA-II] run 6  iteracja 300/500  front=8
+  [NSGA-II] run 6  iteracja 350/500  front=11
+  [NSGA-II] run 6  iteracja 400/500  front=16
+  [NSGA-II] run 6  iteracja 450/500  front=22
+  [NSGA-II] run 6  iteracja 500/500  front=14
+  [NSGA-III] run 6  iteracja 50/500  front=33
+  [NSGA-III] run 6  iteracja 100/500  front=22
+  [NSGA-III] run 6  iteracja 150/500  front=34
+  [NSGA-III] run 6  iteracja 200/500  front=24
+  [NSGA-III] run 6  iteracja 250/500  front=39
+  [NSGA-III] run 6  iteracja 300/500  front=46
+  [NSGA-III] run 6  iteracja 350/500  front=32
+  [NSGA-III] run 6  iteracja 400/500  front=36
+  [NSGA-III] run 6  iteracja 450/500  front=27
+  [NSGA-III] run 6  iteracja 500/500  front=14
+
+--- Run 6 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |    100 |    0.14903 |   0.1120 |     6489
+NSGA-II   |     14 |    1.30540 |   0.9808 |     3400
+NSGA-III  |     14 |    0.85246 |   0.6405 |     3553
+  [MOGWO] run 7  iteracja 50/500  front=26
+  [MOGWO] run 7  iteracja 100/500  front=27
+  [MOGWO] run 7  iteracja 150/500  front=51
+  [MOGWO] run 7  iteracja 200/500  front=25
+  [MOGWO] run 7  iteracja 250/500  front=40
+  [MOGWO] run 7  iteracja 300/500  front=58
+  [MOGWO] run 7  iteracja 350/500  front=54
+  [MOGWO] run 7  iteracja 400/500  front=61
+  [MOGWO] run 7  iteracja 450/500  front=75
+  [MOGWO] run 7  iteracja 500/500  front=72
+  [NSGA-II] run 7  iteracja 50/500  front=23
+  [NSGA-II] run 7  iteracja 100/500  front=20
+  [NSGA-II] run 7  iteracja 150/500  front=33
+  [NSGA-II] run 7  iteracja 200/500  front=35
+  [NSGA-II] run 7  iteracja 250/500  front=25
+  [NSGA-II] run 7  iteracja 300/500  front=33
+  [NSGA-II] run 7  iteracja 350/500  front=42
+  [NSGA-II] run 7  iteracja 400/500  front=22
+  [NSGA-II] run 7  iteracja 450/500  front=20
+  [NSGA-II] run 7  iteracja 500/500  front=23
+  [NSGA-III] run 7  iteracja 50/500  front=36
+  [NSGA-III] run 7  iteracja 100/500  front=24
+  [NSGA-III] run 7  iteracja 150/500  front=37
+  [NSGA-III] run 7  iteracja 200/500  front=42
+  [NSGA-III] run 7  iteracja 250/500  front=24
+  [NSGA-III] run 7  iteracja 300/500  front=16
+  [NSGA-III] run 7  iteracja 350/500  front=30
+  [NSGA-III] run 7  iteracja 400/500  front=33
+  [NSGA-III] run 7  iteracja 450/500  front=22
+  [NSGA-III] run 7  iteracja 500/500  front=26
+
+--- Run 7 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     72 |    0.08749 |   0.0657 |     6091
+NSGA-II   |     23 |    0.82867 |   0.6226 |     3424
+NSGA-III  |     26 |    0.50776 |   0.3815 |     4919
+  [MOGWO] run 8  iteracja 50/500  front=24
+  [MOGWO] run 8  iteracja 100/500  front=38
+  [MOGWO] run 8  iteracja 150/500  front=38
+  [MOGWO] run 8  iteracja 200/500  front=41
+  [MOGWO] run 8  iteracja 250/500  front=28
+  [MOGWO] run 8  iteracja 300/500  front=46
+  [MOGWO] run 8  iteracja 350/500  front=49
+  [MOGWO] run 8  iteracja 400/500  front=52
+  [MOGWO] run 8  iteracja 450/500  front=52
+  [MOGWO] run 8  iteracja 500/500  front=39
+  [NSGA-II] run 8  iteracja 50/500  front=24
+  [NSGA-II] run 8  iteracja 100/500  front=2
+  [NSGA-II] run 8  iteracja 150/500  front=1
+  [NSGA-II] run 8  iteracja 200/500  front=4
+  [NSGA-II] run 8  iteracja 250/500  front=7
+  [NSGA-II] run 8  iteracja 300/500  front=8
+  [NSGA-II] run 8  iteracja 350/500  front=6
+  [NSGA-II] run 8  iteracja 400/500  front=5
+  [NSGA-II] run 8  iteracja 450/500  front=6
+  [NSGA-II] run 8  iteracja 500/500  front=7
+  [NSGA-III] run 8  iteracja 50/500  front=12
+  [NSGA-III] run 8  iteracja 100/500  front=19
+  [NSGA-III] run 8  iteracja 150/500  front=9
+  [NSGA-III] run 8  iteracja 200/500  front=15
+  [NSGA-III] run 8  iteracja 250/500  front=14
+  [NSGA-III] run 8  iteracja 300/500  front=11
+  [NSGA-III] run 8  iteracja 350/500  front=15
+  [NSGA-III] run 8  iteracja 400/500  front=8
+  [NSGA-III] run 8  iteracja 450/500  front=10
+  [NSGA-III] run 8  iteracja 500/500  front=13
+
+--- Run 8 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     39 |    0.11101 |   0.0834 |     6907
+NSGA-II   |      7 |    1.32208 |   0.9933 |     3320
+NSGA-III  |     13 |    0.94807 |   0.7123 |     3421
+  [MOGWO] run 9  iteracja 50/500  front=38
+  [MOGWO] run 9  iteracja 100/500  front=36
+  [MOGWO] run 9  iteracja 150/500  front=52
+  [MOGWO] run 9  iteracja 200/500  front=53
+  [MOGWO] run 9  iteracja 250/500  front=51
+  [MOGWO] run 9  iteracja 300/500  front=47
+  [MOGWO] run 9  iteracja 350/500  front=41
+  [MOGWO] run 9  iteracja 400/500  front=64
+  [MOGWO] run 9  iteracja 450/500  front=77
+  [MOGWO] run 9  iteracja 500/500  front=80
+  [NSGA-II] run 9  iteracja 50/500  front=20
+  [NSGA-II] run 9  iteracja 100/500  front=45
+  [NSGA-II] run 9  iteracja 150/500  front=19
+  [NSGA-II] run 9  iteracja 200/500  front=25
+  [NSGA-II] run 9  iteracja 250/500  front=32
+  [NSGA-II] run 9  iteracja 300/500  front=21
+  [NSGA-II] run 9  iteracja 350/500  front=24
+  [NSGA-II] run 9  iteracja 400/500  front=33
+  [NSGA-II] run 9  iteracja 450/500  front=17
+  [NSGA-II] run 9  iteracja 500/500  front=20
+  [NSGA-III] run 9  iteracja 50/500  front=27
+  [NSGA-III] run 9  iteracja 100/500  front=23
+  [NSGA-III] run 9  iteracja 150/500  front=26
+  [NSGA-III] run 9  iteracja 200/500  front=40
+  [NSGA-III] run 9  iteracja 250/500  front=22
+  [NSGA-III] run 9  iteracja 300/500  front=34
+  [NSGA-III] run 9  iteracja 350/500  front=46
+  [NSGA-III] run 9  iteracja 400/500  front=53
+  [NSGA-III] run 9  iteracja 450/500  front=27
+  [NSGA-III] run 9  iteracja 500/500  front=33
+
+--- Run 9 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     80 |    0.36486 |   0.2741 |     6402
+NSGA-II   |     20 |    0.94797 |   0.7122 |     3478
+NSGA-III  |     33 |    0.40177 |   0.3019 |     3462
+  [MOGWO] run 10  iteracja 50/500  front=25
+  [MOGWO] run 10  iteracja 100/500  front=21
+  [MOGWO] run 10  iteracja 150/500  front=35
+  [MOGWO] run 10  iteracja 200/500  front=51
+  [MOGWO] run 10  iteracja 250/500  front=39
+  [MOGWO] run 10  iteracja 300/500  front=33
+  [MOGWO] run 10  iteracja 350/500  front=53
+  [MOGWO] run 10  iteracja 400/500  front=60
+  [MOGWO] run 10  iteracja 450/500  front=66
+  [MOGWO] run 10  iteracja 500/500  front=58
+  [NSGA-II] run 10  iteracja 50/500  front=43
+  [NSGA-II] run 10  iteracja 100/500  front=35
+  [NSGA-II] run 10  iteracja 150/500  front=36
+  [NSGA-II] run 10  iteracja 200/500  front=36
+  [NSGA-II] run 10  iteracja 250/500  front=48
+  [NSGA-II] run 10  iteracja 300/500  front=49
+  [NSGA-II] run 10  iteracja 350/500  front=60
+  [NSGA-II] run 10  iteracja 400/500  front=72
+  [NSGA-II] run 10  iteracja 450/500  front=83
+  [NSGA-II] run 10  iteracja 500/500  front=89
+  [NSGA-III] run 10  iteracja 50/500  front=35
+  [NSGA-III] run 10  iteracja 100/500  front=28
+  [NSGA-III] run 10  iteracja 150/500  front=25
+  [NSGA-III] run 10  iteracja 200/500  front=7
+  [NSGA-III] run 10  iteracja 250/500  front=11
+  [NSGA-III] run 10  iteracja 300/500  front=20
+  [NSGA-III] run 10  iteracja 350/500  front=7
+  [NSGA-III] run 10  iteracja 400/500  front=3
+  [NSGA-III] run 10  iteracja 450/500  front=5
+  [NSGA-III] run 10  iteracja 500/500  front=4
+
+--- Run 10 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     58 |    0.68146 |   0.5120 |     5943
+NSGA-II   |     89 |    0.15659 |   0.1176 |     3663
+NSGA-III  |      4 |    1.26300 |   0.9489 |     3523
+  [MOGWO] run 11  iteracja 50/500  front=30
+  [MOGWO] run 11  iteracja 100/500  front=26
+  [MOGWO] run 11  iteracja 150/500  front=57
+  [MOGWO] run 11  iteracja 200/500  front=38
+  [MOGWO] run 11  iteracja 250/500  front=73
+  [MOGWO] run 11  iteracja 300/500  front=73
+  [MOGWO] run 11  iteracja 350/500  front=82
+  [MOGWO] run 11  iteracja 400/500  front=100
+  [MOGWO] run 11  iteracja 450/500  front=85
+  [MOGWO] run 11  iteracja 500/500  front=89
+  [NSGA-II] run 11  iteracja 50/500  front=52
+  [NSGA-II] run 11  iteracja 100/500  front=39
+  [NSGA-II] run 11  iteracja 150/500  front=58
+  [NSGA-II] run 11  iteracja 200/500  front=48
+  [NSGA-II] run 11  iteracja 250/500  front=42
+  [NSGA-II] run 11  iteracja 300/500  front=15
+  [NSGA-II] run 11  iteracja 350/500  front=26
+  [NSGA-II] run 11  iteracja 400/500  front=36
+  [NSGA-II] run 11  iteracja 450/500  front=38
+  [NSGA-II] run 11  iteracja 500/500  front=41
+  [NSGA-III] run 11  iteracja 50/500  front=40
+  [NSGA-III] run 11  iteracja 100/500  front=36
+  [NSGA-III] run 11  iteracja 150/500  front=37
+  [NSGA-III] run 11  iteracja 200/500  front=55
+  [NSGA-III] run 11  iteracja 250/500  front=55
+  [NSGA-III] run 11  iteracja 300/500  front=44
+  [NSGA-III] run 11  iteracja 350/500  front=39
+  [NSGA-III] run 11  iteracja 400/500  front=38
+  [NSGA-III] run 11  iteracja 450/500  front=33
+  [NSGA-III] run 11  iteracja 500/500  front=28
+
+--- Run 11 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     89 |    0.23513 |   0.1767 |     6248
+NSGA-II   |     41 |    1.06359 |   0.7991 |     3588
+NSGA-III  |     28 |    0.55863 |   0.4197 |     3598
+  [MOGWO] run 12  iteracja 50/500  front=13
+  [MOGWO] run 12  iteracja 100/500  front=31
+  [MOGWO] run 12  iteracja 150/500  front=50
+  [MOGWO] run 12  iteracja 200/500  front=53
+  [MOGWO] run 12  iteracja 250/500  front=79
+  [MOGWO] run 12  iteracja 300/500  front=81
+  [MOGWO] run 12  iteracja 350/500  front=69
+  [MOGWO] run 12  iteracja 400/500  front=74
+  [MOGWO] run 12  iteracja 450/500  front=94
+  [MOGWO] run 12  iteracja 500/500  front=96
+  [NSGA-II] run 12  iteracja 50/500  front=10
+  [NSGA-II] run 12  iteracja 100/500  front=27
+  [NSGA-II] run 12  iteracja 150/500  front=12
+  [NSGA-II] run 12  iteracja 200/500  front=12
+  [NSGA-II] run 12  iteracja 250/500  front=11
+  [NSGA-II] run 12  iteracja 300/500  front=10
+  [NSGA-II] run 12  iteracja 350/500  front=17
+  [NSGA-II] run 12  iteracja 400/500  front=7
+  [NSGA-II] run 12  iteracja 450/500  front=6
+  [NSGA-II] run 12  iteracja 500/500  front=9
+  [NSGA-III] run 12  iteracja 50/500  front=31
+  [NSGA-III] run 12  iteracja 100/500  front=17
+  [NSGA-III] run 12  iteracja 150/500  front=25
+  [NSGA-III] run 12  iteracja 200/500  front=44
+  [NSGA-III] run 12  iteracja 250/500  front=45
+  [NSGA-III] run 12  iteracja 300/500  front=45
+  [NSGA-III] run 12  iteracja 350/500  front=26
+  [NSGA-III] run 12  iteracja 400/500  front=16
+  [NSGA-III] run 12  iteracja 450/500  front=22
+  [NSGA-III] run 12  iteracja 500/500  front=22
+
+--- Run 12 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     96 |    0.10608 |   0.0797 |     6477
+NSGA-II   |      9 |    1.28479 |   0.9653 |     4617
+NSGA-III  |     22 |    0.60577 |   0.4551 |     3560
+  [MOGWO] run 13  iteracja 50/500  front=35
+  [MOGWO] run 13  iteracja 100/500  front=30
+  [MOGWO] run 13  iteracja 150/500  front=39
+  [MOGWO] run 13  iteracja 200/500  front=47
+  [MOGWO] run 13  iteracja 250/500  front=60
+  [MOGWO] run 13  iteracja 300/500  front=50
+  [MOGWO] run 13  iteracja 350/500  front=43
+  [MOGWO] run 13  iteracja 400/500  front=46
+  [MOGWO] run 13  iteracja 450/500  front=63
+  [MOGWO] run 13  iteracja 500/500  front=69
+  [NSGA-II] run 13  iteracja 50/500  front=44
+  [NSGA-II] run 13  iteracja 100/500  front=30
+  [NSGA-II] run 13  iteracja 150/500  front=32
+  [NSGA-II] run 13  iteracja 200/500  front=20
+  [NSGA-II] run 13  iteracja 250/500  front=18
+  [NSGA-II] run 13  iteracja 300/500  front=13
+  [NSGA-II] run 13  iteracja 350/500  front=14
+  [NSGA-II] run 13  iteracja 400/500  front=12
+  [NSGA-II] run 13  iteracja 450/500  front=12
+  [NSGA-II] run 13  iteracja 500/500  front=18
+  [NSGA-III] run 13  iteracja 50/500  front=25
+  [NSGA-III] run 13  iteracja 100/500  front=26
+  [NSGA-III] run 13  iteracja 150/500  front=6
+  [NSGA-III] run 13  iteracja 200/500  front=11
+  [NSGA-III] run 13  iteracja 250/500  front=11
+  [NSGA-III] run 13  iteracja 300/500  front=8
+  [NSGA-III] run 13  iteracja 350/500  front=10
+  [NSGA-III] run 13  iteracja 400/500  front=5
+  [NSGA-III] run 13  iteracja 450/500  front=3
+  [NSGA-III] run 13  iteracja 500/500  front=10
+
+--- Run 13 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     69 |    0.14837 |   0.1115 |     6369
+NSGA-II   |     18 |    1.08729 |   0.8169 |     3442
+NSGA-III  |     10 |    1.29080 |   0.9698 |     3457
+  [MOGWO] run 14  iteracja 50/500  front=41
+  [MOGWO] run 14  iteracja 100/500  front=49
+  [MOGWO] run 14  iteracja 150/500  front=36
+  [MOGWO] run 14  iteracja 200/500  front=64
+  [MOGWO] run 14  iteracja 250/500  front=62
+  [MOGWO] run 14  iteracja 300/500  front=54
+  [MOGWO] run 14  iteracja 350/500  front=55
+  [MOGWO] run 14  iteracja 400/500  front=42
+  [MOGWO] run 14  iteracja 450/500  front=54
+  [MOGWO] run 14  iteracja 500/500  front=66
+  [NSGA-II] run 14  iteracja 50/500  front=23
+  [NSGA-II] run 14  iteracja 100/500  front=28
+  [NSGA-II] run 14  iteracja 150/500  front=12
+  [NSGA-II] run 14  iteracja 200/500  front=4
+  [NSGA-II] run 14  iteracja 250/500  front=7
+  [NSGA-II] run 14  iteracja 300/500  front=4
+  [NSGA-II] run 14  iteracja 350/500  front=2
+  [NSGA-II] run 14  iteracja 400/500  front=6
+  [NSGA-II] run 14  iteracja 450/500  front=7
+  [NSGA-II] run 14  iteracja 500/500  front=8
+  [NSGA-III] run 14  iteracja 50/500  front=24
+  [NSGA-III] run 14  iteracja 100/500  front=31
+  [NSGA-III] run 14  iteracja 150/500  front=27
+  [NSGA-III] run 14  iteracja 200/500  front=31
+  [NSGA-III] run 14  iteracja 250/500  front=40
+  [NSGA-III] run 14  iteracja 300/500  front=24
+  [NSGA-III] run 14  iteracja 350/500  front=27
+  [NSGA-III] run 14  iteracja 400/500  front=28
+  [NSGA-III] run 14  iteracja 450/500  front=30
+  [NSGA-III] run 14  iteracja 500/500  front=25
+
+--- Run 14 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     66 |    0.17153 |   0.1289 |     6548
+NSGA-II   |      8 |    1.32483 |   0.9954 |     3366
+NSGA-III  |     25 |    0.56370 |   0.4235 |     3625
+  [MOGWO] run 15  iteracja 50/500  front=46
+  [MOGWO] run 15  iteracja 100/500  front=33
+  [MOGWO] run 15  iteracja 150/500  front=47
+  [MOGWO] run 15  iteracja 200/500  front=41
+  [MOGWO] run 15  iteracja 250/500  front=32
+  [MOGWO] run 15  iteracja 300/500  front=51
+  [MOGWO] run 15  iteracja 350/500  front=49
+  [MOGWO] run 15  iteracja 400/500  front=48
+  [MOGWO] run 15  iteracja 450/500  front=46
+  [MOGWO] run 15  iteracja 500/500  front=50
+  [NSGA-II] run 15  iteracja 50/500  front=32
+  [NSGA-II] run 15  iteracja 100/500  front=35
+  [NSGA-II] run 15  iteracja 150/500  front=50
+  [NSGA-II] run 15  iteracja 200/500  front=68
+  [NSGA-II] run 15  iteracja 250/500  front=62
+  [NSGA-II] run 15  iteracja 300/500  front=62
+  [NSGA-II] run 15  iteracja 350/500  front=70
+  [NSGA-II] run 15  iteracja 400/500  front=74
+  [NSGA-II] run 15  iteracja 450/500  front=71
+  [NSGA-II] run 15  iteracja 500/500  front=74
+  [NSGA-III] run 15  iteracja 50/500  front=39
+  [NSGA-III] run 15  iteracja 100/500  front=40
+  [NSGA-III] run 15  iteracja 150/500  front=43
+  [NSGA-III] run 15  iteracja 200/500  front=64
+  [NSGA-III] run 15  iteracja 250/500  front=55
+  [NSGA-III] run 15  iteracja 300/500  front=61
+  [NSGA-III] run 15  iteracja 350/500  front=79
+  [NSGA-III] run 15  iteracja 400/500  front=72
+  [NSGA-III] run 15  iteracja 450/500  front=66
+  [NSGA-III] run 15  iteracja 500/500  front=59
+
+--- Run 15 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     50 |    0.30697 |   0.2306 |     6230
+NSGA-II   |     74 |    0.52394 |   0.3936 |     3616
+NSGA-III  |     59 |    0.54270 |   0.4077 |     3701
+  [MOGWO] run 16  iteracja 50/500  front=21
+  [MOGWO] run 16  iteracja 100/500  front=36
+  [MOGWO] run 16  iteracja 150/500  front=35
+  [MOGWO] run 16  iteracja 200/500  front=49
+  [MOGWO] run 16  iteracja 250/500  front=46
+  [MOGWO] run 16  iteracja 300/500  front=48
+  [MOGWO] run 16  iteracja 350/500  front=57
+  [MOGWO] run 16  iteracja 400/500  front=72
+  [MOGWO] run 16  iteracja 450/500  front=75
+  [MOGWO] run 16  iteracja 500/500  front=91
+  [NSGA-II] run 16  iteracja 50/500  front=37
+  [NSGA-II] run 16  iteracja 100/500  front=54
+  [NSGA-II] run 16  iteracja 150/500  front=50
+  [NSGA-II] run 16  iteracja 200/500  front=30
+  [NSGA-II] run 16  iteracja 250/500  front=40
+  [NSGA-II] run 16  iteracja 300/500  front=25
+  [NSGA-II] run 16  iteracja 350/500  front=36
+  [NSGA-II] run 16  iteracja 400/500  front=39
+  [NSGA-II] run 16  iteracja 450/500  front=37
+  [NSGA-II] run 16  iteracja 500/500  front=30
+  [NSGA-III] run 16  iteracja 50/500  front=38
+  [NSGA-III] run 16  iteracja 100/500  front=42
+  [NSGA-III] run 16  iteracja 150/500  front=41
+  [NSGA-III] run 16  iteracja 200/500  front=51
+  [NSGA-III] run 16  iteracja 250/500  front=49
+  [NSGA-III] run 16  iteracja 300/500  front=46
+  [NSGA-III] run 16  iteracja 350/500  front=47
+  [NSGA-III] run 16  iteracja 400/500  front=53
+  [NSGA-III] run 16  iteracja 450/500  front=52
+  [NSGA-III] run 16  iteracja 500/500  front=55
+
+--- Run 16 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     91 |    0.28354 |   0.2130 |     6368
+NSGA-II   |     30 |    0.98192 |   0.7377 |     3802
+NSGA-III  |     55 |    0.31285 |   0.2350 |     3777
+  [MOGWO] run 17  iteracja 50/500  front=28
+  [MOGWO] run 17  iteracja 100/500  front=48
+  [MOGWO] run 17  iteracja 150/500  front=49
+  [MOGWO] run 17  iteracja 200/500  front=55
+  [MOGWO] run 17  iteracja 250/500  front=75
+  [MOGWO] run 17  iteracja 300/500  front=86
+  [MOGWO] run 17  iteracja 350/500  front=71
+  [MOGWO] run 17  iteracja 400/500  front=76
+  [MOGWO] run 17  iteracja 450/500  front=78
+  [MOGWO] run 17  iteracja 500/500  front=85
+  [NSGA-II] run 17  iteracja 50/500  front=34
+  [NSGA-II] run 17  iteracja 100/500  front=29
+  [NSGA-II] run 17  iteracja 150/500  front=32
+  [NSGA-II] run 17  iteracja 200/500  front=37
+  [NSGA-II] run 17  iteracja 250/500  front=15
+  [NSGA-II] run 17  iteracja 300/500  front=19
+  [NSGA-II] run 17  iteracja 350/500  front=29
+  [NSGA-II] run 17  iteracja 400/500  front=26
+  [NSGA-II] run 17  iteracja 450/500  front=26
+  [NSGA-II] run 17  iteracja 500/500  front=25
+  [NSGA-III] run 17  iteracja 50/500  front=26
+  [NSGA-III] run 17  iteracja 100/500  front=29
+  [NSGA-III] run 17  iteracja 150/500  front=42
+  [NSGA-III] run 17  iteracja 200/500  front=40
+  [NSGA-III] run 17  iteracja 250/500  front=57
+  [NSGA-III] run 17  iteracja 300/500  front=54
+  [NSGA-III] run 17  iteracja 350/500  front=52
+  [NSGA-III] run 17  iteracja 400/500  front=42
+  [NSGA-III] run 17  iteracja 450/500  front=35
+  [NSGA-III] run 17  iteracja 500/500  front=35
+
+--- Run 17 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     85 |    0.17274 |   0.1298 |     6623
+NSGA-II   |     25 |    1.24315 |   0.9340 |     3533
+NSGA-III  |     35 |    0.39449 |   0.2964 |     3771
+  [MOGWO] run 18  iteracja 50/500  front=42
+  [MOGWO] run 18  iteracja 100/500  front=47
+  [MOGWO] run 18  iteracja 150/500  front=38
+  [MOGWO] run 18  iteracja 200/500  front=45
+  [MOGWO] run 18  iteracja 250/500  front=10
+  [MOGWO] run 18  iteracja 300/500  front=14
+  [MOGWO] run 18  iteracja 350/500  front=15
+  [MOGWO] run 18  iteracja 400/500  front=18
+  [MOGWO] run 18  iteracja 450/500  front=15
+  [MOGWO] run 18  iteracja 500/500  front=14
+  [NSGA-II] run 18  iteracja 50/500  front=35
+  [NSGA-II] run 18  iteracja 100/500  front=12
+  [NSGA-II] run 18  iteracja 150/500  front=22
+  [NSGA-II] run 18  iteracja 200/500  front=13
+  [NSGA-II] run 18  iteracja 250/500  front=21
+  [NSGA-II] run 18  iteracja 300/500  front=27
+  [NSGA-II] run 18  iteracja 350/500  front=13
+  [NSGA-II] run 18  iteracja 400/500  front=22
+  [NSGA-II] run 18  iteracja 450/500  front=28
+  [NSGA-II] run 18  iteracja 500/500  front=27
+  [NSGA-III] run 18  iteracja 50/500  front=31
+  [NSGA-III] run 18  iteracja 100/500  front=28
+  [NSGA-III] run 18  iteracja 150/500  front=25
+  [NSGA-III] run 18  iteracja 200/500  front=30
+  [NSGA-III] run 18  iteracja 250/500  front=38
+  [NSGA-III] run 18  iteracja 300/500  front=25
+  [NSGA-III] run 18  iteracja 350/500  front=12
+  [NSGA-III] run 18  iteracja 400/500  front=20
+  [NSGA-III] run 18  iteracja 450/500  front=9
+  [NSGA-III] run 18  iteracja 500/500  front=11
+
+--- Run 18 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     14 |    0.16164 |   0.1214 |     6266
+NSGA-II   |     27 |    1.05498 |   0.7926 |     3453
+NSGA-III  |     11 |    1.00297 |   0.7535 |     3570
+  [MOGWO] run 19  iteracja 50/500  front=32
+  [MOGWO] run 19  iteracja 100/500  front=28
+  [MOGWO] run 19  iteracja 150/500  front=33
+  [MOGWO] run 19  iteracja 200/500  front=16
+  [MOGWO] run 19  iteracja 250/500  front=16
+  [MOGWO] run 19  iteracja 300/500  front=11
+  [MOGWO] run 19  iteracja 350/500  front=18
+  [MOGWO] run 19  iteracja 400/500  front=14
+  [MOGWO] run 19  iteracja 450/500  front=11
+  [MOGWO] run 19  iteracja 500/500  front=8
+  [NSGA-II] run 19  iteracja 50/500  front=28
+  [NSGA-II] run 19  iteracja 100/500  front=19
+  [NSGA-II] run 19  iteracja 150/500  front=13
+  [NSGA-II] run 19  iteracja 200/500  front=11
+  [NSGA-II] run 19  iteracja 250/500  front=9
+  [NSGA-II] run 19  iteracja 300/500  front=17
+  [NSGA-II] run 19  iteracja 350/500  front=20
+  [NSGA-II] run 19  iteracja 400/500  front=8
+  [NSGA-II] run 19  iteracja 450/500  front=13
+  [NSGA-II] run 19  iteracja 500/500  front=13
+  [NSGA-III] run 19  iteracja 50/500  front=17
+  [NSGA-III] run 19  iteracja 100/500  front=25
+  [NSGA-III] run 19  iteracja 150/500  front=34
+  [NSGA-III] run 19  iteracja 200/500  front=47
+  [NSGA-III] run 19  iteracja 250/500  front=32
+  [NSGA-III] run 19  iteracja 300/500  front=42
+  [NSGA-III] run 19  iteracja 350/500  front=36
+  [NSGA-III] run 19  iteracja 400/500  front=36
+  [NSGA-III] run 19  iteracja 450/500  front=39
+  [NSGA-III] run 19  iteracja 500/500  front=54
+
+--- Run 19 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |      8 |    0.17043 |   0.1280 |     6128
+NSGA-II   |     13 |    1.29438 |   0.9725 |     3593
+NSGA-III  |     54 |    0.11670 |   0.0877 |     3682
+  [MOGWO] run 20  iteracja 50/500  front=35
+  [MOGWO] run 20  iteracja 100/500  front=30
+  [MOGWO] run 20  iteracja 150/500  front=39
+  [MOGWO] run 20  iteracja 200/500  front=10
+  [MOGWO] run 20  iteracja 250/500  front=39
+  [MOGWO] run 20  iteracja 300/500  front=39
+  [MOGWO] run 20  iteracja 350/500  front=41
+  [MOGWO] run 20  iteracja 400/500  front=33
+  [MOGWO] run 20  iteracja 450/500  front=34
+  [MOGWO] run 20  iteracja 500/500  front=31
+  [NSGA-II] run 20  iteracja 50/500  front=26
+  [NSGA-II] run 20  iteracja 100/500  front=32
+  [NSGA-II] run 20  iteracja 150/500  front=50
+  [NSGA-II] run 20  iteracja 200/500  front=37
+  [NSGA-II] run 20  iteracja 250/500  front=24
+  [NSGA-II] run 20  iteracja 300/500  front=25
+  [NSGA-II] run 20  iteracja 350/500  front=19
+  [NSGA-II] run 20  iteracja 400/500  front=27
+  [NSGA-II] run 20  iteracja 450/500  front=17
+  [NSGA-II] run 20  iteracja 500/500  front=32
+  [NSGA-III] run 20  iteracja 50/500  front=34
+  [NSGA-III] run 20  iteracja 100/500  front=30
+  [NSGA-III] run 20  iteracja 150/500  front=37
+  [NSGA-III] run 20  iteracja 200/500  front=28
+  [NSGA-III] run 20  iteracja 250/500  front=22
+  [NSGA-III] run 20  iteracja 300/500  front=24
+  [NSGA-III] run 20  iteracja 350/500  front=37
+  [NSGA-III] run 20  iteracja 400/500  front=15
+  [NSGA-III] run 20  iteracja 450/500  front=21
+  [NSGA-III] run 20  iteracja 500/500  front=25
+
+--- Run 20 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     31 |    0.24270 |   0.1823 |     6402
+NSGA-II   |     32 |    0.84292 |   0.6333 |     3509
+NSGA-III  |     25 |    1.10489 |   0.8301 |     3609
+
+=== Średnia ± odch. std. HV/max po uruchomieniach ===
+MOGWO      0.1921 ± 0.1498  (n=20)
+NSGA-II    0.7280 ± 0.2498  (n=20)
+NSGA-III   0.5752 ± 0.2629  (n=20)
+Zapisano experiments/results/main_summary.csv, experiments/results/main_fronts.csv i experiments/results/main_convergence.csv
+Porównanie: pop=100 iter=100 runs=10 seed=42 mapa=30x30
+  [MOGWO] run 1  iteracja 10/100  front=18
+  [MOGWO] run 1  iteracja 20/100  front=25
+  [MOGWO] run 1  iteracja 30/100  front=26
+  [MOGWO] run 1  iteracja 40/100  front=46
+  [MOGWO] run 1  iteracja 50/100  front=40
+  [MOGWO] run 1  iteracja 60/100  front=61
+  [MOGWO] run 1  iteracja 70/100  front=63
+  [MOGWO] run 1  iteracja 80/100  front=57
+  [MOGWO] run 1  iteracja 90/100  front=59
+  [MOGWO] run 1  iteracja 100/100  front=66
+  [NSGA-II] run 1  iteracja 10/100  front=27
+  [NSGA-II] run 1  iteracja 20/100  front=30
+  [NSGA-II] run 1  iteracja 30/100  front=44
+  [NSGA-II] run 1  iteracja 40/100  front=51
+  [NSGA-II] run 1  iteracja 50/100  front=46
+  [NSGA-II] run 1  iteracja 60/100  front=42
+  [NSGA-II] run 1  iteracja 70/100  front=50
+  [NSGA-II] run 1  iteracja 80/100  front=51
+  [NSGA-II] run 1  iteracja 90/100  front=40
+  [NSGA-II] run 1  iteracja 100/100  front=45
+  [NSGA-III] run 1  iteracja 10/100  front=38
+  [NSGA-III] run 1  iteracja 20/100  front=37
+  [NSGA-III] run 1  iteracja 30/100  front=25
+  [NSGA-III] run 1  iteracja 40/100  front=21
+  [NSGA-III] run 1  iteracja 50/100  front=36
+  [NSGA-III] run 1  iteracja 60/100  front=25
+  [NSGA-III] run 1  iteracja 70/100  front=24
+  [NSGA-III] run 1  iteracja 80/100  front=26
+  [NSGA-III] run 1  iteracja 90/100  front=8
+  [NSGA-III] run 1  iteracja 100/100  front=16
+
+--- Run 1 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     66 |    0.15111 |   0.1135 |     1574
+NSGA-II   |     45 |    0.18121 |   0.1361 |      873
+NSGA-III  |     16 |    1.25155 |   0.9403 |      784
+  [MOGWO] run 2  iteracja 10/100  front=29
+  [MOGWO] run 2  iteracja 20/100  front=18
+  [MOGWO] run 2  iteracja 30/100  front=29
+  [MOGWO] run 2  iteracja 40/100  front=41
+  [MOGWO] run 2  iteracja 50/100  front=68
+  [MOGWO] run 2  iteracja 60/100  front=57
+  [MOGWO] run 2  iteracja 70/100  front=66
+  [MOGWO] run 2  iteracja 80/100  front=77
+  [MOGWO] run 2  iteracja 90/100  front=76
+  [MOGWO] run 2  iteracja 100/100  front=80
+  [NSGA-II] run 2  iteracja 10/100  front=41
+  [NSGA-II] run 2  iteracja 20/100  front=30
+  [NSGA-II] run 2  iteracja 30/100  front=35
+  [NSGA-II] run 2  iteracja 40/100  front=28
+  [NSGA-II] run 2  iteracja 50/100  front=42
+  [NSGA-II] run 2  iteracja 60/100  front=37
+  [NSGA-II] run 2  iteracja 70/100  front=35
+  [NSGA-II] run 2  iteracja 80/100  front=26
+  [NSGA-II] run 2  iteracja 90/100  front=28
+  [NSGA-II] run 2  iteracja 100/100  front=34
+  [NSGA-III] run 2  iteracja 10/100  front=18
+  [NSGA-III] run 2  iteracja 20/100  front=31
+  [NSGA-III] run 2  iteracja 30/100  front=31
+  [NSGA-III] run 2  iteracja 40/100  front=39
+  [NSGA-III] run 2  iteracja 50/100  front=27
+  [NSGA-III] run 2  iteracja 60/100  front=31
+  [NSGA-III] run 2  iteracja 70/100  front=33
+  [NSGA-III] run 2  iteracja 80/100  front=41
+  [NSGA-III] run 2  iteracja 90/100  front=31
+  [NSGA-III] run 2  iteracja 100/100  front=36
+
+--- Run 2 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     80 |    0.20304 |   0.1526 |     1439
+NSGA-II   |     34 |    0.52387 |   0.3936 |      744
+NSGA-III  |     36 |    0.61682 |   0.4634 |      745
+  [MOGWO] run 3  iteracja 10/100  front=29
+  [MOGWO] run 3  iteracja 20/100  front=23
+  [MOGWO] run 3  iteracja 30/100  front=23
+  [MOGWO] run 3  iteracja 40/100  front=22
+  [MOGWO] run 3  iteracja 50/100  front=37
+  [MOGWO] run 3  iteracja 60/100  front=55
+  [MOGWO] run 3  iteracja 70/100  front=49
+  [MOGWO] run 3  iteracja 80/100  front=59
+  [MOGWO] run 3  iteracja 90/100  front=54
+  [MOGWO] run 3  iteracja 100/100  front=56
+  [NSGA-II] run 3  iteracja 10/100  front=20
+  [NSGA-II] run 3  iteracja 20/100  front=22
+  [NSGA-II] run 3  iteracja 30/100  front=30
+  [NSGA-II] run 3  iteracja 40/100  front=28
+  [NSGA-II] run 3  iteracja 50/100  front=29
+  [NSGA-II] run 3  iteracja 60/100  front=20
+  [NSGA-II] run 3  iteracja 70/100  front=18
+  [NSGA-II] run 3  iteracja 80/100  front=28
+  [NSGA-II] run 3  iteracja 90/100  front=20
+  [NSGA-II] run 3  iteracja 100/100  front=27
+  [NSGA-III] run 3  iteracja 10/100  front=28
+  [NSGA-III] run 3  iteracja 20/100  front=26
+  [NSGA-III] run 3  iteracja 30/100  front=23
+  [NSGA-III] run 3  iteracja 40/100  front=17
+  [NSGA-III] run 3  iteracja 50/100  front=13
+  [NSGA-III] run 3  iteracja 60/100  front=25
+  [NSGA-III] run 3  iteracja 70/100  front=16
+  [NSGA-III] run 3  iteracja 80/100  front=15
+  [NSGA-III] run 3  iteracja 90/100  front=19
+  [NSGA-III] run 3  iteracja 100/100  front=8
+
+--- Run 3 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     56 |    0.22885 |   0.1719 |     1252
+NSGA-II   |     27 |    0.37925 |   0.2849 |      730
+NSGA-III  |      8 |    0.97617 |   0.7334 |      775
+  [MOGWO] run 4  iteracja 10/100  front=19
+  [MOGWO] run 4  iteracja 20/100  front=31
+  [MOGWO] run 4  iteracja 30/100  front=23
+  [MOGWO] run 4  iteracja 40/100  front=24
+  [MOGWO] run 4  iteracja 50/100  front=24
+  [MOGWO] run 4  iteracja 60/100  front=36
+  [MOGWO] run 4  iteracja 70/100  front=48
+  [MOGWO] run 4  iteracja 80/100  front=53
+  [MOGWO] run 4  iteracja 90/100  front=52
+  [MOGWO] run 4  iteracja 100/100  front=43
+  [NSGA-II] run 4  iteracja 10/100  front=23
+  [NSGA-II] run 4  iteracja 20/100  front=26
+  [NSGA-II] run 4  iteracja 30/100  front=23
+  [NSGA-II] run 4  iteracja 40/100  front=30
+  [NSGA-II] run 4  iteracja 50/100  front=40
+  [NSGA-II] run 4  iteracja 60/100  front=34
+  [NSGA-II] run 4  iteracja 70/100  front=42
+  [NSGA-II] run 4  iteracja 80/100  front=26
+  [NSGA-II] run 4  iteracja 90/100  front=26
+  [NSGA-II] run 4  iteracja 100/100  front=33
+  [NSGA-III] run 4  iteracja 10/100  front=25
+  [NSGA-III] run 4  iteracja 20/100  front=30
+  [NSGA-III] run 4  iteracja 30/100  front=44
+  [NSGA-III] run 4  iteracja 40/100  front=54
+  [NSGA-III] run 4  iteracja 50/100  front=58
+  [NSGA-III] run 4  iteracja 60/100  front=57
+  [NSGA-III] run 4  iteracja 70/100  front=52
+  [NSGA-III] run 4  iteracja 80/100  front=51
+  [NSGA-III] run 4  iteracja 90/100  front=47
+  [NSGA-III] run 4  iteracja 100/100  front=40
+
+--- Run 4 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     43 |    0.96462 |   0.7247 |     1295
+NSGA-II   |     33 |    0.68012 |   0.5110 |      742
+NSGA-III  |     40 |    0.78417 |   0.5892 |      784
+  [MOGWO] run 5  iteracja 10/100  front=27
+  [MOGWO] run 5  iteracja 20/100  front=43
+  [MOGWO] run 5  iteracja 30/100  front=19
+  [MOGWO] run 5  iteracja 40/100  front=32
+  [MOGWO] run 5  iteracja 50/100  front=35
+  [MOGWO] run 5  iteracja 60/100  front=44
+  [MOGWO] run 5  iteracja 70/100  front=42
+  [MOGWO] run 5  iteracja 80/100  front=46
+  [MOGWO] run 5  iteracja 90/100  front=52
+  [MOGWO] run 5  iteracja 100/100  front=58
+  [NSGA-II] run 5  iteracja 10/100  front=21
+  [NSGA-II] run 5  iteracja 20/100  front=32
+  [NSGA-II] run 5  iteracja 30/100  front=23
+  [NSGA-II] run 5  iteracja 40/100  front=24
+  [NSGA-II] run 5  iteracja 50/100  front=36
+  [NSGA-II] run 5  iteracja 60/100  front=21
+  [NSGA-II] run 5  iteracja 70/100  front=20
+  [NSGA-II] run 5  iteracja 80/100  front=20
+  [NSGA-II] run 5  iteracja 90/100  front=32
+  [NSGA-II] run 5  iteracja 100/100  front=39
+  [NSGA-III] run 5  iteracja 10/100  front=14
+  [NSGA-III] run 5  iteracja 20/100  front=41
+  [NSGA-III] run 5  iteracja 30/100  front=37
+  [NSGA-III] run 5  iteracja 40/100  front=22
+  [NSGA-III] run 5  iteracja 50/100  front=22
+  [NSGA-III] run 5  iteracja 60/100  front=13
+  [NSGA-III] run 5  iteracja 70/100  front=16
+  [NSGA-III] run 5  iteracja 80/100  front=24
+  [NSGA-III] run 5  iteracja 90/100  front=16
+  [NSGA-III] run 5  iteracja 100/100  front=18
+
+--- Run 5 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     58 |    0.16289 |   0.1224 |     1776
+NSGA-II   |     39 |    0.68716 |   0.5163 |      754
+NSGA-III  |     18 |    1.17920 |   0.8859 |      744
+  [MOGWO] run 6  iteracja 10/100  front=23
+  [MOGWO] run 6  iteracja 20/100  front=16
+  [MOGWO] run 6  iteracja 30/100  front=15
+  [MOGWO] run 6  iteracja 40/100  front=16
+  [MOGWO] run 6  iteracja 50/100  front=15
+  [MOGWO] run 6  iteracja 60/100  front=10
+  [MOGWO] run 6  iteracja 70/100  front=16
+  [MOGWO] run 6  iteracja 80/100  front=16
+  [MOGWO] run 6  iteracja 90/100  front=19
+  [MOGWO] run 6  iteracja 100/100  front=21
+  [NSGA-II] run 6  iteracja 10/100  front=23
+  [NSGA-II] run 6  iteracja 20/100  front=24
+  [NSGA-II] run 6  iteracja 30/100  front=20
+  [NSGA-II] run 6  iteracja 40/100  front=13
+  [NSGA-II] run 6  iteracja 50/100  front=15
+  [NSGA-II] run 6  iteracja 60/100  front=26
+  [NSGA-II] run 6  iteracja 70/100  front=29
+  [NSGA-II] run 6  iteracja 80/100  front=9
+  [NSGA-II] run 6  iteracja 90/100  front=15
+  [NSGA-II] run 6  iteracja 100/100  front=12
+  [NSGA-III] run 6  iteracja 10/100  front=13
+  [NSGA-III] run 6  iteracja 20/100  front=27
+  [NSGA-III] run 6  iteracja 30/100  front=36
+  [NSGA-III] run 6  iteracja 40/100  front=24
+  [NSGA-III] run 6  iteracja 50/100  front=33
+  [NSGA-III] run 6  iteracja 60/100  front=39
+  [NSGA-III] run 6  iteracja 70/100  front=32
+  [NSGA-III] run 6  iteracja 80/100  front=32
+  [NSGA-III] run 6  iteracja 90/100  front=32
+  [NSGA-III] run 6  iteracja 100/100  front=22
+
+--- Run 6 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     21 |    0.16539 |   0.1243 |     1254
+NSGA-II   |     12 |    0.67314 |   0.5057 |      784
+NSGA-III  |     22 |    0.67816 |   0.5095 |      743
+  [MOGWO] run 7  iteracja 10/100  front=26
+  [MOGWO] run 7  iteracja 20/100  front=15
+  [MOGWO] run 7  iteracja 30/100  front=22
+  [MOGWO] run 7  iteracja 40/100  front=31
+  [MOGWO] run 7  iteracja 50/100  front=36
+  [MOGWO] run 7  iteracja 60/100  front=44
+  [MOGWO] run 7  iteracja 70/100  front=42
+  [MOGWO] run 7  iteracja 80/100  front=35
+  [MOGWO] run 7  iteracja 90/100  front=51
+  [MOGWO] run 7  iteracja 100/100  front=61
+  [NSGA-II] run 7  iteracja 10/100  front=21
+  [NSGA-II] run 7  iteracja 20/100  front=37
+  [NSGA-II] run 7  iteracja 30/100  front=34
+  [NSGA-II] run 7  iteracja 40/100  front=37
+  [NSGA-II] run 7  iteracja 50/100  front=23
+  [NSGA-II] run 7  iteracja 60/100  front=25
+  [NSGA-II] run 7  iteracja 70/100  front=32
+  [NSGA-II] run 7  iteracja 80/100  front=33
+  [NSGA-II] run 7  iteracja 90/100  front=21
+  [NSGA-II] run 7  iteracja 100/100  front=20
+  [NSGA-III] run 7  iteracja 10/100  front=26
+  [NSGA-III] run 7  iteracja 20/100  front=22
+  [NSGA-III] run 7  iteracja 30/100  front=22
+  [NSGA-III] run 7  iteracja 40/100  front=27
+  [NSGA-III] run 7  iteracja 50/100  front=36
+  [NSGA-III] run 7  iteracja 60/100  front=29
+  [NSGA-III] run 7  iteracja 70/100  front=17
+  [NSGA-III] run 7  iteracja 80/100  front=22
+  [NSGA-III] run 7  iteracja 90/100  front=24
+  [NSGA-III] run 7  iteracja 100/100  front=24
+
+--- Run 7 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     61 |    0.21419 |   0.1609 |     1282
+NSGA-II   |     20 |    0.46945 |   0.3527 |      723
+NSGA-III  |     24 |    0.40742 |   0.3061 |      737
+  [MOGWO] run 8  iteracja 10/100  front=16
+  [MOGWO] run 8  iteracja 20/100  front=22
+  [MOGWO] run 8  iteracja 30/100  front=25
+  [MOGWO] run 8  iteracja 40/100  front=9
+  [MOGWO] run 8  iteracja 50/100  front=15
+  [MOGWO] run 8  iteracja 60/100  front=15
+  [MOGWO] run 8  iteracja 70/100  front=15
+  [MOGWO] run 8  iteracja 80/100  front=23
+  [MOGWO] run 8  iteracja 90/100  front=28
+  [MOGWO] run 8  iteracja 100/100  front=27
+  [NSGA-II] run 8  iteracja 10/100  front=38
+  [NSGA-II] run 8  iteracja 20/100  front=39
+  [NSGA-II] run 8  iteracja 30/100  front=31
+  [NSGA-II] run 8  iteracja 40/100  front=17
+  [NSGA-II] run 8  iteracja 50/100  front=24
+  [NSGA-II] run 8  iteracja 60/100  front=3
+  [NSGA-II] run 8  iteracja 70/100  front=7
+  [NSGA-II] run 8  iteracja 80/100  front=10
+  [NSGA-II] run 8  iteracja 90/100  front=3
+  [NSGA-II] run 8  iteracja 100/100  front=2
+  [NSGA-III] run 8  iteracja 10/100  front=33
+  [NSGA-III] run 8  iteracja 20/100  front=20
+  [NSGA-III] run 8  iteracja 30/100  front=17
+  [NSGA-III] run 8  iteracja 40/100  front=21
+  [NSGA-III] run 8  iteracja 50/100  front=12
+  [NSGA-III] run 8  iteracja 60/100  front=20
+  [NSGA-III] run 8  iteracja 70/100  front=29
+  [NSGA-III] run 8  iteracja 80/100  front=24
+  [NSGA-III] run 8  iteracja 90/100  front=19
+  [NSGA-III] run 8  iteracja 100/100  front=19
+
+--- Run 8 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     27 |    0.06862 |   0.0516 |     1285
+NSGA-II   |      2 |    1.27042 |   0.9545 |      729
+NSGA-III  |     19 |    0.47299 |   0.3554 |      724
+  [MOGWO] run 9  iteracja 10/100  front=35
+  [MOGWO] run 9  iteracja 20/100  front=40
+  [MOGWO] run 9  iteracja 30/100  front=40
+  [MOGWO] run 9  iteracja 40/100  front=47
+  [MOGWO] run 9  iteracja 50/100  front=50
+  [MOGWO] run 9  iteracja 60/100  front=77
+  [MOGWO] run 9  iteracja 70/100  front=73
+  [MOGWO] run 9  iteracja 80/100  front=59
+  [MOGWO] run 9  iteracja 90/100  front=66
+  [MOGWO] run 9  iteracja 100/100  front=70
+  [NSGA-II] run 9  iteracja 10/100  front=17
+  [NSGA-II] run 9  iteracja 20/100  front=17
+  [NSGA-II] run 9  iteracja 30/100  front=26
+  [NSGA-II] run 9  iteracja 40/100  front=21
+  [NSGA-II] run 9  iteracja 50/100  front=20
+  [NSGA-II] run 9  iteracja 60/100  front=26
+  [NSGA-II] run 9  iteracja 70/100  front=34
+  [NSGA-II] run 9  iteracja 80/100  front=34
+  [NSGA-II] run 9  iteracja 90/100  front=42
+  [NSGA-II] run 9  iteracja 100/100  front=45
+  [NSGA-III] run 9  iteracja 10/100  front=25
+  [NSGA-III] run 9  iteracja 20/100  front=36
+  [NSGA-III] run 9  iteracja 30/100  front=31
+  [NSGA-III] run 9  iteracja 40/100  front=25
+  [NSGA-III] run 9  iteracja 50/100  front=27
+  [NSGA-III] run 9  iteracja 60/100  front=24
+  [NSGA-III] run 9  iteracja 70/100  front=27
+  [NSGA-III] run 9  iteracja 80/100  front=24
+  [NSGA-III] run 9  iteracja 90/100  front=24
+  [NSGA-III] run 9  iteracja 100/100  front=23
+
+--- Run 9 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     70 |    0.16251 |   0.1221 |     1314
+NSGA-II   |     45 |    0.72862 |   0.5474 |      761
+NSGA-III  |     23 |    0.17747 |   0.1333 |      727
+  [MOGWO] run 10  iteracja 10/100  front=21
+  [MOGWO] run 10  iteracja 20/100  front=26
+  [MOGWO] run 10  iteracja 30/100  front=32
+  [MOGWO] run 10  iteracja 40/100  front=35
+  [MOGWO] run 10  iteracja 50/100  front=28
+  [MOGWO] run 10  iteracja 60/100  front=31
+  [MOGWO] run 10  iteracja 70/100  front=31
+  [MOGWO] run 10  iteracja 80/100  front=33
+  [MOGWO] run 10  iteracja 90/100  front=25
+  [MOGWO] run 10  iteracja 100/100  front=31
+  [NSGA-II] run 10  iteracja 10/100  front=34
+  [NSGA-II] run 10  iteracja 20/100  front=35
+  [NSGA-II] run 10  iteracja 30/100  front=35
+  [NSGA-II] run 10  iteracja 40/100  front=40
+  [NSGA-II] run 10  iteracja 50/100  front=43
+  [NSGA-II] run 10  iteracja 60/100  front=31
+  [NSGA-II] run 10  iteracja 70/100  front=37
+  [NSGA-II] run 10  iteracja 80/100  front=36
+  [NSGA-II] run 10  iteracja 90/100  front=39
+  [NSGA-II] run 10  iteracja 100/100  front=35
+  [NSGA-III] run 10  iteracja 10/100  front=23
+  [NSGA-III] run 10  iteracja 20/100  front=28
+  [NSGA-III] run 10  iteracja 30/100  front=25
+  [NSGA-III] run 10  iteracja 40/100  front=29
+  [NSGA-III] run 10  iteracja 50/100  front=35
+  [NSGA-III] run 10  iteracja 60/100  front=47
+  [NSGA-III] run 10  iteracja 70/100  front=52
+  [NSGA-III] run 10  iteracja 80/100  front=25
+  [NSGA-III] run 10  iteracja 90/100  front=31
+  [NSGA-III] run 10  iteracja 100/100  front=28
+
+--- Run 10 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     31 |    0.24261 |   0.1823 |     1289
+NSGA-II   |     35 |    0.22362 |   0.1680 |      732
+NSGA-III  |     28 |    0.53106 |   0.3990 |      744
+
+=== Średnia ± odch. std. HV/max po uruchomieniach ===
+MOGWO      0.1926 ± 0.1808  (n=10)
+NSGA-II    0.4370 ± 0.2217  (n=10)
+NSGA-III   0.5316 ± 0.2449  (n=10)
+Zapisano experiments/results/budget100_summary.csv, experiments/results/budget100_fronts.csv i experiments/results/budget100_convergence.csv
+Porównanie: pop=100 iter=250 runs=10 seed=42 mapa=30x30
+  [MOGWO] run 1  iteracja 25/250  front=23
+  [MOGWO] run 1  iteracja 50/250  front=25
+  [MOGWO] run 1  iteracja 75/250  front=28
+  [MOGWO] run 1  iteracja 100/250  front=26
+  [MOGWO] run 1  iteracja 125/250  front=47
+  [MOGWO] run 1  iteracja 150/250  front=45
+  [MOGWO] run 1  iteracja 175/250  front=33
+  [MOGWO] run 1  iteracja 200/250  front=34
+  [MOGWO] run 1  iteracja 225/250  front=46
+  [MOGWO] run 1  iteracja 250/250  front=51
+  [NSGA-II] run 1  iteracja 25/250  front=32
+  [NSGA-II] run 1  iteracja 50/250  front=46
+  [NSGA-II] run 1  iteracja 75/250  front=55
+  [NSGA-II] run 1  iteracja 100/250  front=45
+  [NSGA-II] run 1  iteracja 125/250  front=42
+  [NSGA-II] run 1  iteracja 150/250  front=26
+  [NSGA-II] run 1  iteracja 175/250  front=18
+  [NSGA-II] run 1  iteracja 200/250  front=21
+  [NSGA-II] run 1  iteracja 225/250  front=5
+  [NSGA-II] run 1  iteracja 250/250  front=11
+  [NSGA-III] run 1  iteracja 25/250  front=26
+  [NSGA-III] run 1  iteracja 50/250  front=36
+  [NSGA-III] run 1  iteracja 75/250  front=18
+  [NSGA-III] run 1  iteracja 100/250  front=16
+  [NSGA-III] run 1  iteracja 125/250  front=13
+  [NSGA-III] run 1  iteracja 150/250  front=20
+  [NSGA-III] run 1  iteracja 175/250  front=16
+  [NSGA-III] run 1  iteracja 200/250  front=8
+  [NSGA-III] run 1  iteracja 225/250  front=14
+  [NSGA-III] run 1  iteracja 250/250  front=10
+
+--- Run 1 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     51 |    0.12065 |   0.0906 |     3183
+NSGA-II   |     11 |    0.60018 |   0.4509 |     1864
+NSGA-III  |     10 |    1.28746 |   0.9673 |     1759
+  [MOGWO] run 2  iteracja 25/250  front=20
+  [MOGWO] run 2  iteracja 50/250  front=24
+  [MOGWO] run 2  iteracja 75/250  front=24
+  [MOGWO] run 2  iteracja 100/250  front=40
+  [MOGWO] run 2  iteracja 125/250  front=51
+  [MOGWO] run 2  iteracja 150/250  front=49
+  [MOGWO] run 2  iteracja 175/250  front=38
+  [MOGWO] run 2  iteracja 200/250  front=46
+  [MOGWO] run 2  iteracja 225/250  front=54
+  [MOGWO] run 2  iteracja 250/250  front=59
+  [NSGA-II] run 2  iteracja 25/250  front=34
+  [NSGA-II] run 2  iteracja 50/250  front=42
+  [NSGA-II] run 2  iteracja 75/250  front=29
+  [NSGA-II] run 2  iteracja 100/250  front=34
+  [NSGA-II] run 2  iteracja 125/250  front=37
+  [NSGA-II] run 2  iteracja 150/250  front=33
+  [NSGA-II] run 2  iteracja 175/250  front=37
+  [NSGA-II] run 2  iteracja 200/250  front=25
+  [NSGA-II] run 2  iteracja 225/250  front=22
+  [NSGA-II] run 2  iteracja 250/250  front=31
+  [NSGA-III] run 2  iteracja 25/250  front=33
+  [NSGA-III] run 2  iteracja 50/250  front=27
+  [NSGA-III] run 2  iteracja 75/250  front=36
+  [NSGA-III] run 2  iteracja 100/250  front=36
+  [NSGA-III] run 2  iteracja 125/250  front=29
+  [NSGA-III] run 2  iteracja 150/250  front=32
+  [NSGA-III] run 2  iteracja 175/250  front=38
+  [NSGA-III] run 2  iteracja 200/250  front=38
+  [NSGA-III] run 2  iteracja 225/250  front=38
+  [NSGA-III] run 2  iteracja 250/250  front=44
+
+--- Run 2 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     59 |    0.24935 |   0.1873 |     3144
+NSGA-II   |     31 |    0.97830 |   0.7350 |     1793
+NSGA-III  |     44 |    0.64812 |   0.4869 |     1824
+  [MOGWO] run 3  iteracja 25/250  front=34
+  [MOGWO] run 3  iteracja 50/250  front=34
+  [MOGWO] run 3  iteracja 75/250  front=40
+  [MOGWO] run 3  iteracja 100/250  front=39
+  [MOGWO] run 3  iteracja 125/250  front=60
+  [MOGWO] run 3  iteracja 150/250  front=62
+  [MOGWO] run 3  iteracja 175/250  front=72
+  [MOGWO] run 3  iteracja 200/250  front=76
+  [MOGWO] run 3  iteracja 225/250  front=79
+  [MOGWO] run 3  iteracja 250/250  front=81
+  [NSGA-II] run 3  iteracja 25/250  front=24
+  [NSGA-II] run 3  iteracja 50/250  front=29
+  [NSGA-II] run 3  iteracja 75/250  front=25
+  [NSGA-II] run 3  iteracja 100/250  front=27
+  [NSGA-II] run 3  iteracja 125/250  front=21
+  [NSGA-II] run 3  iteracja 150/250  front=20
+  [NSGA-II] run 3  iteracja 175/250  front=15
+  [NSGA-II] run 3  iteracja 200/250  front=13
+  [NSGA-II] run 3  iteracja 225/250  front=14
+  [NSGA-II] run 3  iteracja 250/250  front=7
+  [NSGA-III] run 3  iteracja 25/250  front=22
+  [NSGA-III] run 3  iteracja 50/250  front=13
+  [NSGA-III] run 3  iteracja 75/250  front=17
+  [NSGA-III] run 3  iteracja 100/250  front=8
+  [NSGA-III] run 3  iteracja 125/250  front=19
+  [NSGA-III] run 3  iteracja 150/250  front=12
+  [NSGA-III] run 3  iteracja 175/250  front=6
+  [NSGA-III] run 3  iteracja 200/250  front=15
+  [NSGA-III] run 3  iteracja 225/250  front=9
+  [NSGA-III] run 3  iteracja 250/250  front=5
+
+--- Run 3 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     81 |    0.33122 |   0.2488 |     3202
+NSGA-II   |      7 |    1.15655 |   0.8689 |     1736
+NSGA-III  |      5 |    1.20743 |   0.9072 |     1820
+  [MOGWO] run 4  iteracja 25/250  front=37
+  [MOGWO] run 4  iteracja 50/250  front=35
+  [MOGWO] run 4  iteracja 75/250  front=42
+  [MOGWO] run 4  iteracja 100/250  front=44
+  [MOGWO] run 4  iteracja 125/250  front=38
+  [MOGWO] run 4  iteracja 150/250  front=37
+  [MOGWO] run 4  iteracja 175/250  front=43
+  [MOGWO] run 4  iteracja 200/250  front=42
+  [MOGWO] run 4  iteracja 225/250  front=36
+  [MOGWO] run 4  iteracja 250/250  front=31
+  [NSGA-II] run 4  iteracja 25/250  front=31
+  [NSGA-II] run 4  iteracja 50/250  front=40
+  [NSGA-II] run 4  iteracja 75/250  front=32
+  [NSGA-II] run 4  iteracja 100/250  front=33
+  [NSGA-II] run 4  iteracja 125/250  front=39
+  [NSGA-II] run 4  iteracja 150/250  front=42
+  [NSGA-II] run 4  iteracja 175/250  front=29
+  [NSGA-II] run 4  iteracja 200/250  front=35
+  [NSGA-II] run 4  iteracja 225/250  front=39
+  [NSGA-II] run 4  iteracja 250/250  front=38
+  [NSGA-III] run 4  iteracja 25/250  front=31
+  [NSGA-III] run 4  iteracja 50/250  front=58
+  [NSGA-III] run 4  iteracja 75/250  front=49
+  [NSGA-III] run 4  iteracja 100/250  front=40
+  [NSGA-III] run 4  iteracja 125/250  front=62
+  [NSGA-III] run 4  iteracja 150/250  front=46
+  [NSGA-III] run 4  iteracja 175/250  front=50
+  [NSGA-III] run 4  iteracja 200/250  front=52
+  [NSGA-III] run 4  iteracja 225/250  front=60
+  [NSGA-III] run 4  iteracja 250/250  front=49
+
+--- Run 4 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     31 |    0.79201 |   0.5951 |     3285
+NSGA-II   |     38 |    0.21065 |   0.1583 |     1861
+NSGA-III  |     49 |    0.31784 |   0.2388 |     1850
+  [MOGWO] run 5  iteracja 25/250  front=23
+  [MOGWO] run 5  iteracja 50/250  front=23
+  [MOGWO] run 5  iteracja 75/250  front=8
+  [MOGWO] run 5  iteracja 100/250  front=20
+  [MOGWO] run 5  iteracja 125/250  front=4
+  [MOGWO] run 5  iteracja 150/250  front=18
+  [MOGWO] run 5  iteracja 175/250  front=11
+  [MOGWO] run 5  iteracja 200/250  front=8
+  [MOGWO] run 5  iteracja 225/250  front=3
+  [MOGWO] run 5  iteracja 250/250  front=3
+  [NSGA-II] run 5  iteracja 25/250  front=27
+  [NSGA-II] run 5  iteracja 50/250  front=36
+  [NSGA-II] run 5  iteracja 75/250  front=22
+  [NSGA-II] run 5  iteracja 100/250  front=39
+  [NSGA-II] run 5  iteracja 125/250  front=14
+  [NSGA-II] run 5  iteracja 150/250  front=21
+  [NSGA-II] run 5  iteracja 175/250  front=6
+  [NSGA-II] run 5  iteracja 200/250  front=11
+  [NSGA-II] run 5  iteracja 225/250  front=6
+  [NSGA-II] run 5  iteracja 250/250  front=14
+  [NSGA-III] run 5  iteracja 25/250  front=35
+  [NSGA-III] run 5  iteracja 50/250  front=22
+  [NSGA-III] run 5  iteracja 75/250  front=22
+  [NSGA-III] run 5  iteracja 100/250  front=18
+  [NSGA-III] run 5  iteracja 125/250  front=8
+  [NSGA-III] run 5  iteracja 150/250  front=6
+  [NSGA-III] run 5  iteracja 175/250  front=11
+  [NSGA-III] run 5  iteracja 200/250  front=7
+  [NSGA-III] run 5  iteracja 225/250  front=5
+  [NSGA-III] run 5  iteracja 250/250  front=8
+
+--- Run 5 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |      3 |    1.04917 |   0.7883 |     2885
+NSGA-II   |     14 |    0.50216 |   0.3773 |     1810
+NSGA-III  |      8 |    1.05531 |   0.7929 |     1907
+  [MOGWO] run 6  iteracja 25/250  front=44
+  [MOGWO] run 6  iteracja 50/250  front=42
+  [MOGWO] run 6  iteracja 75/250  front=30
+  [MOGWO] run 6  iteracja 100/250  front=20
+  [MOGWO] run 6  iteracja 125/250  front=36
+  [MOGWO] run 6  iteracja 150/250  front=37
+  [MOGWO] run 6  iteracja 175/250  front=42
+  [MOGWO] run 6  iteracja 200/250  front=44
+  [MOGWO] run 6  iteracja 225/250  front=45
+  [MOGWO] run 6  iteracja 250/250  front=62
+  [NSGA-II] run 6  iteracja 25/250  front=21
+  [NSGA-II] run 6  iteracja 50/250  front=15
+  [NSGA-II] run 6  iteracja 75/250  front=29
+  [NSGA-II] run 6  iteracja 100/250  front=12
+  [NSGA-II] run 6  iteracja 125/250  front=9
+  [NSGA-II] run 6  iteracja 150/250  front=9
+  [NSGA-II] run 6  iteracja 175/250  front=10
+  [NSGA-II] run 6  iteracja 200/250  front=16
+  [NSGA-II] run 6  iteracja 225/250  front=10
+  [NSGA-II] run 6  iteracja 250/250  front=16
+  [NSGA-III] run 6  iteracja 25/250  front=34
+  [NSGA-III] run 6  iteracja 50/250  front=33
+  [NSGA-III] run 6  iteracja 75/250  front=32
+  [NSGA-III] run 6  iteracja 100/250  front=22
+  [NSGA-III] run 6  iteracja 125/250  front=25
+  [NSGA-III] run 6  iteracja 150/250  front=34
+  [NSGA-III] run 6  iteracja 175/250  front=24
+  [NSGA-III] run 6  iteracja 200/250  front=24
+  [NSGA-III] run 6  iteracja 225/250  front=34
+  [NSGA-III] run 6  iteracja 250/250  front=39
+
+--- Run 6 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     62 |    0.17782 |   0.1336 |     3192
+NSGA-II   |     16 |    1.28669 |   0.9667 |     1845
+NSGA-III  |     39 |    0.53876 |   0.4048 |     1870
+  [MOGWO] run 7  iteracja 25/250  front=24
+  [MOGWO] run 7  iteracja 50/250  front=29
+  [MOGWO] run 7  iteracja 75/250  front=34
+  [MOGWO] run 7  iteracja 100/250  front=49
+  [MOGWO] run 7  iteracja 125/250  front=38
+  [MOGWO] run 7  iteracja 150/250  front=66
+  [MOGWO] run 7  iteracja 175/250  front=68
+  [MOGWO] run 7  iteracja 200/250  front=60
+  [MOGWO] run 7  iteracja 225/250  front=85
+  [MOGWO] run 7  iteracja 250/250  front=95
+  [NSGA-II] run 7  iteracja 25/250  front=39
+  [NSGA-II] run 7  iteracja 50/250  front=23
+  [NSGA-II] run 7  iteracja 75/250  front=31
+  [NSGA-II] run 7  iteracja 100/250  front=20
+  [NSGA-II] run 7  iteracja 125/250  front=26
+  [NSGA-II] run 7  iteracja 150/250  front=33
+  [NSGA-II] run 7  iteracja 175/250  front=23
+  [NSGA-II] run 7  iteracja 200/250  front=35
+  [NSGA-II] run 7  iteracja 225/250  front=27
+  [NSGA-II] run 7  iteracja 250/250  front=25
+  [NSGA-III] run 7  iteracja 25/250  front=29
+  [NSGA-III] run 7  iteracja 50/250  front=36
+  [NSGA-III] run 7  iteracja 75/250  front=23
+  [NSGA-III] run 7  iteracja 100/250  front=24
+  [NSGA-III] run 7  iteracja 125/250  front=22
+  [NSGA-III] run 7  iteracja 150/250  front=37
+  [NSGA-III] run 7  iteracja 175/250  front=50
+  [NSGA-III] run 7  iteracja 200/250  front=42
+  [NSGA-III] run 7  iteracja 225/250  front=19
+  [NSGA-III] run 7  iteracja 250/250  front=24
+
+--- Run 7 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     95 |    0.16970 |   0.1275 |     3211
+NSGA-II   |     25 |    1.01224 |   0.7605 |     1816
+NSGA-III  |     24 |    0.66046 |   0.4962 |     1801
+  [MOGWO] run 8  iteracja 25/250  front=39
+  [MOGWO] run 8  iteracja 50/250  front=20
+  [MOGWO] run 8  iteracja 75/250  front=24
+  [MOGWO] run 8  iteracja 100/250  front=33
+  [MOGWO] run 8  iteracja 125/250  front=47
+  [MOGWO] run 8  iteracja 150/250  front=66
+  [MOGWO] run 8  iteracja 175/250  front=77
+  [MOGWO] run 8  iteracja 200/250  front=88
+  [MOGWO] run 8  iteracja 225/250  front=99
+  [MOGWO] run 8  iteracja 250/250  front=99
+  [NSGA-II] run 8  iteracja 25/250  front=40
+  [NSGA-II] run 8  iteracja 50/250  front=24
+  [NSGA-II] run 8  iteracja 75/250  front=7
+  [NSGA-II] run 8  iteracja 100/250  front=2
+  [NSGA-II] run 8  iteracja 125/250  front=3
+  [NSGA-II] run 8  iteracja 150/250  front=1
+  [NSGA-II] run 8  iteracja 175/250  front=1
+  [NSGA-II] run 8  iteracja 200/250  front=4
+  [NSGA-II] run 8  iteracja 225/250  front=4
+  [NSGA-II] run 8  iteracja 250/250  front=7
+  [NSGA-III] run 8  iteracja 25/250  front=14
+  [NSGA-III] run 8  iteracja 50/250  front=12
+  [NSGA-III] run 8  iteracja 75/250  front=24
+  [NSGA-III] run 8  iteracja 100/250  front=19
+  [NSGA-III] run 8  iteracja 125/250  front=7
+  [NSGA-III] run 8  iteracja 150/250  front=9
+  [NSGA-III] run 8  iteracja 175/250  front=11
+  [NSGA-III] run 8  iteracja 200/250  front=15
+  [NSGA-III] run 8  iteracja 225/250  front=19
+  [NSGA-III] run 8  iteracja 250/250  front=14
+
+--- Run 8 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     99 |    0.15794 |   0.1187 |     3163
+NSGA-II   |      7 |    1.32692 |   0.9969 |     1774
+NSGA-III  |     14 |    0.78735 |   0.5915 |     1750
+  [MOGWO] run 9  iteracja 25/250  front=26
+  [MOGWO] run 9  iteracja 50/250  front=36
+  [MOGWO] run 9  iteracja 75/250  front=28
+  [MOGWO] run 9  iteracja 100/250  front=44
+  [MOGWO] run 9  iteracja 125/250  front=59
+  [MOGWO] run 9  iteracja 150/250  front=42
+  [MOGWO] run 9  iteracja 175/250  front=58
+  [MOGWO] run 9  iteracja 200/250  front=68
+  [MOGWO] run 9  iteracja 225/250  front=80
+  [MOGWO] run 9  iteracja 250/250  front=73
+  [NSGA-II] run 9  iteracja 25/250  front=20
+  [NSGA-II] run 9  iteracja 50/250  front=20
+  [NSGA-II] run 9  iteracja 75/250  front=38
+  [NSGA-II] run 9  iteracja 100/250  front=45
+  [NSGA-II] run 9  iteracja 125/250  front=39
+  [NSGA-II] run 9  iteracja 150/250  front=19
+  [NSGA-II] run 9  iteracja 175/250  front=21
+  [NSGA-II] run 9  iteracja 200/250  front=25
+  [NSGA-II] run 9  iteracja 225/250  front=35
+  [NSGA-II] run 9  iteracja 250/250  front=32
+  [NSGA-III] run 9  iteracja 25/250  front=39
+  [NSGA-III] run 9  iteracja 50/250  front=27
+  [NSGA-III] run 9  iteracja 75/250  front=23
+  [NSGA-III] run 9  iteracja 100/250  front=23
+  [NSGA-III] run 9  iteracja 125/250  front=32
+  [NSGA-III] run 9  iteracja 150/250  front=26
+  [NSGA-III] run 9  iteracja 175/250  front=33
+  [NSGA-III] run 9  iteracja 200/250  front=40
+  [NSGA-III] run 9  iteracja 225/250  front=44
+  [NSGA-III] run 9  iteracja 250/250  front=22
+
+--- Run 9 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     73 |    0.17535 |   0.1317 |     3218
+NSGA-II   |     32 |    0.75494 |   0.5672 |     1771
+NSGA-III  |     22 |    0.19443 |   0.1461 |     1809
+  [MOGWO] run 10  iteracja 25/250  front=27
+  [MOGWO] run 10  iteracja 50/250  front=29
+  [MOGWO] run 10  iteracja 75/250  front=30
+  [MOGWO] run 10  iteracja 100/250  front=30
+  [MOGWO] run 10  iteracja 125/250  front=44
+  [MOGWO] run 10  iteracja 150/250  front=37
+  [MOGWO] run 10  iteracja 175/250  front=54
+  [MOGWO] run 10  iteracja 200/250  front=51
+  [MOGWO] run 10  iteracja 225/250  front=38
+  [MOGWO] run 10  iteracja 250/250  front=53
+  [NSGA-II] run 10  iteracja 25/250  front=38
+  [NSGA-II] run 10  iteracja 50/250  front=43
+  [NSGA-II] run 10  iteracja 75/250  front=39
+  [NSGA-II] run 10  iteracja 100/250  front=35
+  [NSGA-II] run 10  iteracja 125/250  front=35
+  [NSGA-II] run 10  iteracja 150/250  front=36
+  [NSGA-II] run 10  iteracja 175/250  front=40
+  [NSGA-II] run 10  iteracja 200/250  front=36
+  [NSGA-II] run 10  iteracja 225/250  front=43
+  [NSGA-II] run 10  iteracja 250/250  front=48
+  [NSGA-III] run 10  iteracja 25/250  front=17
+  [NSGA-III] run 10  iteracja 50/250  front=35
+  [NSGA-III] run 10  iteracja 75/250  front=27
+  [NSGA-III] run 10  iteracja 100/250  front=28
+  [NSGA-III] run 10  iteracja 125/250  front=37
+  [NSGA-III] run 10  iteracja 150/250  front=25
+  [NSGA-III] run 10  iteracja 175/250  front=20
+  [NSGA-III] run 10  iteracja 200/250  front=7
+  [NSGA-III] run 10  iteracja 225/250  front=8
+  [NSGA-III] run 10  iteracja 250/250  front=11
+
+--- Run 10 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     53 |    0.16642 |   0.1250 |     3154
+NSGA-II   |     48 |    0.13546 |   0.1018 |     1860
+NSGA-III  |     11 |    1.24975 |   0.9390 |     1807
+
+=== Średnia ± odch. std. HV/max po uruchomieniach ===
+MOGWO      0.2547 ± 0.2266  (n=10)
+NSGA-II    0.5984 ± 0.3041  (n=10)
+NSGA-III   0.5971 ± 0.2792  (n=10)
+Zapisano experiments/results/budget250_summary.csv, experiments/results/budget250_fronts.csv i experiments/results/budget250_convergence.csv
+Porównanie: pop=100 iter=1000 runs=10 seed=42 mapa=30x30
+  [MOGWO] run 1  iteracja 100/1000  front=37
+  [MOGWO] run 1  iteracja 200/1000  front=40
+  [MOGWO] run 1  iteracja 300/1000  front=37
+  [MOGWO] run 1  iteracja 400/1000  front=48
+  [MOGWO] run 1  iteracja 500/1000  front=53
+  [MOGWO] run 1  iteracja 600/1000  front=48
+  [MOGWO] run 1  iteracja 700/1000  front=47
+  [MOGWO] run 1  iteracja 800/1000  front=33
+  [MOGWO] run 1  iteracja 900/1000  front=32
+  [MOGWO] run 1  iteracja 1000/1000  front=50
+  [NSGA-II] run 1  iteracja 100/1000  front=45
+  [NSGA-II] run 1  iteracja 200/1000  front=21
+  [NSGA-II] run 1  iteracja 300/1000  front=12
+  [NSGA-II] run 1  iteracja 400/1000  front=5
+  [NSGA-II] run 1  iteracja 500/1000  front=9
+  [NSGA-II] run 1  iteracja 600/1000  front=13
+  [NSGA-II] run 1  iteracja 700/1000  front=16
+  [NSGA-II] run 1  iteracja 800/1000  front=20
+  [NSGA-II] run 1  iteracja 900/1000  front=23
+  [NSGA-II] run 1  iteracja 1000/1000  front=27
+  [NSGA-III] run 1  iteracja 100/1000  front=16
+  [NSGA-III] run 1  iteracja 200/1000  front=8
+  [NSGA-III] run 1  iteracja 300/1000  front=10
+  [NSGA-III] run 1  iteracja 400/1000  front=8
+  [NSGA-III] run 1  iteracja 500/1000  front=4
+  [NSGA-III] run 1  iteracja 600/1000  front=5
+  [NSGA-III] run 1  iteracja 700/1000  front=4
+  [NSGA-III] run 1  iteracja 800/1000  front=5
+  [NSGA-III] run 1  iteracja 900/1000  front=6
+  [NSGA-III] run 1  iteracja 1000/1000  front=6
+
+--- Run 1 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     50 |    0.13714 |   0.1030 |    12782
+NSGA-II   |     27 |    0.91735 |   0.6892 |     6800
+NSGA-III  |      6 |    1.19843 |   0.9004 |     9196
+  [MOGWO] run 2  iteracja 100/1000  front=46
+  [MOGWO] run 2  iteracja 200/1000  front=51
+  [MOGWO] run 2  iteracja 300/1000  front=54
+  [MOGWO] run 2  iteracja 400/1000  front=58
+  [MOGWO] run 2  iteracja 500/1000  front=95
+  [MOGWO] run 2  iteracja 600/1000  front=85
+  [MOGWO] run 2  iteracja 700/1000  front=92
+  [MOGWO] run 2  iteracja 800/1000  front=100
+  [MOGWO] run 2  iteracja 900/1000  front=92
+  [MOGWO] run 2  iteracja 1000/1000  front=90
+  [NSGA-II] run 2  iteracja 100/1000  front=34
+  [NSGA-II] run 2  iteracja 200/1000  front=25
+  [NSGA-II] run 2  iteracja 300/1000  front=24
+  [NSGA-II] run 2  iteracja 400/1000  front=15
+  [NSGA-II] run 2  iteracja 500/1000  front=18
+  [NSGA-II] run 2  iteracja 600/1000  front=16
+  [NSGA-II] run 2  iteracja 700/1000  front=8
+  [NSGA-II] run 2  iteracja 800/1000  front=11
+  [NSGA-II] run 2  iteracja 900/1000  front=4
+  [NSGA-II] run 2  iteracja 1000/1000  front=5
+  [NSGA-III] run 2  iteracja 100/1000  front=36
+  [NSGA-III] run 2  iteracja 200/1000  front=38
+  [NSGA-III] run 2  iteracja 300/1000  front=45
+  [NSGA-III] run 2  iteracja 400/1000  front=38
+  [NSGA-III] run 2  iteracja 500/1000  front=47
+  [NSGA-III] run 2  iteracja 600/1000  front=29
+  [NSGA-III] run 2  iteracja 700/1000  front=49
+  [NSGA-III] run 2  iteracja 800/1000  front=32
+  [NSGA-III] run 2  iteracja 900/1000  front=36
+  [NSGA-III] run 2  iteracja 1000/1000  front=40
+
+--- Run 2 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     90 |    0.23214 |   0.1744 |    13141
+NSGA-II   |      5 |    1.31185 |   0.9856 |     6699
+NSGA-III  |     40 |    0.56272 |   0.4228 |     7266
+  [MOGWO] run 3  iteracja 100/1000  front=27
+  [MOGWO] run 3  iteracja 200/1000  front=15
+  [MOGWO] run 3  iteracja 300/1000  front=9
+  [MOGWO] run 3  iteracja 400/1000  front=6
+  [MOGWO] run 3  iteracja 500/1000  front=13
+  [MOGWO] run 3  iteracja 600/1000  front=8
+  [MOGWO] run 3  iteracja 700/1000  front=15
+  [MOGWO] run 3  iteracja 800/1000  front=20
+  [MOGWO] run 3  iteracja 900/1000  front=25
+  [MOGWO] run 3  iteracja 1000/1000  front=13
+  [NSGA-II] run 3  iteracja 100/1000  front=27
+  [NSGA-II] run 3  iteracja 200/1000  front=13
+  [NSGA-II] run 3  iteracja 300/1000  front=11
+  [NSGA-II] run 3  iteracja 400/1000  front=12
+  [NSGA-II] run 3  iteracja 500/1000  front=12
+  [NSGA-II] run 3  iteracja 600/1000  front=15
+  [NSGA-II] run 3  iteracja 700/1000  front=13
+  [NSGA-II] run 3  iteracja 800/1000  front=14
+  [NSGA-II] run 3  iteracja 900/1000  front=13
+  [NSGA-II] run 3  iteracja 1000/1000  front=14
+  [NSGA-III] run 3  iteracja 100/1000  front=8
+  [NSGA-III] run 3  iteracja 200/1000  front=15
+  [NSGA-III] run 3  iteracja 300/1000  front=13
+  [NSGA-III] run 3  iteracja 400/1000  front=19
+  [NSGA-III] run 3  iteracja 500/1000  front=17
+  [NSGA-III] run 3  iteracja 600/1000  front=15
+  [NSGA-III] run 3  iteracja 700/1000  front=9
+  [NSGA-III] run 3  iteracja 800/1000  front=11
+  [NSGA-III] run 3  iteracja 900/1000  front=19
+  [NSGA-III] run 3  iteracja 1000/1000  front=22
+
+--- Run 3 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     13 |    0.94727 |   0.7117 |    11658
+NSGA-II   |     14 |    0.54192 |   0.4071 |     7177
+NSGA-III  |     22 |    0.64411 |   0.4839 |     6527
+  [MOGWO] run 4  iteracja 100/1000  front=42
+  [MOGWO] run 4  iteracja 200/1000  front=24
+  [MOGWO] run 4  iteracja 300/1000  front=24
+  [MOGWO] run 4  iteracja 400/1000  front=26
+  [MOGWO] run 4  iteracja 500/1000  front=34
+  [MOGWO] run 4  iteracja 600/1000  front=26
+  [MOGWO] run 4  iteracja 700/1000  front=31
+  [MOGWO] run 4  iteracja 800/1000  front=39
+  [MOGWO] run 4  iteracja 900/1000  front=56
+  [MOGWO] run 4  iteracja 1000/1000  front=62
+  [NSGA-II] run 4  iteracja 100/1000  front=33
+  [NSGA-II] run 4  iteracja 200/1000  front=35
+  [NSGA-II] run 4  iteracja 300/1000  front=44
+  [NSGA-II] run 4  iteracja 400/1000  front=42
+  [NSGA-II] run 4  iteracja 500/1000  front=57
+  [NSGA-II] run 4  iteracja 600/1000  front=70
+  [NSGA-II] run 4  iteracja 700/1000  front=51
+  [NSGA-II] run 4  iteracja 800/1000  front=62
+  [NSGA-II] run 4  iteracja 900/1000  front=61
+  [NSGA-II] run 4  iteracja 1000/1000  front=56
+  [NSGA-III] run 4  iteracja 100/1000  front=40
+  [NSGA-III] run 4  iteracja 200/1000  front=52
+  [NSGA-III] run 4  iteracja 300/1000  front=68
+  [NSGA-III] run 4  iteracja 400/1000  front=50
+  [NSGA-III] run 4  iteracja 500/1000  front=48
+  [NSGA-III] run 4  iteracja 600/1000  front=39
+  [NSGA-III] run 4  iteracja 700/1000  front=22
+  [NSGA-III] run 4  iteracja 800/1000  front=13
+  [NSGA-III] run 4  iteracja 900/1000  front=11
+  [NSGA-III] run 4  iteracja 1000/1000  front=15
+
+--- Run 4 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     62 |    0.43834 |   0.3293 |    12173
+NSGA-II   |     56 |    0.18336 |   0.1378 |     7224
+NSGA-III  |     15 |    1.24835 |   0.9379 |     7167
+  [MOGWO] run 5  iteracja 100/1000  front=17
+  [MOGWO] run 5  iteracja 200/1000  front=6
+  [MOGWO] run 5  iteracja 300/1000  front=2
+  [MOGWO] run 5  iteracja 400/1000  front=11
+  [MOGWO] run 5  iteracja 500/1000  front=4
+  [MOGWO] run 5  iteracja 600/1000  front=8
+  [MOGWO] run 5  iteracja 700/1000  front=5
+  [MOGWO] run 5  iteracja 800/1000  front=7
+  [MOGWO] run 5  iteracja 900/1000  front=3
+  [MOGWO] run 5  iteracja 1000/1000  front=3
+  [NSGA-II] run 5  iteracja 100/1000  front=39
+  [NSGA-II] run 5  iteracja 200/1000  front=11
+  [NSGA-II] run 5  iteracja 300/1000  front=19
+  [NSGA-II] run 5  iteracja 400/1000  front=3
+  [NSGA-II] run 5  iteracja 500/1000  front=9
+  [NSGA-II] run 5  iteracja 600/1000  front=8
+  [NSGA-II] run 5  iteracja 700/1000  front=18
+  [NSGA-II] run 5  iteracja 800/1000  front=24
+  [NSGA-II] run 5  iteracja 900/1000  front=22
+  [NSGA-II] run 5  iteracja 1000/1000  front=16
+  [NSGA-III] run 5  iteracja 100/1000  front=18
+  [NSGA-III] run 5  iteracja 200/1000  front=7
+  [NSGA-III] run 5  iteracja 300/1000  front=11
+  [NSGA-III] run 5  iteracja 400/1000  front=6
+  [NSGA-III] run 5  iteracja 500/1000  front=11
+  [NSGA-III] run 5  iteracja 600/1000  front=8
+  [NSGA-III] run 5  iteracja 700/1000  front=6
+  [NSGA-III] run 5  iteracja 800/1000  front=8
+  [NSGA-III] run 5  iteracja 900/1000  front=5
+  [NSGA-III] run 5  iteracja 1000/1000  front=6
+
+--- Run 5 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |      3 |    1.32949 |   0.9989 |    10884
+NSGA-II   |     16 |    0.37764 |   0.2837 |     7245
+NSGA-III  |      6 |    0.66097 |   0.4966 |     6473
+  [MOGWO] run 6  iteracja 100/1000  front=23
+  [MOGWO] run 6  iteracja 200/1000  front=41
+  [MOGWO] run 6  iteracja 300/1000  front=28
+  [MOGWO] run 6  iteracja 400/1000  front=23
+  [MOGWO] run 6  iteracja 500/1000  front=13
+  [MOGWO] run 6  iteracja 600/1000  front=17
+  [MOGWO] run 6  iteracja 700/1000  front=15
+  [MOGWO] run 6  iteracja 800/1000  front=24
+  [MOGWO] run 6  iteracja 900/1000  front=31
+  [MOGWO] run 6  iteracja 1000/1000  front=31
+  [NSGA-II] run 6  iteracja 100/1000  front=12
+  [NSGA-II] run 6  iteracja 200/1000  front=16
+  [NSGA-II] run 6  iteracja 300/1000  front=8
+  [NSGA-II] run 6  iteracja 400/1000  front=16
+  [NSGA-II] run 6  iteracja 500/1000  front=14
+  [NSGA-II] run 6  iteracja 600/1000  front=8
+  [NSGA-II] run 6  iteracja 700/1000  front=6
+  [NSGA-II] run 6  iteracja 800/1000  front=2
+  [NSGA-II] run 6  iteracja 900/1000  front=2
+  [NSGA-II] run 6  iteracja 1000/1000  front=2
+  [NSGA-III] run 6  iteracja 100/1000  front=22
+  [NSGA-III] run 6  iteracja 200/1000  front=24
+  [NSGA-III] run 6  iteracja 300/1000  front=46
+  [NSGA-III] run 6  iteracja 400/1000  front=36
+  [NSGA-III] run 6  iteracja 500/1000  front=14
+  [NSGA-III] run 6  iteracja 600/1000  front=9
+  [NSGA-III] run 6  iteracja 700/1000  front=12
+  [NSGA-III] run 6  iteracja 800/1000  front=2
+  [NSGA-III] run 6  iteracja 900/1000  front=3
+  [NSGA-III] run 6  iteracja 1000/1000  front=4
+
+--- Run 6 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     31 |    0.09735 |   0.0731 |    12348
+NSGA-II   |      2 |    1.32879 |   0.9983 |     6507
+NSGA-III  |      4 |    0.95106 |   0.7145 |     6983
+  [MOGWO] run 7  iteracja 100/1000  front=52
+  [MOGWO] run 7  iteracja 200/1000  front=56
+  [MOGWO] run 7  iteracja 300/1000  front=60
+  [MOGWO] run 7  iteracja 400/1000  front=43
+  [MOGWO] run 7  iteracja 500/1000  front=100
+  [MOGWO] run 7  iteracja 600/1000  front=55
+  [MOGWO] run 7  iteracja 700/1000  front=87
+  [MOGWO] run 7  iteracja 800/1000  front=71
+  [MOGWO] run 7  iteracja 900/1000  front=98
+  [MOGWO] run 7  iteracja 1000/1000  front=93
+  [NSGA-II] run 7  iteracja 100/1000  front=20
+  [NSGA-II] run 7  iteracja 200/1000  front=35
+  [NSGA-II] run 7  iteracja 300/1000  front=33
+  [NSGA-II] run 7  iteracja 400/1000  front=22
+  [NSGA-II] run 7  iteracja 500/1000  front=23
+  [NSGA-II] run 7  iteracja 600/1000  front=30
+  [NSGA-II] run 7  iteracja 700/1000  front=35
+  [NSGA-II] run 7  iteracja 800/1000  front=14
+  [NSGA-II] run 7  iteracja 900/1000  front=20
+  [NSGA-II] run 7  iteracja 1000/1000  front=20
+  [NSGA-III] run 7  iteracja 100/1000  front=24
+  [NSGA-III] run 7  iteracja 200/1000  front=42
+  [NSGA-III] run 7  iteracja 300/1000  front=16
+  [NSGA-III] run 7  iteracja 400/1000  front=33
+  [NSGA-III] run 7  iteracja 500/1000  front=26
+  [NSGA-III] run 7  iteracja 600/1000  front=12
+  [NSGA-III] run 7  iteracja 700/1000  front=20
+  [NSGA-III] run 7  iteracja 800/1000  front=17
+  [NSGA-III] run 7  iteracja 900/1000  front=8
+  [NSGA-III] run 7  iteracja 1000/1000  front=12
+
+--- Run 7 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     93 |    0.19491 |   0.1464 |    12567
+NSGA-II   |     20 |    1.11371 |   0.8367 |     6636
+NSGA-III  |     12 |    1.13953 |   0.8561 |     6907
+  [MOGWO] run 8  iteracja 100/1000  front=43
+  [MOGWO] run 8  iteracja 200/1000  front=39
+  [MOGWO] run 8  iteracja 300/1000  front=39
+  [MOGWO] run 8  iteracja 400/1000  front=62
+  [MOGWO] run 8  iteracja 500/1000  front=50
+  [MOGWO] run 8  iteracja 600/1000  front=96
+  [MOGWO] run 8  iteracja 700/1000  front=100
+  [MOGWO] run 8  iteracja 800/1000  front=100
+  [MOGWO] run 8  iteracja 900/1000  front=98
+  [MOGWO] run 8  iteracja 1000/1000  front=100
+  [NSGA-II] run 8  iteracja 100/1000  front=2
+  [NSGA-II] run 8  iteracja 200/1000  front=4
+  [NSGA-II] run 8  iteracja 300/1000  front=8
+  [NSGA-II] run 8  iteracja 400/1000  front=5
+  [NSGA-II] run 8  iteracja 500/1000  front=7
+  [NSGA-II] run 8  iteracja 600/1000  front=3
+  [NSGA-II] run 8  iteracja 700/1000  front=7
+  [NSGA-II] run 8  iteracja 800/1000  front=9
+  [NSGA-II] run 8  iteracja 900/1000  front=11
+  [NSGA-II] run 8  iteracja 1000/1000  front=11
+  [NSGA-III] run 8  iteracja 100/1000  front=19
+  [NSGA-III] run 8  iteracja 200/1000  front=15
+  [NSGA-III] run 8  iteracja 300/1000  front=11
+  [NSGA-III] run 8  iteracja 400/1000  front=8
+  [NSGA-III] run 8  iteracja 500/1000  front=13
+  [NSGA-III] run 8  iteracja 600/1000  front=3
+  [NSGA-III] run 8  iteracja 700/1000  front=11
+  [NSGA-III] run 8  iteracja 800/1000  front=11
+  [NSGA-III] run 8  iteracja 900/1000  front=4
+  [NSGA-III] run 8  iteracja 1000/1000  front=2
+
+--- Run 8 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |    100 |    0.14296 |   0.1074 |    12621
+NSGA-II   |     11 |    1.29423 |   0.9724 |     6693
+NSGA-III  |      2 |    0.91882 |   0.6903 |     7139
+  [MOGWO] run 9  iteracja 100/1000  front=41
+  [MOGWO] run 9  iteracja 200/1000  front=54
+  [MOGWO] run 9  iteracja 300/1000  front=54
+  [MOGWO] run 9  iteracja 400/1000  front=44
+  [MOGWO] run 9  iteracja 500/1000  front=56
+  [MOGWO] run 9  iteracja 600/1000  front=49
+  [MOGWO] run 9  iteracja 700/1000  front=72
+  [MOGWO] run 9  iteracja 800/1000  front=63
+  [MOGWO] run 9  iteracja 900/1000  front=79
+  [MOGWO] run 9  iteracja 1000/1000  front=93
+  [NSGA-II] run 9  iteracja 100/1000  front=45
+  [NSGA-II] run 9  iteracja 200/1000  front=25
+  [NSGA-II] run 9  iteracja 300/1000  front=21
+  [NSGA-II] run 9  iteracja 400/1000  front=33
+  [NSGA-II] run 9  iteracja 500/1000  front=20
+  [NSGA-II] run 9  iteracja 600/1000  front=25
+  [NSGA-II] run 9  iteracja 700/1000  front=24
+  [NSGA-II] run 9  iteracja 800/1000  front=22
+  [NSGA-II] run 9  iteracja 900/1000  front=19
+  [NSGA-II] run 9  iteracja 1000/1000  front=18
+  [NSGA-III] run 9  iteracja 100/1000  front=23
+  [NSGA-III] run 9  iteracja 200/1000  front=40
+  [NSGA-III] run 9  iteracja 300/1000  front=34
+  [NSGA-III] run 9  iteracja 400/1000  front=53
+  [NSGA-III] run 9  iteracja 500/1000  front=33
+  [NSGA-III] run 9  iteracja 600/1000  front=44
+  [NSGA-III] run 9  iteracja 700/1000  front=57
+  [NSGA-III] run 9  iteracja 800/1000  front=53
+  [NSGA-III] run 9  iteracja 900/1000  front=44
+  [NSGA-III] run 9  iteracja 1000/1000  front=36
+
+--- Run 9 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     93 |    0.15439 |   0.1160 |    13205
+NSGA-II   |     18 |    1.01408 |   0.7619 |     7081
+NSGA-III  |     36 |    0.53522 |   0.4021 |     7109
+  [MOGWO] run 10  iteracja 100/1000  front=46
+  [MOGWO] run 10  iteracja 200/1000  front=24
+  [MOGWO] run 10  iteracja 300/1000  front=4
+  [MOGWO] run 10  iteracja 400/1000  front=7
+  [MOGWO] run 10  iteracja 500/1000  front=6
+  [MOGWO] run 10  iteracja 600/1000  front=7
+  [MOGWO] run 10  iteracja 700/1000  front=9
+  [MOGWO] run 10  iteracja 800/1000  front=16
+  [MOGWO] run 10  iteracja 900/1000  front=14
+  [MOGWO] run 10  iteracja 1000/1000  front=19
+  [NSGA-II] run 10  iteracja 100/1000  front=35
+  [NSGA-II] run 10  iteracja 200/1000  front=36
+  [NSGA-II] run 10  iteracja 300/1000  front=49
+  [NSGA-II] run 10  iteracja 400/1000  front=72
+  [NSGA-II] run 10  iteracja 500/1000  front=89
+  [NSGA-II] run 10  iteracja 600/1000  front=61
+  [NSGA-II] run 10  iteracja 700/1000  front=44
+  [NSGA-II] run 10  iteracja 800/1000  front=24
+  [NSGA-II] run 10  iteracja 900/1000  front=8
+  [NSGA-II] run 10  iteracja 1000/1000  front=10
+  [NSGA-III] run 10  iteracja 100/1000  front=28
+  [NSGA-III] run 10  iteracja 200/1000  front=7
+  [NSGA-III] run 10  iteracja 300/1000  front=20
+  [NSGA-III] run 10  iteracja 400/1000  front=3
+  [NSGA-III] run 10  iteracja 500/1000  front=4
+  [NSGA-III] run 10  iteracja 600/1000  front=6
+  [NSGA-III] run 10  iteracja 700/1000  front=5
+  [NSGA-III] run 10  iteracja 800/1000  front=8
+  [NSGA-III] run 10  iteracja 900/1000  front=13
+  [NSGA-III] run 10  iteracja 1000/1000  front=12
+
+--- Run 10 ---
+Algorytm  | |front| |         HV |   HV/max | czas[ms]
+MOGWO     |     19 |    1.32773 |   0.9975 |    10894
+NSGA-II   |     10 |    0.17712 |   0.1331 |     7001
+NSGA-III  |     12 |    0.59594 |   0.4477 |     6649
+
+=== Średnia ± odch. std. HV/max po uruchomieniach ===
+MOGWO      0.3758 ± 0.3590  (n=10)
+NSGA-II    0.6206 ± 0.3318  (n=10)
+NSGA-III   0.6352 ± 0.1992  (n=10)
+Zapisano experiments/results/budget1000_summary.csv, experiments/results/budget1000_fronts.csv i experiments/results/budget1000_convergence.csv
+ALL_DONE
+EXIT=0

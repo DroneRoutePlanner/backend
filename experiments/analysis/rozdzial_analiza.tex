@@ -1,0 +1,509 @@
+\chapter{Analiza porównawcza}
+\label{ch:analiza}
+
+Niniejszy rozdział zawiera statystyczną i~jakościową analizę wyników eksperymentów
+opisanych w~rozdziale~\ref{ch:wyniki}. Miarą jakości frontów Pareto jest
+hiperobjętość (ang. \textit{hypervolume}, HV), a~wszystkie wnioski oparto na
+testach statystycznych dla prób sparowanych po instancjach problemu.
+W~podrozdziale \ref{sec:analiza_metodyka} opisano metrykę, sposób jej normalizacji,
+protokół eksperymentalny oraz zastosowane testy. Podrozdział
+\ref{sec:analiza_hv} przedstawia główne wyniki porównania hiperobjętością,
+a~podrozdział \ref{sec:analiza_pary} --- testy dla par algorytmów wraz z~wielkością
+efektu. W~podrozdziale \ref{sec:analiza_kryteria} przeanalizowano zachowanie
+algorytmów w~przestrzeni poszczególnych kryteriów, w~podrozdziale
+\ref{sec:analiza_zbieznosc} --- przebieg zbieżności, a~w~podrozdziale
+\ref{sec:analiza_budzet} --- wrażliwość na budżet obliczeniowy i~czas obliczeń.
+Podrozdział \ref{sec:analiza_interpretacja} zawiera interpretację zaobserwowanych
+różnic w~odniesieniu do mechanizmów algorytmów, podrozdział
+\ref{sec:analiza_niestacjonarnosc} --- ocenę przydatności metod w~warunkach
+niestacjonarnych. Rozdział zamyka omówienie ograniczeń przeprowadzonej analizy
+(podrozdział~\ref{sec:analiza_ograniczenia}); zbiorcze wnioski z~pracy
+przedstawiono w~rozdziale~\ref{ch:podsumowanie}.
+
+\section{Metodyka porównania}
+\label{sec:analiza_metodyka}
+
+\subsection{Hiperobjętość i~jej normalizacja}
+\label{sec:analiza_hv_def}
+Hiperobjętość zbioru rozwiązań $F$ względem punktu referencyjnego $\mathbf{r}$
+to miara Lebesgue'a obszaru przestrzeni kryteriów zdominowanego przez $F$
+i~ograniczonego przez $\mathbf{r}$:
+\begin{equation}
+    \label{eq:hv}
+    \mathrm{HV}(F, \mathbf{r}) = \Lambda\Bigl(\,\bigcup_{\mathbf{f} \in F}
+        \bigl[f_1, r_1\bigr] \times \bigl[f_2, r_2\bigr] \times \bigl[f_3, r_3\bigr]\Bigr)
+\end{equation}
+Metryka ta jest zgodna z~relacją dominacji Pareto (front dominujący inny front ma
+nie mniejszą hiperobjętość) i~jako jedyna z~powszechnie stosowanych miar jakości
+jednocześnie nagradza zbieżność do frontu, jego rozpiętość i~równomierność
+rozkładu rozwiązań, nie wymagając znajomości frontu optymalnego --- co w~rozważanym
+problemie jest warunkiem koniecznym, gdyż front optymalny nie jest znany.
+
+Kryteria problemu mają nieporównywalne skale (makespan rzędu setek tików, energia
+rzędu tysiąca jednostek, ryzyko radarowe od zera do kilkudziesięciu tysięcy), więc
+surowa hiperobjętość byłaby zdominowana przez kryterium o~największym zakresie.
+Dla każdej instancji problemu wartości kryteriów znormalizowano zatem do wspólnych
+granic wyznaczonych przez sumę frontów końcowych wszystkich trzech algorytmów:
+\begin{equation}
+    \label{eq:hv_norm}
+    f_m^{n} = \frac{f_m - z_m^{\min}}{z_m^{\max} - z_m^{\min}},
+    \qquad
+    z_m^{\min} = \min_{\mathbf{f} \in F_{\cup}} f_m,\;\;
+    z_m^{\max} = \max_{\mathbf{f} \in F_{\cup}} f_m,\;\;
+    F_{\cup} = F_{\text{NSGA-II}} \cup F_{\text{NSGA-III}} \cup F_{\text{MOGWO}}
+\end{equation}
+Punkt referencyjny przyjęto jako $\mathbf{r} = (1{,}1;\, 1{,}1;\, 1{,}1)$, tj.
+z~marginesem $10\%$ poza najgorszą wartością każdego kryterium, dzięki czemu
+skrajne rozwiązania frontu wnoszą niezerowy wkład. Wyniki podawane są jako iloraz
+$\mathrm{HV}/\mathrm{HV}_{\max}$, gdzie $\mathrm{HV}_{\max} = 1{,}1^3 = 1{,}331$
+jest objętością całego prostopadłościanu referencyjnego; wartość $1$ oznaczałaby
+front dominujący cały obszar rozpięty przez sumę frontów. Tak znormalizowana
+hiperobjętość jest miarą \emph{względną}: porównuje algorytmy w~obrębie jednej
+instancji, natomiast jej wartości w~różnych instancjach nie są bezpośrednio
+porównywalne. Z~tego powodu wszystkie testy statystyczne przeprowadzono dla prób
+sparowanych po instancjach.
+
+Hiperobjętość obliczano dokładnie (bez próbkowania Monte Carlo) algorytmem
+rekurencyjnego cięcia wymiarów. Poprawność implementacji zweryfikowano testami
+jednostkowymi względem wartości wyznaczonych ze wzoru włączeń--wyłączeń oraz
+niezależną implementacją w~języku Python użytą w~skrypcie analizy --- obie
+implementacje dały wartości zgodne z~dokładnością $4 \cdot 10^{-7}$ na wszystkich
+porównanych frontach.
+
+\subsection{Protokół eksperymentalny}
+\label{sec:analiza_protokol}
+Eksperyment główny objął $20$ niezależnych instancji problemu (teren generowany
+z~ziarnami $42$--$61$, scenariusz domyślny z~tabeli~\ref{tab:scenariusz_parametry}).
+Na każdej instancji uruchomiono wszystkie trzy algorytmy z~identycznym budżetem:
+populacja (wataha) $N = 100$ i~$500$ iteracji, czyli $50\,000$ ocen funkcji celu na
+algorytm. Ziarno generatora liczb pseudolosowych algorytmu wyznaczano
+deterministycznie z~ziarna instancji, co zapewnia pełną odtwarzalność. Dodatkowo,
+w~celu zbadania wrażliwości na budżet, na pierwszych $10$ instancjach powtórzono
+porównanie dla $100$, $250$ i~$1000$ iteracji (wyniki dla $500$ iteracji pochodzą
+z~pierwszych $10$ instancji eksperymentu głównego). W~trakcie każdego uruchomienia
+co $10$ iteracji zapisywano migawkę bieżącego zbioru niezdominowanego (pierwszy
+front populacji w~NSGA-II/III, archiwum w~MOGWO), oceniając ją później w~tych samych
+granicach normalizacji co front końcowy --- z~tych migawek wyznaczono krzywe
+zbieżności.
+
+\subsection{Testy statystyczne}
+\label{sec:analiza_testy}
+Ponieważ wyniki trzech algorytmów na tej samej instancji są skorelowane
+(trudność instancji wpływa na wszystkie trzy), zastosowano testy dla prób zależnych.
+Istnienie jakichkolwiek różnic między algorytmami weryfikowano testem Friedmana
+(rangowanie algorytmów w~obrębie każdej instancji, $k = 3$, korekta na remisy).
+Różnice między parami algorytmów badano dwustronnym testem rangowanych znaków
+Wilcoxona z~rozkładem dokładnym (brak remisów, $n = 20$), a~uzyskane
+$p$-wartości korygowano metodą Holma ze względu na trzy porównania. Wielkość efektu
+wyrażono deltą Cliffa $\delta \in [-1, 1]$ z~progami interpretacji
+$|\delta| < 0{,}147$ (pomijalny), $< 0{,}33$ (mały), $< 0{,}474$ (średni), większe
+(duży) oraz liczbą instancji, w~których dany algorytm uzyskał wyższą hiperobjętość.
+Przyjęto poziom istotności $\alpha = 0{,}05$. Wszystkie obliczenia wykonano
+skryptem \texttt{analyze\_comparison.py}, który nie korzysta z~zewnętrznych
+bibliotek statystycznych --- testy zaimplementowano wprost, co ułatwia ich
+audyt.
+
+\section{Porównanie hiperobjętością}
+\label{sec:analiza_hv}
+
+Tabela~\ref{tab:hv_summary} zestawia statystyki znormalizowanej hiperobjętości
+frontów końcowych w~eksperymencie głównym, a~rysunek~\ref{fig:hv_boxplot}
+przedstawia jej rozkład po instancjach. Wartości dla poszczególnych instancji
+zawiera tabela~\ref{tab:per_run} w~rozdziale~\ref{ch:wyniki}.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Znormalizowana hiperobjętość $\mathrm{HV}/\mathrm{HV}_{\max}$ frontów końcowych (20 instancji, $N = 100$, 500 iteracji)}
+    \label{tab:hv_summary}
+    \begin{tabular}{l c c c c c c}
+        \hline
+        Algorytm & Średnia $\pm$ odch. std. & Mediana & Min & Max & Średnia ranga & Zwycięstwa \\
+        \hline
+        NSGA-II & 0{,}728 $\pm$ 0{,}256 & 0{,}765 & 0{,}118 & 0{,}995 & 1{,}45 & 12 / 20 \\
+        NSGA-III & 0{,}575 $\pm$ 0{,}270 & 0{,}546 & 0{,}088 & 0{,}977 & 1{,}65 & 8 / 20 \\
+        MOGWO & 0{,}192 $\pm$ 0{,}154 & 0{,}129 & 0{,}045 & 0{,}641 & 2{,}90 & 0 / 20 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{img/fig_hv_boxplot.pdf}
+    \caption{Rozkład znormalizowanej hiperobjętości frontów końcowych po 20 instancjach (pudełko: kwartyle i~mediana; punkty: poszczególne instancje)}
+    \label{fig:hv_boxplot}
+\end{figure}
+
+Test Friedmana odrzuca hipotezę o~braku różnic między algorytmami
+($\chi^2_F = 24{,}70$, $p = 4{,}3 \cdot 10^{-6}$). Uporządkowanie algorytmów
+według średniej rangi jest jednoznaczne: NSGA-II ($1{,}45$), NSGA-III ($1{,}65$),
+MOGWO ($2{,}90$). Dwa algorytmy ewolucyjne dzielą między siebie wszystkie
+zwycięstwa (odpowiednio $12$ i~$8$ instancji), natomiast MOGWO nie uzyskał
+najwyższej hiperobjętości w~żadnej z~20 instancji, a~w~18 z~nich zajął ostatnie
+miejsce.
+
+Uwagę zwraca bardzo duży rozrzut wyników wszystkich algorytmów między instancjami
+(odchylenie standardowe $0{,}15$--$0{,}27$ przy zakresie miary $[0, 1]$). Dla
+NSGA-II i~NSGA-III rozkład jest wyraźnie asymetryczny: mediana NSGA-II ($0{,}765$)
+przewyższa średnią, a~górny kwartyl sięga $0{,}955$, co oznacza, że w~jednej
+czwartej instancji front NSGA-II niemal całkowicie dominuje fronty pozostałych
+algorytmów. Jednocześnie w~instancjach 4 i~10 NSGA-II osiągnął zaledwie $0{,}19$
+i~$0{,}12$, podczas gdy NSGA-III uzyskał tam $0{,}64$ i~$0{,}95$; odwrotną sytuację
+obserwuje się w~instancjach 16 i~19 (NSGA-III $0{,}30$ i~$0{,}09$ wobec $0{,}93$
+i~$0{,}97$ dla NSGA-II). Przewaga jednego z~algorytmów ewolucyjnych nad drugim
+nie jest więc cechą systematyczną, lecz zależy od instancji --- obserwacja ta
+znajduje potwierdzenie w~testach dla par.
+
+
+\section{Testy dla par algorytmów}
+\label{sec:analiza_pary}
+
+Wyniki testów Wilcoxona dla trzech par algorytmów zestawiono
+w~tabeli~\ref{tab:pairwise}. Statystyka $W$ oznacza mniejszą z~sum rang różnic
+dodatnich i~ujemnych; mediana $\Delta$ to mediana różnicy
+$\mathrm{HV}/\mathrm{HV}_{\max}$ algorytmu $A$ i~$B$ w~tej samej instancji.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Testy Wilcoxona dla par (poprawka Holma) i~wielkość efektu $\delta$ Cliffa dla $\mathrm{HV}/\mathrm{HV}_{\max}$}
+    \label{tab:pairwise}
+    \begin{tabular}{l c c c c c l c}
+        \hline
+        Para $A$ vs $B$ & Mediana $\Delta$ & $W$ & $p$ & $p_{\text{Holm}}$ & $\delta$ Cliffa & Efekt & $A$ lepszy / $B$ lepszy \\
+        \hline
+        NSGA-II vs NSGA-III & 0{,}261 & 62{,}0 & $0{,}114$ & $0{,}114$ & 0{,}32 & mały & 12 / 8 \\
+        NSGA-II vs MOGWO & 0{,}603 & 4{,}0 & $< 0{,}001$ & $< 0{,}001$ & 0{,}88 & duży & 19 / 1 \\
+        NSGA-III vs MOGWO & 0{,}346 & 4{,}0 & $< 0{,}001$ & $< 0{,}001$ & 0{,}81 & duży & 19 / 1 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+Obraz jest dwudzielny. Oba algorytmy ewolucyjne są istotnie lepsze od MOGWO
+($p_{\text{Holm}} = 4 \cdot 10^{-5}$ w~obu porównaniach), a~efekt jest duży
+($\delta = 0{,}88$ i~$0{,}81$): MOGWO przegrywa z~każdym z~nich w~19 z~20 instancji,
+a~mediana różnicy hiperobjętości wynosi $0{,}60$ względem NSGA-II i~$0{,}35$
+względem NSGA-III. Jedyną instancją, w~której MOGWO pokonał NSGA-II, jest
+instancja 10 ($0{,}512$ wobec $0{,}118$); NSGA-III pokonał tam jednak oba
+algorytmy ($0{,}949$).
+
+Różnica między NSGA-II a~NSGA-III nie osiąga istotności statystycznej
+($p = 0{,}114$; $W = 62$ przy sumach rang $W^{+} = 148$ i~$W^{-} = 62$), a~efekt
+jest mały ($\delta = 0{,}32$). NSGA-II uzyskał wyższą hiperobjętość w~12
+instancjach, NSGA-III w~8; mediana różnicy ($0{,}26$) jest wprawdzie wyraźnie
+dodatnia, lecz rozkład różnic jest szeroki i~obejmuje wartości od $-0{,}83$
+(instancja 10) do $+0{,}88$ (instancja 19). Wynik należy interpretować jako brak
+dowodu na systematyczną przewagę któregokolwiek z~algorytmów ewolucyjnych przy
+$n = 20$, a~nie jako dowód ich równoważności: przy zaobserwowanej wielkości efektu
+wykazanie różnicy na poziomie $\alpha = 0{,}05$ wymagałoby znacząco większej
+liczby instancji.
+
+\section{Zachowanie w~przestrzeni kryteriów}
+\label{sec:analiza_kryteria}
+
+Hiperobjętość agreguje trzy kryteria w~jedną liczbę; tabela~\ref{tab:objectives}
+i~rysunek~\ref{fig:best_objectives} pokazują, z~czego ta różnica wynika.
+Dla każdej instancji wyznaczono najlepszą wartość każdego kryterium na froncie
+końcowym (uśrednioną następnie po instancjach), udział instancji, w~których
+wszystkie drony dotarły do celu w~horyzoncie symulacji, udział rozwiązań
+o~zerowym ryzyku radarowym na froncie oraz rozmiar frontu.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Średnie (po instancjach) najlepsze wartości kryteriów na froncie, udział instancji z~wszystkimi dronami u~celu, udział rozwiązań o~zerowym ryzyku, rozmiar frontu i~czas obliczeń}
+    \label{tab:objectives}
+    \begin{tabular}{l c c c c c c}
+        \hline
+        Algorytm & Min. makespan & Min. energia & Wszystkie drony u celu & Udział ryzyka $= 0$ & $|$front$|$ & Czas [s] \\
+        \hline
+        NSGA-II & 455{,}4 & 804{,}0 & 100\% & 31{,}1\% & 26{,}8 & 3{,}60 \\
+        NSGA-III & 528{,}0 & 857{,}8 & 95\% & 27{,}3\% & 27{,}1 & 3{,}65 \\
+        MOGWO & 797{,}7 & 931{,}7 & 70\% & 25{,}9\% & 56{,}0 & 6{,}38 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{img/fig_best_objectives.pdf}
+    \caption{Najlepszy makespan i~najlepsza energia na froncie końcowym oraz udział rozwiązań o~zerowym ryzyku radarowym --- rozkłady po 20 instancjach}
+    \label{fig:best_objectives}
+\end{figure}
+
+Kryterium, które najsilniej różnicuje algorytmy, jest makespan. Horyzont
+symulacji wynosi $900$ tików, a~drony, które nie dotarły do celu, otrzymują
+makespan większy od horyzontu. NSGA-II we wszystkich 20 instancjach doprowadził
+wszystkie drony do celu, osiągając najlepszy makespan średnio $455$ tików
+(mediana $408$, minimum $288$), NSGA-III w~19 instancjach (średnio $528$),
+natomiast MOGWO tylko w~14 z~20 instancji, a~jego najlepszy makespan wynosił
+średnio $798$ tików (mediana $852$) --- w~typowej instancji wataha nie zdołała
+znaleźć trasy, która kończy misję wyraźnie przed horyzontem. Analogiczne, choć
+słabsze, uporządkowanie widać w~energii: najlepsze rozwiązania MOGWO zużywają
+średnio o~$16\%$ więcej energii niż NSGA-II.
+
+Kryterium ryzyka radarowego nie różnicuje algorytmów pod względem wartości
+minimalnej: każdy z~nich w~każdej instancji znalazł trasy całkowicie omijające
+strefy radarów (ryzyko $0$). Różnice dotyczą udziału takich rozwiązań we froncie
+($31\%$ dla NSGA-II, $27\%$ dla NSGA-III, $26\%$ dla MOGWO) oraz --- co
+istotniejsze --- jakości kompromisów: trasa bezpieczna jest użyteczna wtedy, gdy
+jednocześnie kończy misję w~rozsądnym czasie, a~to właśnie na osi makespanu MOGWO
+pozostaje w~tyle. Warto odnotować dwumodalny charakter tego wskaźnika dla MOGWO
+(odchylenie standardowe $25$ punktów procentowych wobec $12$ dla algorytmów
+ewolucyjnych): w~kilku instancjach archiwum MOGWO składało się niemal wyłącznie
+z~tras bezpiecznych, lecz powolnych.
+
+Rozmiar frontu obnaża pozorną zaletę MOGWO: jego archiwum liczy średnio $56$
+rozwiązań (do $100$, czyli pełna pojemność), dwukrotnie więcej niż fronty
+algorytmów ewolucyjnych, lecz przy ponad trzykrotnie mniejszej hiperobjętości.
+Liczba rozwiązań niezdominowanych nie jest więc miarą jakości frontu --- archiwum
+MOGWO gromadzi wiele wzajemnie niezdominowanych, ale globalnie słabych tras.
+Rysunek~\ref{fig:fronts_projections} ilustruje to na przykładzie instancji 1:
+front MOGWO (hiperobjętość $0{,}08$) skupia się w~obszarze dużego makespanu,
+a~fronty NSGA-II ($0{,}58$) i~NSGA-III ($0{,}86$) rozciągają się w~kierunku
+krótszych i~oszczędniejszych tras, przy czym NSGA-III pokrywa szerszy zakres
+kompromisu czas--energia.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{img/fig_fronts_projections.pdf}
+    \caption{Fronty końcowe trzech algorytmów w~instancji 1 --- rzuty na pary kryteriów}
+    \label{fig:fronts_projections}
+\end{figure}
+
+\section{Zbieżność}
+\label{sec:analiza_zbieznosc}
+
+Rysunek~\ref{fig:convergence} przedstawia średnią (po instancjach) znormalizowaną
+hiperobjętość bieżącego zbioru niezdominowanego w~funkcji numeru iteracji,
+a~tabela~\ref{tab:convergence} --- jej wartości po kolejnych ułamkach budżetu
+oraz medianę liczby iteracji potrzebnych do osiągnięcia $90\%$ hiperobjętości
+końcowej.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{img/fig_convergence.pdf}
+    \caption{Krzywe zbieżności: średnia $\mathrm{HV}/\mathrm{HV}_{\max}$ bieżącego zbioru niezdominowanego (pasmo: $\pm$ odchylenie standardowe po 20 instancjach)}
+    \label{fig:convergence}
+\end{figure}
+
+\begin{table}[htbp]
+    \centering
+    \caption{Średnia $\mathrm{HV}/\mathrm{HV}_{\max}$ bieżącego zbioru niezdominowanego po ułamku budżetu (500 iteracji) oraz mediana liczby iteracji do osiągnięcia $90\%$ hiperobjętości końcowej}
+    \label{tab:convergence}
+    \begin{tabular}{l c c c c c c}
+        \hline
+        Algorytm & 20\% & 40\% & 60\% & 80\% & 100\% & Iteracje do 90\% HV$_{\text{końc.}}$ \\
+        \hline
+        NSGA-II & 0{,}121 & 0{,}304 & 0{,}458 & 0{,}619 & 0{,}728 & 425 \\
+        NSGA-III & 0{,}078 & 0{,}218 & 0{,}354 & 0{,}469 & 0{,}575 & 430 \\
+        MOGWO & 0{,}023 & 0{,}065 & 0{,}152 & 0{,}178 & 0{,}192 & 385 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+Krzywe algorytmów ewolucyjnych są niemal liniowe i~do końca budżetu nie
+wykazują nasycenia: w~ostatnich $20\%$ iteracji NSGA-II zyskał $0{,}11$,
+a~NSGA-III $0{,}11$ hiperobjętości, a~mediana liczby iteracji do $90\%$ wartości
+końcowej ($425$ i~$430$) leży blisko końca budżetu. Oznacza to, że przy $500$
+iteracjach oba algorytmy są wciąż w~fazie poprawy i~dłuższe obliczenia
+przyniosłyby dalszy wzrost jakości --- co potwierdza analiza budżetu
+w~podrozdziale~\ref{sec:analiza_budzet}. NSGA-II przez cały przebieg utrzymuje
+przewagę nad NSGA-III o~stałej w~przybliżeniu proporcji (ok. $0{,}8$ wartości
+NSGA-II), bez zmiany uporządkowania w~żadnym punkcie.
+
+Krzywa MOGWO ma inny kształt. Po powolnym starcie (hiperobjętość $0{,}02$ po
+$20\%$ budżetu wobec $0{,}12$ dla NSGA-II) następuje faza najszybszego wzrostu
+między $40\%$ a~$60\%$ budżetu, po czym krzywa wyraźnie się wypłaszcza: w~ostatnich
+$40\%$ iteracji przyrost wynosi zaledwie $0{,}04$ (z~$0{,}152$ do~$0{,}192$),
+a~$90\%$ wartości końcowej MOGWO osiąga najwcześniej ze wszystkich algorytmów
+(mediana $385$ iteracji). Wczesne osiągnięcie plateau nie jest tu zaletą, lecz
+objawem stagnacji: algorytm przestaje znajdować nowe rozwiązania niezdominowane,
+zanim wyczerpie budżet. Przyczyny tego zjawiska omówiono
+w~podrozdziale~\ref{sec:analiza_interpretacja}.
+
+\section{Wrażliwość na budżet obliczeniowy i~czas obliczeń}
+\label{sec:analiza_budzet}
+
+Ponieważ normalizacja hiperobjętości per instancja uniemożliwia porównanie
+wartości uzyskanych przy różnych budżetach (każdy budżet wyznaczałby własny
+punkt nadir), w~tej części analizy wartości kryteriów znormalizowano do granic
+wspólnych dla instancji po \emph{wszystkich} budżetach i~algorytmach. Dzięki temu
+wzrost hiperobjętości wraz z~budżetem odzwierciedla rzeczywistą poprawę frontów.
+Wyniki dla $10$ instancji i~czterech budżetów przedstawia tabela~\ref{tab:budget}
+oraz rysunek~\ref{fig:budget}.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Wrażliwość na budżet obliczeniowy: średnia $\pm$ odch. std. $\mathrm{HV}/\mathrm{HV}_{\max}$ przy normalizacji wspólnej dla instancji po wszystkich budżetach (10 instancji na budżet); zwycięstwa w~kolejności NSGA-II / NSGA-III / MOGWO}
+    \label{tab:budget}
+    \begin{tabular}{l c c c c c}
+        \hline
+        Iteracje & NSGA-II & NSGA-III & MOGWO & Zwycięstwa & $p$ Friedmana \\
+        \hline
+        100 & 0{,}152 $\pm$ 0{,}104 & 0{,}169 $\pm$ 0{,}089 & 0{,}067 $\pm$ 0{,}015 & 3 / 7 / 0 & $0{,}001$ \\
+        250 & 0{,}390 $\pm$ 0{,}195 & 0{,}385 $\pm$ 0{,}200 & 0{,}168 $\pm$ 0{,}141 & 5 / 4 / 1 & $0{,}061$ \\
+        500 & 0{,}586 $\pm$ 0{,}255 & 0{,}569 $\pm$ 0{,}183 & 0{,}243 $\pm$ 0{,}184 & 5 / 5 / 0 & $0{,}002$ \\
+        1000 & 0{,}806 $\pm$ 0{,}242 & 0{,}803 $\pm$ 0{,}150 & 0{,}442 $\pm$ 0{,}353 & 5 / 3 / 2 & $0{,}150$ \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{img/fig_budget.pdf}
+    \caption{Znormalizowana hiperobjętość (wspólna normalizacja po budżetach) w~funkcji liczby iteracji --- średnia $\pm$ odchylenie standardowe po 10 instancjach}
+    \label{fig:budget}
+\end{figure}
+
+Trzy obserwacje wynikają z~tych danych. Po pierwsze, jakość frontów wszystkich
+algorytmów rośnie monotonicznie i~bez nasycenia w~całym badanym zakresie:
+dziesięciokrotne zwiększenie budżetu podnosi hiperobjętość NSGA-II z~$0{,}15$ do
+$0{,}81$, a~MOGWO z~$0{,}07$ do $0{,}44$. Po drugie, uporządkowanie algorytmów
+ewolucyjnych zależy od budżetu: przy $100$ iteracjach NSGA-III jest najlepszy
+w~7 z~10 instancji (średnia ranga $1{,}30$, test Friedmana $p = 0{,}001$), przy
+$250$--$500$ iteracjach oba algorytmy są praktycznie równoważne, a~przy $1000$
+iteracjach ich średnie hiperobjętości różnią się o~$0{,}003$. Mechanizm niszowania
+z~punktami referencyjnymi daje zatem przewagę w~początkowej fazie --- równomierne
+rozpychanie frontu jest skuteczne, gdy populacja jest jeszcze daleko od frontu ---
+lecz przewaga ta zanika wraz z~budżetem. Po trzecie, MOGWO pozostaje najsłabszy
+przy każdym budżecie, ale jego wynik przy $1000$ iteracjach ($0{,}44 \pm 0{,}35$)
+kryje największy rozrzut ze wszystkich pomiarów: w~instancjach 5 i~10 archiwum
+MOGWO osiągnęło hiperobjętość $0{,}999$ i~$0{,}998$, dominując niemal cały obszar
+rozpięty przez pozostałe fronty (NSGA-II uzyskał tam $0{,}28$ i~$0{,}13$), podczas
+gdy w~pozostałych ośmiu instancjach nie przekroczył $0{,}33$. Dyskretny wariant
+GWO jest więc zdolny do znalezienia bardzo dobrych tras, lecz czyni to w~sposób
+niepowtarzalny --- co dla zastosowań praktycznych jest wadą równie poważną, jak
+niska średnia.
+
+Czas obliczeń (tabela~\ref{tab:objectives}, ostatnia kolumna) rośnie liniowo
+z~budżetem i~dla algorytmów ewolucyjnych jest niemal identyczny ($3{,}6$ s
+i~$3{,}7$ s na $50\,000$ ocen, tj. ok.~$72\,\mu$s na ocenę trasy), co potwierdza,
+że koszt zdominowany jest przez symulację, a~nie przez operatory selekcji. MOGWO
+potrzebuje $1{,}8$ raza więcej czasu ($6{,}4$ s przy tym samym budżecie ocen), co
+wynika z~dyskretnej aktualizacji pozycji --- dla każdego z~$900$ genów każdego
+wilka losowane są trzy współczynniki $A_k$ i~trzy propozycje --- oraz z~utrzymania
+archiwum (obliczanie odległości zatłoczenia przy każdej redukcji). Ponieważ
+porównanie prowadzono przy równej liczbie ocen, różnica ta działa na niekorzyść
+MOGWO dodatkowo, gdyby za miarę budżetu przyjąć czas procesora.
+
+\section{Interpretacja różnic}
+\label{sec:analiza_interpretacja}
+
+\subsection{Dlaczego MOGWO ustępuje algorytmom ewolucyjnym}
+\label{sec:analiza_mogwo}
+Zaobserwowana różnica jest duża, systematyczna i~obecna przy każdym budżecie,
+należy więc szukać jej przyczyn w~samej konstrukcji dyskretnego operatora
+aktualizacji pozycji (podrozdział~\ref{sec:mogwo_discrete}), a~nie w~losowości.
+Na podstawie zebranych danych można wskazać cztery współdziałające mechanizmy.
+
+\begin{enumerate}
+    \item \textbf{Epistaza kodowania a~operator genowy.} Znaczenie genu $g_{d,s}$
+    zależy od pozycji, w~której dron znajduje się w~kroku $s$, a~ta wynika
+    z~całego prefiksu trasy. Głosowanie genowe przenosi od liderów pojedyncze
+    kody ruchów do ustalonych pozycji w~chromosomie, ignorując kontekst: kod
+    ,,w~górę i~w~prawo'', który u~lidera omijał szczyt, u~wilka o~innym prefiksie
+    prowadzi w~przypadkową stronę. Krzyżowanie jednopunktowe stosowane w~NSGA
+    wymienia natomiast spójne sufiksy tras, zachowując ich wewnętrzną strukturę.
+    Operator MOGWO działa w~praktyce jak krzyżowanie jednorodne z~trzema rodzicami
+    połączone z~silną mutacją --- operator o~wysokiej destrukcyjności dla kodowań
+    z~zależnościami pozycyjnymi.
+    \item \textbf{Brak elitaryzmu w~watasze.} W~każdej iteracji wszystkie $N$
+    wilków są zastępowane nowymi pozycjami; dobre rozwiązania przeżywają
+    wyłącznie w~archiwum i~oddziałują na populację tylko przez trzech liderów.
+    W~NSGA-II/III cała elita ($N$ najlepszych z~$2N$) przechodzi do następnego
+    pokolenia i~uczestniczy w~reprodukcji, co daje znacznie silniejszą presję
+    selekcyjną. Efekt widać w~makespanie: wataha w~$30\%$ instancji nie
+    utrwaliła nawet tras doprowadzających wszystkie drony do celu.
+    \item \textbf{Wygaszanie eksploracji przez harmonogram parametru $a$.} Gdy
+    $a \rightarrow 0$, warunek $|A_k| < 1$ jest spełniony niemal zawsze, więc
+    każdy gen jest przejmowany od liderów, a~prawdopodobieństwo mutacji
+    $0{,}05\,a$ spada do zera. Wataha zbiega do kombinacji trzech liderów,
+    różnorodność zanika i~archiwum przestaje otrzymywać nowe rozwiązania ---
+    dokładnie to pokazuje wypłaszczenie krzywej zbieżności po $60\%$ budżetu
+    (podrozdział~\ref{sec:analiza_zbieznosc}). W~ciągłym GWO ten sam harmonogram
+    jest pożądany, bo końcowa faza służy lokalnemu doprecyzowaniu rozwiązania;
+    w~przestrzeni dyskretnej nie istnieje ,,małe przesunięcie'' w~kierunku lidera
+    i~faza ta degeneruje się do kopiowania.
+    \item \textbf{Wybór liderów niezależny od jakości.} Ruletka po odległości
+    zatłoczenia preferuje rzadko zaludnione obszary archiwum bez względu na to,
+    czy reprezentują one wartościowe kompromisy. Gdy archiwum zawiera skrajne
+    rozwiązania o~minimalnej energii, lecz z~dronami, które nie dotarły do celu,
+    takie rozwiązania są wybierane na liderów szczególnie często --- i~ciągną
+    watahę w~stronę tras bezpiecznych, ale bezużytecznych. Tłumaczy to dwumodalny
+    rozkład udziału rozwiązań o~zerowym ryzyku w~archiwach MOGWO.
+\end{enumerate}
+
+Mechanizmy te nie są nieusuwalne. Wyniki z~instancji 5 i~10 przy $1000$
+iteracjach dowodzą, że gdy wataha trafi na właściwy region przestrzeni, archiwum
+potrafi wypełnić go lepiej niż NSGA. Naturalnymi kierunkami poprawy są: wymiana
+od liderów spójnych segmentów tras zamiast pojedynczych genów, zachowanie części
+archiwum w~watasze (elitaryzm) oraz dolne ograniczenie prawdopodobieństwa mutacji
+niezależne od $a$. Weryfikacja tych modyfikacji wykracza jednak poza zakres
+niniejszej pracy, której celem było porównanie algorytmów w~postaciach opisanych
+w~rozdziale~\ref{ch:sota}.
+
+\subsection{NSGA-II a~NSGA-III}
+\label{sec:analiza_nsga}
+Brak istotnej różnicy między NSGA-II a~NSGA-III jest zgodny z~wynikami
+Ishibuchiego i~in.~\cite{ishibuchi2016nsga}, którzy dla dwóch i~trzech kryteriów
+nie stwierdzili systematycznej przewagi NSGA-III. Rozważany problem ma trzy
+kryteria, a~więc leży poza zakresem, dla którego zaprojektowano punkty
+referencyjne: sortowanie niezdominowane nadal skutecznie różnicuje populację
+(fronty końcowe liczą średnio $27$ rozwiązań przy populacji $100$, więc presja
+selekcyjna rang jest wysoka), a~odległość zatłoczenia wystarcza do utrzymania
+rozpiętości frontu. Przewaga NSGA-III przy małym budżecie ($100$ iteracji)
+wskazuje, że niszowanie z~punktami referencyjnymi szybciej rozprowadza populację
+wzdłuż frontu, natomiast turniej binarny z~operatorem porównania zatłoczonego
+w~NSGA-II zapewnia silniejszą presję selekcyjną w~dalszych fazach, gdy liczy się
+głównie zbieżność. Oba mechanizmy prowadzą przy $1000$ iteracjach do frontów
+o~praktycznie tej samej jakości. Dla praktyki oznacza to, że w~zadaniu tej klasy
+wybór między NSGA-II a~NSGA-III nie jest krytyczny, a~decydujące znaczenie ma
+budżet obliczeniowy.
+
+\section{Ocena przydatności w~warunkach niestacjonarnych}
+\label{sec:analiza_niestacjonarnosc}
+
+Niestacjonarność środowiska jest w~symulatorze realizowana przez zmienne w~czasie
+pole wiatru (podrozdział~\ref{sec:niestacjonarnosc}): koszt energetyczny tego
+samego kroku zależy od tiku, w~którym zostaje wykonany, więc przesunięcie trasy
+w~czasie --- np. wskutek odrzucenia wcześniejszego ruchu --- zmienia jej koszt.
+Wszystkie trzy algorytmy pracują w~trybie planowania z~pełną znajomością modelu
+wiatru, zatem niestacjonarność nie stawia przed nimi wymogu adaptacji w~locie,
+lecz utrudnia zadanie przez uzależnienie wartości genów od ich położenia w~czasie.
+Jest to ten sam rodzaj zależności pozycyjnej, który w~podrozdziale
+\ref{sec:analiza_mogwo} wskazano jako główną słabość operatora genowego MOGWO:
+algorytm, którego operator ignoruje kontekst genu, jest szczególnie wrażliwy na
+środowisko, w~którym kontekst ten obejmuje również czas. Operatory NSGA, wymieniające
+spójne fragmenty tras, zachowują zarówno kontekst przestrzenny, jak i~czasowy.
+
+Przeprowadzone eksperymenty nie pozwalają jednak ilościowo wyodrębnić wpływu
+samej niestacjonarności, ponieważ wszystkie instancje zawierały zmienny wiatr.
+Rozstrzygnięcie, o~ile wiatr zmienny w~czasie pogarsza wyniki względem wiatru
+stałego, wymagałoby eksperymentu ablacyjnego z~wyłączonymi podmuchami przy
+niezmienionych pozostałych parametrach; jest to najprostsze i~najbardziej
+wartościowe rozszerzenie niniejszej analizy.
+
+\section{Ograniczenia analizy}
+\label{sec:analiza_ograniczenia}
+
+\begin{itemize}
+    \item \textbf{Względny charakter metryki.} Normalizacja per instancja sprawia,
+    że $\mathrm{HV}/\mathrm{HV}_{\max}$ mierzy jakość frontu względem pozostałych
+    algorytmów w~tej samej instancji, a~nie względem nieznanego frontu
+    optymalnego. Wartość $0{,}99$ oznacza dominację nad konkurentami, a~nie
+    bliskość optimum.
+    \item \textbf{Wybór punktu referencyjnego.} Margines $10\%$ jest konwencją;
+    większy margines zwiększa wagę skrajnych rozwiązań frontu. Wrażliwości
+    wyników na ten parametr nie badano.
+    \item \textbf{Liczebność próby.} Dwadzieścia instancji wystarczyło do
+    wykazania dużego efektu (MOGWO), ale nie małego (NSGA-II vs NSGA-III);
+    w~serii budżetowej $n = 10$ dodatkowo ogranicza moc testów.
+    \item \textbf{Jedna rodzina scenariuszy.} Wszystkie instancje mają ten sam
+    rozmiar mapy, liczbę dronów i~radarów oraz ten sam wiatr bazowy; różnią się
+    jedynie rzeźbą terenu. Uogólnienie na inne konfiguracje wymaga osobnych
+    eksperymentów.
+    \item \textbf{Specyfika adaptacji MOGWO.} Wnioski dotyczą opisanego
+    w~pracy dyskretnego wariantu z~głosowaniem genowym i~archiwum opartym na
+    odległości zatłoczenia, a~nie algorytmu MOGWO jako takiego; inna dyskretyzacja
+    operatora może dać odmienne wyniki.
+    \item \textbf{Pomiar czasu.} Czasy obliczeń mierzono na współdzielonej
+    maszynie; ich wartości bezwzględne są orientacyjne, miarodajne są proporcje.
+\end{itemize}

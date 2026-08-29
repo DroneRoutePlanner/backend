@@ -30,8 +30,10 @@ application {
  * -D z linii Gradle trafia do JVM daemona, nie do aplikacji — właściwości przekazywane jawnie:
  *   drone.trajectory.csv  ścieżka zapisu trajektorii (obok powstaje *_terrain.csv)
  *   drone.seed            ziarno terenu i algorytmu (odtwarzalność)
+ *   drone.pop             rozmiar populacji (domyślnie 100)
+ *   drone.iter            liczba pokoleń / iteracji (domyślnie 100)
  */
-def forwardedProperties = ['drone.trajectory.csv', 'drone.seed']
+def forwardedProperties = ['drone.trajectory.csv', 'drone.seed', 'drone.pop', 'drone.iter']
 
 def forwardProperties = { JavaExec task ->
     forwardedProperties.each { name ->
@@ -64,6 +66,18 @@ tasks.register('runCompare', JavaExec) {
     def compareArgs = project.findProperty('compareArgs')
     if (compareArgs != null) {
         args(compareArgs.toString().trim().split(/\s+/).findAll { it.length() > 0 })
+    }
+}
+
+tasks.register('runExport', JavaExec) {
+    group = 'application'
+    description = 'Bezokienkowy eksport trajektorii jednej instancji do CSV. ' +
+            'Opcje: -PexportArgs="planner=nsga2 seed=42 pop=100 iter=500 out=csv/nsga2/trasa.csv"'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'org.example.bench.TrajectoryExport'
+    def exportArgs = project.findProperty('exportArgs')
+    if (exportArgs != null) {
+        args(exportArgs.toString().trim().split(/\s+/).findAll { it.length() > 0 })
     }
 }
 
