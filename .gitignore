@@ -43,3 +43,6 @@ bin/
 ### Python ###
 __pycache__/
 *.pyc
+
+tex/*.tex
+tex/*.pdf
